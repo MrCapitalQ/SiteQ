@@ -118,7 +118,7 @@
 
 @layer base {
   #root {
-    @apply h-screen w-screen;
+    @apply h-screen;
   }
 
   * {
