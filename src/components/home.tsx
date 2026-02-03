@@ -1,10 +1,15 @@
 import { Link } from "react-router-dom";
+import { Page } from "./page";
 
 export function Home() {
     return (
-        <>
+        <Page>
             <h1>Home Page</h1>
-            <Link to="/example">Example</Link>
-        </>
+
+            <ul className="list-disc">
+                <li><Link to="/example">Example</Link></li>
+                <li><Link to="/not-real">Not Found</Link></li>
+            </ul>
+        </Page>
     );
 }
