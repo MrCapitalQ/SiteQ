@@ -1,7 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import { Home } from "./components/home";
-import { JellyfinWelcome } from "./components/jellyfin-welcome";
+import { JellyfinRequests } from "./components/jellyfin/requests";
+import { JellyfinSecurity } from "./components/jellyfin/security";
+import { JellyfinSetup } from "./components/jellyfin/setup";
+import { JellyfinWelcome } from "./components/jellyfin/welcome";
 import { NotFound } from "./components/not-found";
 import { ThemeProvider } from "./components/theme-provider";
 
@@ -12,6 +15,9 @@ export function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="jellyfin/welcome" element={<JellyfinWelcome />} />
+          <Route path="jellyfin/setup" element={<JellyfinSetup />} />
+          <Route path="jellyfin/requests" element={<JellyfinRequests />} />
+          <Route path="jellyfin/security" element={<JellyfinSecurity />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

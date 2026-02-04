@@ -150,7 +150,7 @@
   }
 
   p {
-    @apply [&:not(:first-child)]:mt-6;
+    @apply [&:not(:first-of-type)]:mt-6;
   }
 
   blockquote {

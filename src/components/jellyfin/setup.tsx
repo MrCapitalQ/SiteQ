@@ -1,26 +1,26 @@
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import { AlertTriangleIcon, CheckIcon, CopyIcon, ExternalLinkIcon, InfoIcon, LightbulbIcon } from "lucide-react";
+import { AlertTriangleIcon, InfoIcon, LightbulbIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
-import { Page } from "./ui/page";
+import { Link } from "react-router-dom";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Button } from "../ui/button";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card";
+import { Page } from "../ui/page";
+import { ServerLinkBadge } from "./server-link-badge";
 
-export function JellyfinWelcome() {
+export function JellyfinSetup() {
   return (
     <Page className="mx-auto space-y-8">
-      <title>Jellyfin Docs</title>
+      <title>Jellyfin Setup Guide</title>
       <div>
-        <h1>Welcome to Q's Jellyfin Server</h1>
+        <h1>Setup Guide</h1>
         <p className="lead">
           Get set up and start streaming movies and TV shows on your devices.
         </p>
       </div>
 
       <div className="flex flex-col space-y-4">
-        <h2>Setup</h2>
+        <h2>Instructions</h2>
         <p>
           Find the device you want to watch on below and follow the instructions to get started. These are the current
           recommendations for this particular server based on personal testing. Use the{" "}
@@ -63,15 +63,15 @@ export function JellyfinWelcome() {
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li className="text-pretty">
-                  <a href="https://play.google.com/store/apps/details?id=com.microsoft.emmx">
+                  <Link to="https://play.google.com/store/apps/details?id=com.microsoft.emmx">
                     Download the Microsoft Edge browser from the Google Play Store.
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  In the Edge browser, go to <JellyfinLinkBadge />.
+                  In the Edge browser, go to <ServerLinkBadge />.
                 </li>
                 <li>
-                  Sign in using your username and password or use Quick Connect if you've already signed in on a another device.
+                  Sign in using your username and password or use <Link to="/jellyfin/security">Quick Connect</Link> if you've already signed in on a another device.
 
                   <ChangePasswordWarning />
                 </li>
@@ -111,12 +111,12 @@ export function JellyfinWelcome() {
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>
-                  <a href="https://apps.apple.com/us/app/jellyfin-mobile/id1480192618">
+                  <Link to="https://apps.apple.com/us/app/jellyfin-mobile/id1480192618">
                     Download the Jellyfin app from the App Store.
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  Open the app, enter <JellyfinLinkBadge /> as the server address, and connect.
+                  Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
                 <li>
                   Sign in using your username and password or use Quick Connect if you've already signed in on another
@@ -138,7 +138,7 @@ export function JellyfinWelcome() {
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>Search for Jellyfin in the apps catalog and install the app.</li>
                 <li>
-                  Open the app, enter <JellyfinLinkBadge /> as the server address, and connect.
+                  Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
                 <li>
                   Sign in using your username and password or use Quick Connect if you've already signed in on another
@@ -197,7 +197,7 @@ export function JellyfinWelcome() {
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>Search for Wholphin in the apps catalog and install the app.</li>
                 <li>
-                  Open the app, enter <JellyfinLinkBadge /> as the server address, and connect.
+                  Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
                 <li>
                   Sign in using your username and password or use Quick Connect if you've already signed in on another
@@ -209,7 +209,6 @@ export function JellyfinWelcome() {
               These settings are not synced and should be applied on <b>each</b> Google TV-based device. These settings
               can be accessed from left sidebar then "Advanced Settings."
 
-              {/* TODO: Start with fresh install of Wholphin and confirm these need to be set */}
               <ul className="mt-0">
                 <li>Under the "Playback Backend" section, adjust the following.
                   <ul className="my-0">
@@ -248,7 +247,7 @@ export function JellyfinWelcome() {
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>Search for Jellyfin in the apps catalog and install the app.</li>
                 <li>
-                  Open the app, enter <JellyfinLinkBadge /> as the server address, and connect.
+                  Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
                 <li>
                   Sign in using your username and password or use Quick Connect if you've already signed in on another
@@ -291,7 +290,7 @@ export function JellyfinWelcome() {
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>
-                  In the Edge browser, go to <JellyfinLinkBadge />.
+                  In the Edge browser, go to <ServerLinkBadge />.
                 </li>
                 <li>
                   Sign in using your username and password or use Quick Connect if you've already signed in on another
@@ -332,7 +331,7 @@ export function JellyfinWelcome() {
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>
-                  In the Safari browser, go to <JellyfinLinkBadge />.
+                  In the Safari browser, go to <ServerLinkBadge />.
                 </li>
                 <li>
                   Sign in using your username and password or use Quick Connect if you've already signed in on another
@@ -349,44 +348,6 @@ export function JellyfinWelcome() {
           </AccordionItem>
         </Accordion>
       </div >
-
-      <div className="flex flex-col space-y-4">
-        <h2>Making Requests</h2>
-        Have something you want to watch that's not on the Jellyfin server? A request system is available to request
-        new content to be added.
-
-        <ol className="list-decimal ml-8 my-4 space-y-2">
-          <li>
-            On Android, Windows, iOS, iPad, or MacOS, open the Jellyfin app that was installed using the recommended
-            setup instructions. Alternatively, open a browser and go to <JellyfinLinkBadge mode="link" />.
-          </li>
-          <li>
-            Click or tap the search button at the top and search for the content you want to request. Content that can
-            be requested will appear in the "Discover" section.
-          </li>
-          <li>Click or tap on the content you want to request to view more details and to request it.</li>
-          <li>
-            Click or tap the "Request" button and follow the prompts. Approved content that has already had a digital
-            release will usually become available within one to seven days. Content not yet released or still in
-            theaters will generally become available some time after digital release.
-          </li>
-        </ol>
-      </div>
-
-      <div className="flex flex-col space-y-4">
-        <h2 id="changePassword">Change Your Password</h2>
-        You are given an initial password that should be changed as soon as possible. It is not recommended to continue
-        using that password for security reasons.
-
-        <ol className="list-decimal ml-8 my-4 space-y-2">
-          <li>
-            On Android, Windows, iOS, iPad, or MacOS, open the Jellyfin app that was installed using the recommended
-            setup instructions. Alternatively, open a browser and go to <JellyfinLinkBadge mode="link" />.
-          </li>
-          <li>Click or tap the user icon in the top right.</li>
-          <li>Click or tap "Profile" and change your password.</li>
-        </ol>
-      </div>
     </Page >
   )
 }
@@ -397,28 +358,9 @@ function ChangePasswordWarning() {
       <AlertTriangleIcon />
       <AlertTitle>Still using your initial password?</AlertTitle>
       <AlertDescription className="text-pretty">
-        Now's a good time to <a href="#changePassword">change your password</a>.
+        Now's a good time to <Link to="/jellyfin/security#change-password">change your password</Link>.
       </AlertDescription>
     </Alert>
-  )
-}
-
-function JellyfinLinkBadge({ mode = 'copy' }: { mode?: 'copy' | 'link' }) {
-  const url = 'https://jellyfin.mr-q.me'
-  const { copyToClipboard, isCopied } = useCopyToClipboard()
-
-  return (
-    <Badge asChild>
-      {
-        mode === 'link'
-          ? <a href={url} target="_blank">{url} <ExternalLinkIcon data-icon="inline-end" /></a>
-          : (
-            <Button size="icon-xs" onClick={() => copyToClipboard(url)}>
-              {url} {isCopied ? <CheckIcon data-icon="inline-end" /> : <CopyIcon data-icon="inline-end" />}
-            </Button>
-          )
-      }
-    </Badge>
   )
 }
 
