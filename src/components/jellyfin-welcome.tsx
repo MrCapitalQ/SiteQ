@@ -1,5 +1,5 @@
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import { AlertTriangleIcon, CheckIcon, CopyIcon, ExternalLinkIcon, InfoIcon } from "lucide-react";
+import { AlertTriangleIcon, CheckIcon, CopyIcon, ExternalLinkIcon, InfoIcon, LightbulbIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
@@ -11,6 +11,7 @@ import { Page } from "./ui/page";
 export function JellyfinWelcome() {
   return (
     <Page className="mx-auto space-y-8">
+      <title>Jellyfin Docs</title>
       <div>
         <h1>Welcome to Q's Jellyfin Server</h1>
         <p className="lead">
@@ -22,11 +23,13 @@ export function JellyfinWelcome() {
         <h2>Setup</h2>
         <p>
           Find the device you want to watch on below and follow the instructions to get started. These are the current
-          recommendations for this particular server based on personal testing.
+          recommendations for this particular server based on personal testing. Use the{" "}
+          <InfoIcon className="inline" size={16} />
+          {" "}throughout to see the reasoning behind each recommendations.
         </p>
 
         <Alert>
-          <InfoIcon />
+          <LightbulbIcon />
           <AlertDescription className="text-pretty">
             Consider sharing your feedback on these recommendations so it can be improved.
           </AlertDescription>
@@ -68,7 +71,7 @@ export function JellyfinWelcome() {
                   In the Edge browser, go to <JellyfinLinkBadge />.
                 </li>
                 <li>
-                  Sign in using your credentials or use Quick Connect if you've already signed in on a another device.
+                  Sign in using your username and password or use Quick Connect if you've already signed in on a another device.
 
                   <ChangePasswordWarning />
                 </li>
@@ -87,11 +90,12 @@ export function JellyfinWelcome() {
 
               <ul className="mt-0">
                 <li className="text-pretty">
-                  If you plan on using subtitles, go to the "Subtitles" settings page, check the "Experimental PGS
-                  subtitle rendering" checkbox.
+                  If you plan on using subtitles, go to the "Subtitles" settings page, <b>check</b> the "Experimental
+                  PGS subtitle rendering" checkbox.
 
                   <InfoHint>
-                    This allows displaying subtitles in PGS format without losing HDR or Dolby Vision.
+                    This allows displaying subtitles in PGS format without losing HDR or Dolby Vision and reduces
+                    strain on the server.
                   </InfoHint>
                 </li>
               </ul>
@@ -115,7 +119,8 @@ export function JellyfinWelcome() {
                   Open the app, enter <JellyfinLinkBadge /> as the server address, and connect.
                 </li>
                 <li>
-                  Sign in using your credentials or use Quick Connect if you've already signed in on another device.
+                  Sign in using your username and password or use Quick Connect if you've already signed in on another
+                  device.
 
                   <ChangePasswordWarning />
                 </li>
@@ -136,7 +141,8 @@ export function JellyfinWelcome() {
                   Open the app, enter <JellyfinLinkBadge /> as the server address, and connect.
                 </li>
                 <li>
-                  Sign in using your credentials or use Quick Connect if you've already signed in on another device.
+                  Sign in using your username and password or use Quick Connect if you've already signed in on another
+                  device.
                 </li>
               </ol>
 
@@ -146,8 +152,8 @@ export function JellyfinWelcome() {
 
               <ul className="mt-0">
                 <li className="text-pretty">
-                  Go to the "Playback" settings page and in the "Advanced" section, check the "Prefer fMP4-HLS Media
-                  Container" checkbox.
+                  Go to the "Playback" settings page and in the "Advanced" section, <b>check</b> the "Prefer fMP4-HLS
+                  Media Container" checkbox.
 
                   <InfoHint>
                     This fixes a black screen being display during playback and is required for proper streaming of
@@ -155,11 +161,12 @@ export function JellyfinWelcome() {
                   </InfoHint>
                 </li>
                 <li className="text-pretty">
-                  If you plan on using subtitles, go to the "Subtitles" settings page, check the "Experimental PGS
-                  subtitle rendering" checkbox.
+                  If you plan on using subtitles, go to the "Subtitles" settings page, <b>check</b> the "Experimental
+                  PGS subtitle rendering" checkbox.
 
                   <InfoHint>
-                    This allows displaying subtitles in PGS format without losing HDR or Dolby Vision.
+                    This allows displaying subtitles in PGS format without losing HDR or Dolby Vision and reduces
+                    strain on the server.
                   </InfoHint>
                 </li>
               </ul>
@@ -193,7 +200,8 @@ export function JellyfinWelcome() {
                   Open the app, enter <JellyfinLinkBadge /> as the server address, and connect.
                 </li>
                 <li>
-                  Sign in using your credentials or use Quick Connect if you've already signed in on another device.
+                  Sign in using your username and password or use Quick Connect if you've already signed in on another
+                  device.
                 </li>
               </ol>
 
@@ -206,31 +214,22 @@ export function JellyfinWelcome() {
                 <li>Under the "Playback Backend" section, adjust the following.
                   <ul className="my-0">
                     <li className="text-pretty">
-                      Disable the "Always downmix to stereo" toggle.
+                      <b>Disable</b> the "Always downmix to stereo" toggle and <b>enable</b> the "Device supports
+                      AC3/Dolby Digital" toggle.
 
                       <InfoHint>
-                        This allows proper streaming of HDR and Dolby Vision content as well as surround sound.
+                        This is a workaround for a bug on some devices that can cause a loss of HDR and Dolby Vision if
+                        the content has surround sound audio. If this causes unplayable content, revert it back to
+                        disabled and enabled respectively.
                       </InfoHint>
                     </li>
                     <li className="text-pretty">
-                      Enable the "Device supports AC3/Dolby Digital" toggle.
+                      If you plan on using subtitles, <b>enable</b> both the "Direct play AAS subtitles" and "Direct
+                      play PGS subtitles" toggles.
 
                       <InfoHint>
-                        This allows proper streaming of HDR and Dolby Vision content as well as surround sound.
-                      </InfoHint>
-                    </li>
-                    <li className="text-pretty">
-                      If you plan on using subtitles, enable the "Direct play AAS subtitles" toggle.
-
-                      <InfoHint>
-                        This allows displaying subtitles in ASS format without losing HDR or Dolby Vision.
-                      </InfoHint>
-                    </li>
-                    <li className="text-pretty">
-                      If you plan on using subtitles, enable the "Direct play PGS subtitles" toggle.
-
-                      <InfoHint>
-                        This allows displaying subtitles in PGS format without losing HDR or Dolby Vision.
+                        This allows displaying subtitles in ASS and PGS formats without losing HDR or Dolby Vision and
+                        reduces strain on the server.
                       </InfoHint>
                     </li>
                   </ul>
@@ -252,7 +251,8 @@ export function JellyfinWelcome() {
                   Open the app, enter <JellyfinLinkBadge /> as the server address, and connect.
                 </li>
                 <li>
-                  Sign in using your credentials or use Quick Connect if you've already signed in on another device.
+                  Sign in using your username and password or use Quick Connect if you've already signed in on another
+                  device.
                 </li>
               </ol>
             </AccordionContent>
@@ -294,7 +294,8 @@ export function JellyfinWelcome() {
                   In the Edge browser, go to <JellyfinLinkBadge />.
                 </li>
                 <li>
-                  Sign in using your credentials or use Quick Connect if you've already signed in on another device.
+                  Sign in using your username and password or use Quick Connect if you've already signed in on another
+                  device.
 
                   <ChangePasswordWarning />
                 </li>
@@ -334,7 +335,8 @@ export function JellyfinWelcome() {
                   In the Safari browser, go to <JellyfinLinkBadge />.
                 </li>
                 <li>
-                  Sign in using your credentials or use Quick Connect if you've already signed in on another device.
+                  Sign in using your username and password or use Quick Connect if you've already signed in on another
+                  device.
 
                   <ChangePasswordWarning />
                 </li>
