@@ -71,7 +71,9 @@ export function JellyfinSetup() {
                   In the Edge browser, go to <ServerLinkBadge />.
                 </li>
                 <li>
-                  Sign in using your username and password or use <Link to="/jellyfin/security">Quick Connect</Link> if you've already signed in on a another device.
+                  Sign in using your username and password or use{" "}
+                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                  {" "}if you've already signed in on a another device.
 
                   <ChangePasswordWarning />
                 </li>
@@ -119,8 +121,9 @@ export function JellyfinSetup() {
                   Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
                 <li>
-                  Sign in using your username and password or use Quick Connect if you've already signed in on another
-                  device.
+                  Sign in using your username and password or use{" "}
+                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                  {" "}if you've already signed in on a another device.
 
                   <ChangePasswordWarning />
                 </li>
@@ -141,8 +144,9 @@ export function JellyfinSetup() {
                   Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
                 <li>
-                  Sign in using your username and password or use Quick Connect if you've already signed in on another
-                  device.
+                  Sign in using your username and password or use{" "}
+                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                  {" "}if you've already signed in on a another device.
                 </li>
               </ol>
 
@@ -200,8 +204,9 @@ export function JellyfinSetup() {
                   Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
                 <li>
-                  Sign in using your username and password or use Quick Connect if you've already signed in on another
-                  device.
+                  Sign in using your username and password or use{" "}
+                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                  {" "}if you've already signed in on a another device.
                 </li>
               </ol>
 
@@ -250,8 +255,9 @@ export function JellyfinSetup() {
                   Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
                 <li>
-                  Sign in using your username and password or use Quick Connect if you've already signed in on another
-                  device.
+                  Sign in using your username and password or use{" "}
+                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                  {" "}if you've already signed in on a another device.
                 </li>
               </ol>
             </AccordionContent>
@@ -293,8 +299,9 @@ export function JellyfinSetup() {
                   In the Edge browser, go to <ServerLinkBadge />.
                 </li>
                 <li>
-                  Sign in using your username and password or use Quick Connect if you've already signed in on another
-                  device.
+                  Sign in using your username and password or use{" "}
+                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                  {" "}if you've already signed in on a another device.
 
                   <ChangePasswordWarning />
                 </li>
@@ -334,8 +341,9 @@ export function JellyfinSetup() {
                   In the Safari browser, go to <ServerLinkBadge />.
                 </li>
                 <li>
-                  Sign in using your username and password or use Quick Connect if you've already signed in on another
-                  device.
+                  Sign in using your username and password or use{" "}
+                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                  {" "}if you've already signed in on a another device.
 
                   <ChangePasswordWarning />
                 </li>
