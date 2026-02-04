@@ -21,16 +21,14 @@ export function JellyfinWelcome() {
       <div className="flex flex-col space-y-4">
         <h2>Setup</h2>
         <p>
-          Find the device you want to watch on below and follow the instructions to get started. There are many options
-          when using Jellyfin but these are the current recommendations for this particular server based on personal
-          testing.
+          Find the device you want to watch on below and follow the instructions to get started. These are the current
+          recommendations for this particular server based on personal testing.
         </p>
 
         <Alert>
           <InfoIcon />
           <AlertDescription className="text-pretty">
-            You can help improve this page by providing feedback based on your experiences on your devices and the apps
-            you use for Jellyfin.
+            Consider sharing your feedback on these recommendations so it can be improved.
           </AlertDescription>
         </Alert>
 
@@ -39,18 +37,33 @@ export function JellyfinWelcome() {
             <AccordionTrigger><h4>Android</h4></AccordionTrigger>
             <AccordionContent>
               <div className="text-pretty">
-                On Android devices, it is recommended to install Jellyfin as a web app using the Microsoft Edge browser
-                for the best experience.
+                <p>On Android devices, it is recommended to install Jellyfin as a web app through the Microsoft Edge
+                  browser for the best experience.
 
-                <InfoHint>
-                  On Android, the Edge browser supports a wider range of media formats compared to other browsers or
-                  the official apps. This results in more content being able to be played directly without the need for
-                  "transcoding." Transcoding can strain the server and lead to playback issues like loss of HDR.
-                </InfoHint>
+                  <InfoHint>
+                    <p>
+                      Using a browser avoids known bugs with the official app and adds the ability for
+                      picture-in-picture and background playback.
+                    </p>
+                    <p>
+                      Edge is the recommended browser because it can play more media formats directly compared to other
+                      browsers like Chrome and Firefox. This avoids the need for "transcoding" where it can strain
+                      the server and lead to playback issues like loss of HDR.
+                    </p>
+                  </InfoHint>
+                </p>
+
+                <small className="muted">
+                  Note: This does <b>not</b> require you to switch to Edge as your default browser.
+                </small>
               </div>
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
-                <li>Download the Microsoft Edge browser from the Google Play Store.</li>
+                <li className="text-pretty">
+                  <a href="https://play.google.com/store/apps/details?id=com.microsoft.emmx">
+                    Download the Microsoft Edge browser from the Google Play Store.
+                  </a>
+                </li>
                 <li>
                   In the Edge browser, go to <JellyfinLinkBadge />.
                 </li>
@@ -64,60 +77,40 @@ export function JellyfinWelcome() {
                   to phone." You may need to scroll to find this option.
                 </li>
                 <li>
-                  Follow the prompts to install it as an app and add it to your home screen. You can now use Jellyfin
-                  as an app from the home screen. You do not need to continue using Edge directly but it must remain
-                  installed for the Jellyfin web app to work.
+                  Follow the prompts to install it as an app and it will appear as an app on your homescreen.
                 </li>
               </ol>
 
-              <div className="font-bold mt-8">Recommended Adjustments</div>
-              Tap the user icon in the top right to open the menu.
+              <div className="font-bold mt-8">Settings Recommendations</div>
+              These settings are not synced and should be applied on <b>each</b> Android device. The settings menu can
+              be accessed by tapping the user icon at the top right.
 
               <ul className="mt-0">
-                <li>In the "Playback" settings page, adjust the following.
-                  <ul className="my-0">
-                    <li className="text-pretty">
-                      Under the "Audio Settings" section, set "Maximum Allowed Audio Channels" to "Stereo."
+                <li className="text-pretty">
+                  If you plan on using subtitles, go to the "Subtitles" settings page, check the "Experimental PGS
+                  subtitle rendering" checkbox.
 
-                      <InfoHint>
-                        This prevents an issue with some content not playing due to a bug in the mobile version of
-                        Edge. This can be reverted to "Auto" when the bug is fixed.
-                      </InfoHint>
-                    </li>
-                    <li className="text-pretty">
-                      Under the "Advanced" section, check "Prefer fMP4-HLS Media Container" checkbox.
-
-                      <InfoHint>This allows proper streaming of HDR and Dolby Vision content.</InfoHint>
-                    </li>
-                  </ul>
-                </li>
-                <li>In the "Subtitles" settings page, adjust the following.
-                  <ul className="my-0">
-                    <li className="text-pretty">
-                      Check the "Experimental PGS subtitle rendering" checkbox.
-
-                      <InfoHint>
-                        This allows displaying subtitles in PGS format without losing HDR or Dolby Vision.
-                      </InfoHint>
-                    </li>
-                  </ul>
+                  <InfoHint>
+                    This allows displaying subtitles in PGS format without losing HDR or Dolby Vision.
+                  </InfoHint>
                 </li>
               </ul>
 
-              <small className="muted">
-                These adjustments are highly recommended adjustments based on trial and error on my personal Android
-                device but revert these one at a time if you experience any issues.
-              </small>
+              <RecommendedSettingsDisclaimer />
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="iOS">
             <AccordionTrigger><h4>iPhone or iPad</h4></AccordionTrigger>
             <AccordionContent>
               On iPhone and iPad, there are currently no specific recommendations. However, the official Jellyfin app
-              is available. Please share your experiences on these devices to help improve this section.
+              is available.
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
-                <li>Download the Jellyfin app from the App Store.</li>
+                <li>
+                  <a href="https://apps.apple.com/us/app/jellyfin-mobile/id1480192618">
+                    Download the Jellyfin app from the App Store.
+                  </a>
+                </li>
                 <li>
                   Open the app, enter <JellyfinLinkBadge /> as the server address, and connect.
                 </li>
@@ -147,36 +140,31 @@ export function JellyfinWelcome() {
                 </li>
               </ol>
 
-              <div className="font-bold mt-8">Recommended Adjustments</div>
-              Select the user icon in the top right to open the menu.
+              <div className="font-bold mt-8">Settings Recommendations</div>
+              These settings are not synced and should be applied on <b>each</b> LG TV. The settings menu can be
+              accessed by selecting the user icon at the top right.
 
               <ul className="mt-0">
-                <li>In the "Playback" settings page, adjust the following.
-                  <ul className="my-0">
-                    <li className="text-pretty">
-                      Under the "Advanced" section, check "Prefer fMP4-HLS Media Container" checkbox.
+                <li className="text-pretty">
+                  Go to the "Playback" settings page and in the "Advanced" section, check the "Prefer fMP4-HLS Media
+                  Container" checkbox.
 
-                      <InfoHint>This allows proper streaming of HDR and Dolby Vision content.</InfoHint>
-                    </li>
-                  </ul>
+                  <InfoHint>
+                    This fixes a black screen being display during playback and is required for proper streaming of
+                    Dolby Vision content.
+                  </InfoHint>
                 </li>
-                <li>In the "Subtitles" settings page, adjust the following.
-                  <ul className="my-0">
-                    <li className="text-pretty">
-                      Check the "Experimental PGS subtitle rendering" checkbox.
+                <li className="text-pretty">
+                  If you plan on using subtitles, go to the "Subtitles" settings page, check the "Experimental PGS
+                  subtitle rendering" checkbox.
 
-                      <InfoHint>
-                        This allows displaying subtitles in PGS format without losing HDR or Dolby Vision.
-                      </InfoHint>
-                    </li>
-                  </ul>
+                  <InfoHint>
+                    This allows displaying subtitles in PGS format without losing HDR or Dolby Vision.
+                  </InfoHint>
                 </li>
               </ul>
 
-              <small className="muted">
-                These adjustments are highly recommended adjustments based on trial and error on my personal LG TV but
-                revert these one at a time if you experience any issues.
-              </small>
+              <RecommendedSettingsDisclaimer />
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="googleTV">
@@ -209,9 +197,11 @@ export function JellyfinWelcome() {
                 </li>
               </ol>
 
-              <div className="font-bold mt-8">Recommended Adjustments</div>
-              Select the "Settings" menu item in the left sidebar then "Advanced Settings."
+              <div className="font-bold mt-8">Settings Recommendations</div>
+              These settings are not synced and should be applied on <b>each</b> Google TV-based device. These settings
+              can be accessed from left sidebar then "Advanced Settings."
 
+              {/* TODO: Start with fresh install of Wholphin and confirm these need to be set */}
               <ul className="mt-0">
                 <li>Under the "Playback Backend" section, adjust the following.
                   <ul className="my-0">
@@ -230,14 +220,14 @@ export function JellyfinWelcome() {
                       </InfoHint>
                     </li>
                     <li className="text-pretty">
-                      Enable the "Direct play AAS subtitles" toggle.
+                      If you plan on using subtitles, enable the "Direct play AAS subtitles" toggle.
 
                       <InfoHint>
                         This allows displaying subtitles in ASS format without losing HDR or Dolby Vision.
                       </InfoHint>
                     </li>
                     <li className="text-pretty">
-                      Enable the "Direct play PGS subtitles" toggle.
+                      If you plan on using subtitles, enable the "Direct play PGS subtitles" toggle.
 
                       <InfoHint>
                         This allows displaying subtitles in PGS format without losing HDR or Dolby Vision.
@@ -247,18 +237,14 @@ export function JellyfinWelcome() {
                 </li>
               </ul>
 
-              <small className="muted">
-                These adjustments are highly recommended adjustments based on trial and error on my personal Google TV
-                but revert these one at a time if you experience any issues.
-              </small>
+              <RecommendedSettingsDisclaimer />
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="tizen">
             <AccordionTrigger><h4>Samsung TV with Tizen</h4></AccordionTrigger>
             <AccordionContent>
               On Samsung TVs running Tizen, there are currently no specific recommendations. However the official
-              Jellyfin app is available on supported models. Please share your experiences on these devices to help
-              improve this section.
+              Jellyfin app is available on supported models.
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>Search for Jellyfin in the apps catalog and install the app.</li>
@@ -282,16 +268,26 @@ export function JellyfinWelcome() {
           <AccordionItem value="windows">
             <AccordionTrigger><h4>Windows</h4></AccordionTrigger>
             <AccordionContent>
-              <div className="text-pretty">
-                On Windows devices, it is recommended to access Jellyfin using the Microsoft Edge browser for the best
-                experience.
+              <p className="text-pretty">
+                On Windows devices, it is recommended to access Jellyfin through the Microsoft Edge browser for the
+                best experience.
 
                 <InfoHint>
-                  On Windows, the Edge browser supports a wider range of media formats compared to other browsers or
-                  the official apps. This results in more content being able to be played directly without the need for
-                  "transcoding." Transcoding can strain the server and lead to playback issues like loss of HDR.
+                  <p>
+                    Using a browser avoids known bugs with the official app and adds the ability for picture-in-picture
+                    and HDR playback.
+                  </p>
+                  <p>
+                    Edge is the recommended browser because it can play more media formats directly compared to other
+                    browsers like Chrome and Firefox. This avoids the need for "transcoding" where it can strain
+                    the server and lead to playback issues like loss of HDR.
+                  </p>
                 </InfoHint>
-              </div>
+              </p>
+
+              <small className="muted">
+                Note: This does <b>not</b> require you to switch to Edge as your default browser.
+              </small>
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>
@@ -313,15 +309,25 @@ export function JellyfinWelcome() {
           <AccordionItem value="mac">
             <AccordionTrigger><h4>MacOS</h4></AccordionTrigger>
             <AccordionContent>
-              <div className="text-pretty">
+              <p className="text-pretty">
                 On MacOS devices, there are currently no specific recommendations. However, Jellyfin can be accessed
-                using the Safari browser. Please share your experiences on these devices to help improve this section.
+                using the Safari browser.
 
                 <InfoHint>
-                  According to the official Jellyfin documentation, the Safari browser has the most complete support
-                  for HDR content compared to other browsers while the official app does not support HDR at all.
+                  <p>
+                    Using a browser avoids known bugs with the official app and adds the ability for picture-in-picture
+                    and HDR playback.
+                  </p>
+                  <p>
+                    According to the official Jellyfin documentation, the Safari browser has the most complete support
+                    for HDR content compared to other browsers
+                  </p>
                 </InfoHint>
-              </div>
+              </p>
+
+              <small className="muted">
+                Note: This does <b>not</b> require you to switch to Safari as your default browser.
+              </small>
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>
@@ -426,5 +432,14 @@ function InfoHint({ children }: { children: ReactNode }) {
         {children}
       </HoverCardContent>
     </HoverCard>
+  )
+}
+
+function RecommendedSettingsDisclaimer() {
+  return (
+    <small className="muted">
+      Settings recommendations are highly suggested based on trial and error but your experience may vary.
+      Revert settings to defaults if you encounter issues.
+    </small>
   )
 }
