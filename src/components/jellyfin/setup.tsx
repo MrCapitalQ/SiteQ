@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Button } from "../ui/button";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card";
 import { Page } from "../ui/page";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ServerLinkBadge } from "./server-link-badge";
 
 export function JellyfinSetup() {
@@ -23,8 +23,8 @@ export function JellyfinSetup() {
         <h2>Instructions</h2>
         <p>
           Find the device you want to watch on below and follow the instructions to get started. These are the current
-          recommendations for this particular server based on personal testing. Use the{" "}
-          <InfoIcon className="inline" size={16} />
+          recommendations for this particular server based on personal testing. Hover over or tap the{" "}
+          <InfoIcon className="inline size-4 -translate-y-1/8" size={16} />
           {" "}throughout to see the reasoning behind each recommendations.
         </p>
 
@@ -35,7 +35,7 @@ export function JellyfinSetup() {
           </AlertDescription>
         </Alert>
 
-        <Accordion type="single" collapsible>
+        <Accordion>
           <AccordionItem value="android">
             <AccordionTrigger><h4>Android</h4></AccordionTrigger>
             <AccordionContent>
@@ -44,15 +44,15 @@ export function JellyfinSetup() {
                   browser for the best experience.
 
                   <InfoHint>
-                    <p>
+                    <div>
                       Using a browser avoids known bugs with the official app and adds the ability for
                       picture-in-picture and background playback.
-                    </p>
-                    <p>
+                    </div>
+                    <div>
                       Edge is the recommended browser because it can play more media formats directly compared to other
                       browsers like Chrome and Firefox. This avoids the need for "transcoding" where it can strain
                       the server and lead to playback issues like loss of HDR.
-                    </p>
+                    </div>
                   </InfoHint>
                 </p>
 
@@ -178,7 +178,7 @@ export function JellyfinSetup() {
               <RecommendedSettingsDisclaimer />
             </AccordionContent>
           </AccordionItem>
-          <AccordionItem value="googleTV">
+          <AccordionItem value="google-tv">
             <AccordionTrigger><h4>Google TV or Amazon Fire TV</h4></AccordionTrigger>
             <AccordionContent>
               <div className="text-pretty">
@@ -190,7 +190,7 @@ export function JellyfinSetup() {
                   time of writing, the official app is not recommended due usability and playback issues including but
                   not limited to the following.
 
-                  <ul>
+                  <ul className="my-0">
                     <li>Audio language selection is not respected.</li>
                     <li>Subtitle selection is not remembered when going to the next episode.</li>
                     <li>No support for multi-part episodes.</li>
@@ -278,15 +278,15 @@ export function JellyfinSetup() {
                 best experience.
 
                 <InfoHint>
-                  <p>
+                  <div>
                     Using a browser avoids known bugs with the official app and adds the ability for picture-in-picture
                     and HDR playback.
-                  </p>
-                  <p>
+                  </div>
+                  <div>
                     Edge is the recommended browser because it can play more media formats directly compared to other
                     browsers like Chrome and Firefox. This avoids the need for "transcoding" where it can strain
                     the server and lead to playback issues like loss of HDR.
-                  </p>
+                  </div>
                 </InfoHint>
               </p>
 
@@ -321,14 +321,14 @@ export function JellyfinSetup() {
                 using the Safari browser.
 
                 <InfoHint>
-                  <p>
+                  <div>
                     Using a browser avoids known bugs with the official app and adds the ability for picture-in-picture
                     and HDR playback.
-                  </p>
-                  <p>
+                  </div>
+                  <div>
                     According to the official Jellyfin documentation, the Safari browser has the most complete support
                     for HDR content compared to other browsers
-                  </p>
+                  </div>
                 </InfoHint>
               </p>
 
@@ -374,16 +374,16 @@ function ChangePasswordWarning() {
 
 function InfoHint({ children }: { children: ReactNode }) {
   return (
-    <HoverCard openDelay={10} closeDelay={100}>
-      <HoverCardTrigger asChild>
+    <Popover >
+      <PopoverTrigger openOnHover={true} render={
         <Button variant={"link"} size={'icon-sm'} className="h-4 w-6 translate-y-1/8">
           <InfoIcon />
         </Button>
-      </HoverCardTrigger>
-      <HoverCardContent>
+      } />
+      <PopoverContent>
         {children}
-      </HoverCardContent>
-    </HoverCard>
+      </PopoverContent>
+    </Popover>
   )
 }
 

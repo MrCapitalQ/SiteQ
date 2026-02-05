@@ -15,7 +15,7 @@ export function JellyfinWelcome() {
       <div className="flex flex-col space-y-4">
         <h2>Where to?</h2>
 
-        <Item variant="outline" asChild>
+        <Item variant="outline" render={
           <Link to="/jellyfin/setup" className="no-underline">
             <ItemMedia variant="icon">
               <HammerIcon />
@@ -30,9 +30,9 @@ export function JellyfinWelcome() {
               <ChevronRightIcon className="size-4" />
             </ItemActions>
           </Link>
-        </Item>
+        } />
 
-        <Item variant="outline" asChild>
+        <Item variant="outline" render={
           <Link to="/jellyfin/requests" className="no-underline">
             <ItemMedia variant="icon">
               <ConciergeBellIcon />
@@ -47,9 +47,9 @@ export function JellyfinWelcome() {
               <ChevronRightIcon className="size-4" />
             </ItemActions>
           </Link>
-        </Item>
+        } />
 
-        <Item variant="outline" asChild>
+        <Item variant="outline" render={
           <Link to="/jellyfin/security" className="no-underline">
             <ItemMedia variant="icon">
               <KeyRoundIcon />
@@ -64,7 +64,7 @@ export function JellyfinWelcome() {
               <ChevronRightIcon className="size-4" />
             </ItemActions>
           </Link>
-        </Item>
+        } />
       </div>
     </Page >
   )

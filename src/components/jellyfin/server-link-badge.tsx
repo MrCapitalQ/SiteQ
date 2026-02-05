@@ -9,16 +9,14 @@ export function ServerLinkBadge({ mode = 'copy' }: { mode?: 'copy' | 'navigate' 
   const { copyToClipboard, isCopied } = useCopyToClipboard()
 
   return (
-    <Badge asChild>
-      {
-        mode === 'navigate'
-          ? <Link to={url} target="_blank">{url} <ExternalLinkIcon data-icon="inline-end" /></Link>
-          : (
-            <Button size="icon-xs" onClick={() => copyToClipboard(url)}>
-              {url} {isCopied ? <CheckIcon data-icon="inline-end" /> : <CopyIcon data-icon="inline-end" />}
-            </Button>
-          )
-      }
-    </Badge>
+    <Badge render={
+      mode === 'navigate'
+        ? <Link to={url} target="_blank">{url} <ExternalLinkIcon data-icon="inline-end" /></Link>
+        : (
+          <Button size="icon-xs" onClick={() => copyToClipboard(url)}>
+            {url} {isCopied ? <CheckIcon data-icon="inline-end" /> : <CopyIcon data-icon="inline-end" />}
+          </Button>
+        )
+    } />
   )
 }
