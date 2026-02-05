@@ -1,3 +1,4 @@
+import { useDetectPlatform } from "@/hooks/use-detect-platform";
 import { AlertTriangleIcon, InfoIcon, LightbulbIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
@@ -6,7 +7,11 @@ import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Button } from "../ui/button";
 import { Page } from "../ui/page";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { InstallLinkBadge } from "./install-link-badge";
 import { ServerLinkBadge } from "./server-link-badge";
+
+const platform = useDetectPlatform();
 
 export function JellyfinSetup() {
   return (
@@ -61,30 +66,68 @@ export function JellyfinSetup() {
                 </small>
               </div>
 
-              <ol className="list-decimal ml-8 my-4 space-y-2">
-                <li className="text-pretty">
-                  <Link to="https://play.google.com/store/apps/details?id=com.microsoft.emmx">
-                    Download the Microsoft Edge browser from the Google Play Store.
-                  </Link>
-                </li>
-                <li>
-                  In the Edge browser, go to <ServerLinkBadge />.
-                </li>
-                <li>
-                  Sign in using your username and password or use{" "}
-                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                  {" "}if you've already signed in on a another device.
+              <Tabs defaultValue="quick" className="mt-2">
+                <TabsList variant="line">
+                  <TabsTrigger value="quick">Quick Install</TabsTrigger>
+                  <TabsTrigger value="manual">Manual Install</TabsTrigger>
+                </TabsList>
+                <TabsContent value="quick">
+                  The will install Jellyfin on your current Android device. If you want to install on a different
+                  Android device, open this guide there or follow the "Manual Install" steps.
 
-                  <ChangePasswordWarning />
-                </li>
-                <li>
-                  To install Jellyfin as an app, tap the hamburger menu (three lines) at the bottom right and tap "Add
-                  to phone." You may need to scroll to find this option.
-                </li>
-                <li>
-                  Follow the prompts to install it as an app and it will appear as an app on your homescreen.
-                </li>
-              </ol>
+                  <ol className="list-decimal ml-8 mt-2 space-y-2">
+
+                    {
+                      !platform.isEdge &&
+                      <li className="text-pretty">If you don't have Edge installed,{" "}
+                        <Link to="https://play.google.com/store/apps/details?id=com.microsoft.emmx">
+                          download it from the Google Play Store
+                        </Link>
+                        {" "} and go through its initial setup.
+                      </li>
+                    }
+
+                    <li>
+                      <div>Tap the link below and follow the prompts to install Jellyfin.</div>
+                      <InstallLinkBadge />
+                    </li>
+                    <li>
+                      Sign in using your username and password or use{" "}
+                      <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                      {" "}if you've already signed in on a another device.
+
+                      <ChangePasswordWarning />
+                    </li>
+                  </ol>
+                </TabsContent>
+                <TabsContent value="manual">
+                  <ol className="list-decimal ml-8 space-y-2">
+                    <li className="text-pretty">If you don't have Edge installed,{" "}
+                      <Link to="https://play.google.com/store/apps/details?id=com.microsoft.emmx">
+                        download it from the Google Play Store
+                      </Link>
+                      {" "} and go through its initial setup.
+                    </li>
+                    <li>
+                      In the Edge browser, go to <ServerLinkBadge />.
+                    </li>
+                    <li>
+                      Sign in using your username and password or use{" "}
+                      <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                      {" "}if you've already signed in on a another device.
+
+                      <ChangePasswordWarning />
+                    </li>
+                    <li>
+                      To install Jellyfin as an app, tap the hamburger menu (three lines) at the bottom right and tap "Add
+                      to phone." You may need to scroll to find this option.
+                    </li>
+                    <li>
+                      Follow the prompts to install it as an app and it will appear as an app on your homescreen.
+                    </li>
+                  </ol>
+                </TabsContent>
+              </Tabs>
 
               <div className="font-bold mt-8">Settings Recommendations</div>
               These settings are not synced and should be applied on <b>each</b> Android device. The settings menu can
@@ -294,23 +337,49 @@ export function JellyfinSetup() {
                 Note: This does <b>not</b> require you to switch to Edge as your default browser.
               </small>
 
-              <ol className="list-decimal ml-8 my-4 space-y-2">
-                <li>
-                  In the Edge browser, go to <ServerLinkBadge />.
-                </li>
-                <li>
-                  Sign in using your username and password or use{" "}
-                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                  {" "}if you've already signed in on a another device.
+              <Tabs defaultValue="quick" className="mt-2">
+                <TabsList variant="line">
+                  <TabsTrigger value="quick">Quick Install</TabsTrigger>
+                  <TabsTrigger value="manual">Manual Install</TabsTrigger>
+                </TabsList>
+                <TabsContent value="quick">
+                  This will install Jellyfin on your current Windows device. If you want to install on a different
+                  Windows device, open this guide there or follow the "Manual Install" steps.
 
-                  <ChangePasswordWarning />
-                </li>
-                <li>
-                  To install Jellyfin as an app, click the "App available. Install Jelly" icon on the right side of the
-                  address bar.
-                </li>
-                <li>Follow the prompts to install the app and it will appear in your list of apps.</li>
-              </ol>
+                  <ol className="list-decimal ml-8 mt-2 space-y-2">
+                    <li>
+                      <div>Click the link below and follow the prompts to install Jellyfin.</div>
+                      <InstallLinkBadge />
+                    </li>
+                    <li>
+                      Sign in using your username and password or use{" "}
+                      <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                      {" "}if you've already signed in on a another device.
+
+                      <ChangePasswordWarning />
+                    </li>
+                  </ol>
+                </TabsContent>
+                <TabsContent value="manual">
+                  <ol className="list-decimal ml-8 space-y-2">
+                    <li>
+                      In the Edge browser, go to <ServerLinkBadge />.
+                    </li>
+                    <li>
+                      Sign in using your username and password or use{" "}
+                      <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                      {" "}if you've already signed in on a another device.
+
+                      <ChangePasswordWarning />
+                    </li>
+                    <li>
+                      To install Jellyfin as an app, click the "App available. Install Jelly" icon on the right side of the
+                      address bar.
+                    </li>
+                    <li>Follow the prompts to install the app and it will appear in your list of apps.</li>
+                  </ol>
+                </TabsContent>
+              </Tabs>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="mac">
