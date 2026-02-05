@@ -118,7 +118,7 @@
 
 @layer base {
   #root {
-    @apply h-screen;
+    @apply max-h-screen;
   }
 
   * {
