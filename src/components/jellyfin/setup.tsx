@@ -1,3 +1,4 @@
+import { useDetectEdge } from "@/hooks/use-detect-edge";
 import { useDetectPlatform } from "@/hooks/use-detect-platform";
 import { AlertTriangleIcon, InfoIcon, LightbulbIcon } from "lucide-react";
 import type { ReactNode } from "react";
@@ -12,6 +13,7 @@ import { InstallLinkBadge } from "./install-link-badge";
 import { ServerLinkBadge } from "./server-link-badge";
 
 const platform = useDetectPlatform();
+const isEdge = useDetectEdge();
 
 export function JellyfinSetup() {
   return (
@@ -44,61 +46,78 @@ export function JellyfinSetup() {
           <AccordionItem value="android">
             <AccordionTrigger><h4>Android</h4></AccordionTrigger>
             <AccordionContent>
-              <div className="text-pretty">
-                <p>On Android devices, it is recommended to install Jellyfin as a web app through the Microsoft Edge
-                  browser for the best experience.
+              <p className="text-pretty">
+                On Android devices, it is recommended to install Jellyfin as a web app through the Microsoft Edge
+                browser for the best experience.{" "}
 
-                  <InfoHint>
-                    <div>
-                      Using a browser avoids known bugs with the official app and adds the ability for
-                      picture-in-picture and background playback.
-                    </div>
-                    <div>
-                      Edge is the recommended browser because it can play more media formats directly compared to other
-                      browsers like Chrome and Firefox. This avoids the need for "transcoding" where it can strain
-                      the server and lead to playback issues like loss of HDR.
-                    </div>
-                  </InfoHint>
-                </p>
+                <InfoHint>
+                  <div>
+                    Using a browser avoids known bugs with the official app and adds the ability for
+                    picture-in-picture and background playback.
+                  </div>
+                  <div>
+                    Edge is the recommended browser because it can play more media formats directly compared to other
+                    browsers like Chrome and Firefox. This avoids the need for "transcoding" where it can strain the
+                    server and lead to playback issues like loss of HDR.
+                  </div>
+                </InfoHint>
+              </p>
 
+              {
+                !isEdge &&
                 <small className="muted">
                   Note: This does <b>not</b> require you to switch to Edge as your default browser.
                 </small>
-              </div>
+              }
 
-              <Tabs defaultValue="quick" className="mt-2">
+              <Tabs defaultValue="simple" className="mt-2">
                 <TabsList variant="line">
-                  <TabsTrigger value="quick">Quick Install</TabsTrigger>
+                  <TabsTrigger value="simple">Simple Install</TabsTrigger>
                   <TabsTrigger value="manual">Manual Install</TabsTrigger>
                 </TabsList>
-                <TabsContent value="quick">
-                  The will install Jellyfin on your current Android device. If you want to install on a different
-                  Android device, open this guide there or follow the "Manual Install" steps.
+                <TabsContent value="simple">
+                  {
+                    platform == 'Android'
+                      ? <>
+                        This method will install Jellyfin on your current Android device. For a different Android
+                        device, go to this page on that device or follow the "Manual Install" steps.
 
-                  <ol className="list-decimal ml-8 mt-2 space-y-2">
+                        <ol className="list-decimal ml-8 mt-2 space-y-2">
+                          <li>
+                            <div>
+                              {
+                                isEdge
+                                  ? <>
+                                    Tap the link below and follow the prompts to install Jellyfin.
+                                  </>
+                                  : <>
+                                    Make sure{" "}
+                                    <Link to="https://play.google.com/store/apps/details?id=com.microsoft.emmx">
+                                      Edge installed from the Google Play Store
+                                    </Link>
+                                    {" "} and go through its initial setup. Then tap the link below, allow it to be
+                                    opened in Edge, and follow the prompts to install Jellyfin.
+                                  </>
+                              }
+                            </div>
 
-                    {
-                      !platform.isEdge &&
-                      <li className="text-pretty">If you don't have Edge installed,{" "}
-                        <Link to="https://play.google.com/store/apps/details?id=com.microsoft.emmx">
-                          download it from the Google Play Store
-                        </Link>
-                        {" "} and go through its initial setup.
-                      </li>
-                    }
+                            <InstallLinkBadge />
+                          </li>
+                          <li>
+                            Sign in using your username and password or use{" "}
+                            <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                            {" "}if you've already signed in on a another device.
 
-                    <li>
-                      <div>Tap the link below and follow the prompts to install Jellyfin.</div>
-                      <InstallLinkBadge />
-                    </li>
-                    <li>
-                      Sign in using your username and password or use{" "}
-                      <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                      {" "}if you've already signed in on a another device.
+                            <ChangePasswordWarning />
+                          </li>
+                        </ol>
+                      </>
+                      : <>
+                        Open this page on an Android device to use the simple install method. Alternatively, you can
+                        follow the "Manual Install" steps instead.
+                      </>
+                  }
 
-                      <ChangePasswordWarning />
-                    </li>
-                  </ol>
                 </TabsContent>
                 <TabsContent value="manual">
                   <ol className="list-decimal ml-8 space-y-2">
@@ -136,7 +155,7 @@ export function JellyfinSetup() {
               <ul className="mt-0">
                 <li className="text-pretty">
                   If you plan on using subtitles, go to the "Subtitles" settings page, <b>check</b> the "Experimental
-                  PGS subtitle rendering" checkbox.
+                  PGS subtitle rendering" checkbox.{" "}
 
                   <InfoHint>
                     This allows displaying subtitles in PGS format without losing HDR or Dolby Vision and reduces
@@ -148,7 +167,7 @@ export function JellyfinSetup() {
               <RecommendedSettingsDisclaimer />
             </AccordionContent>
           </AccordionItem>
-          <AccordionItem value="iOS">
+          <AccordionItem value="ios">
             <AccordionTrigger><h4>iPhone or iPad</h4></AccordionTrigger>
             <AccordionContent>
               On iPhone and iPad, there are currently no specific recommendations. However, the official Jellyfin app
@@ -176,7 +195,7 @@ export function JellyfinSetup() {
               premium version for features like 4K and HDR playback.
             </AccordionContent>
           </AccordionItem>
-          <AccordionItem value="webOS">
+          <AccordionItem value="web-os">
             <AccordionTrigger><h4>LG TV with WebOS</h4></AccordionTrigger>
             <AccordionContent>
               The official Jellyfin app is recommended on LG TVs with WebOS.
@@ -200,7 +219,7 @@ export function JellyfinSetup() {
               <ul className="mt-0">
                 <li className="text-pretty">
                   Go to the "Playback" settings page and in the "Advanced" section, <b>check</b> the "Prefer fMP4-HLS
-                  Media Container" checkbox.
+                  Media Container" checkbox.{" "}
 
                   <InfoHint>
                     This fixes a black screen being display during playback and is required for proper streaming of
@@ -209,7 +228,7 @@ export function JellyfinSetup() {
                 </li>
                 <li className="text-pretty">
                   If you plan on using subtitles, go to the "Subtitles" settings page, <b>check</b> the "Experimental
-                  PGS subtitle rendering" checkbox.
+                  PGS subtitle rendering" checkbox.{" "}
 
                   <InfoHint>
                     This allows displaying subtitles in PGS format without losing HDR or Dolby Vision and reduces
@@ -226,7 +245,7 @@ export function JellyfinSetup() {
             <AccordionContent>
               <div className="text-pretty">
                 On Google TV devices or devices based on Google TV like some Amazon Fire TV, it is recommended to
-                access Jellyfin using the third-party Wholphin app for the best experience.
+                access Jellyfin using the third-party Wholphin app for the best experience.{" "}
 
                 <InfoHint>
                   On these platforms, Wholphin has become the main recommendation in the Jellyfin community. At the
@@ -262,7 +281,7 @@ export function JellyfinSetup() {
                   <ul className="my-0">
                     <li className="text-pretty">
                       <b>Disable</b> the "Always downmix to stereo" toggle and <b>enable</b> the "Device supports
-                      AC3/Dolby Digital" toggle.
+                      AC3/Dolby Digital" toggle.{" "}
 
                       <InfoHint>
                         This is a workaround for a bug on some devices that can cause a loss of HDR and Dolby Vision if
@@ -272,7 +291,7 @@ export function JellyfinSetup() {
                     </li>
                     <li className="text-pretty">
                       If you plan on using subtitles, <b>enable</b> both the "Direct play AAS subtitles" and "Direct
-                      play PGS subtitles" toggles.
+                      play PGS subtitles" toggles.{" "}
 
                       <InfoHint>
                         This allows displaying subtitles in ASS and PGS formats without losing HDR or Dolby Vision and
@@ -305,7 +324,7 @@ export function JellyfinSetup() {
               </ol>
             </AccordionContent>
           </AccordionItem>
-          <AccordionItem value="appleTV">
+          <AccordionItem value="apple-tv">
             <AccordionTrigger><h4>Apple TV</h4></AccordionTrigger>
             <AccordionContent>
               On Apple TV, the official Swiftfin app is available but is problematic according the Jellyfin community.
@@ -317,8 +336,8 @@ export function JellyfinSetup() {
             <AccordionTrigger><h4>Windows</h4></AccordionTrigger>
             <AccordionContent>
               <p className="text-pretty">
-                On Windows devices, it is recommended to access Jellyfin through the Microsoft Edge browser for the
-                best experience.
+                On Windows devices, it is recommended to install Jellyfin as a web app through the Microsoft Edge
+                browser for the best experience.{" "}
 
                 <InfoHint>
                   <div>
@@ -333,32 +352,44 @@ export function JellyfinSetup() {
                 </InfoHint>
               </p>
 
-              <small className="muted">
-                Note: This does <b>not</b> require you to switch to Edge as your default browser.
-              </small>
+              {
+                !isEdge &&
+                <small className="muted">
+                  Note: This does <b>not</b> require you to switch to Edge as your default browser.
+                </small>
+              }
 
-              <Tabs defaultValue="quick" className="mt-2">
+              <Tabs defaultValue="simple" className="mt-2">
                 <TabsList variant="line">
-                  <TabsTrigger value="quick">Quick Install</TabsTrigger>
+                  <TabsTrigger value="simple">Simple Install</TabsTrigger>
                   <TabsTrigger value="manual">Manual Install</TabsTrigger>
                 </TabsList>
-                <TabsContent value="quick">
-                  This will install Jellyfin on your current Windows device. If you want to install on a different
-                  Windows device, open this guide there or follow the "Manual Install" steps.
+                <TabsContent value="simple">
+                  {
+                    platform == 'Windows'
+                      ? <>
+                        This method will install Jellyfin on your current Windows device. For a different Windows
+                        device, go to this page on that device or follow the "Manual Install" steps.
 
-                  <ol className="list-decimal ml-8 mt-2 space-y-2">
-                    <li>
-                      <div>Click the link below and follow the prompts to install Jellyfin.</div>
-                      <InstallLinkBadge />
-                    </li>
-                    <li>
-                      Sign in using your username and password or use{" "}
-                      <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                      {" "}if you've already signed in on a another device.
+                        <ol className="list-decimal ml-8 mt-2 space-y-2">
+                          <li>
+                            <div>Click the link below and follow the prompts to install Jellyfin.</div>
+                            <InstallLinkBadge />
+                          </li>
+                          <li>
+                            Sign in using your username and password or use{" "}
+                            <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
+                            {" "}if you've already signed in on a another device.
 
-                      <ChangePasswordWarning />
-                    </li>
-                  </ol>
+                            <ChangePasswordWarning />
+                          </li>
+                        </ol>
+                      </>
+                      : <>
+                        Open this page on a Windows device to use the simple install method. Alternatively, you can
+                        follow the "Manual Install" steps instead.
+                      </>
+                  }
                 </TabsContent>
                 <TabsContent value="manual">
                   <ol className="list-decimal ml-8 space-y-2">
@@ -387,7 +418,7 @@ export function JellyfinSetup() {
             <AccordionContent>
               <p className="text-pretty">
                 On MacOS devices, there are currently no specific recommendations. However, Jellyfin can be accessed
-                using the Safari browser.
+                using the Safari browser.{" "}
 
                 <InfoHint>
                   <div>
@@ -445,7 +476,7 @@ function InfoHint({ children }: { children: ReactNode }) {
   return (
     <Popover >
       <PopoverTrigger openOnHover={true} render={
-        <Button variant={"link"} size={'icon-sm'} className="h-4 w-6 translate-y-1/8">
+        <Button variant={"link"} size={'icon-sm'} className="size-4 translate-y-1/8">
           <InfoIcon />
         </Button>
       } />
