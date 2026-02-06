@@ -91,12 +91,12 @@ export function JellyfinSetup() {
                                     Tap the link below and follow the prompts to install Jellyfin.
                                   </>
                                   : <>
-                                    Make sure{" "}
+                                    Make sure you've{" "}
                                     <Link to="https://play.google.com/store/apps/details?id=com.microsoft.emmx">
-                                      Edge installed from the Google Play Store
+                                      installed Edge from the Google Play Store
                                     </Link>
-                                    {" "} and go through its initial setup. Then tap the link below, allow it to be
-                                    opened in Edge, and follow the prompts to install Jellyfin.
+                                    {" "} and have gone through its initial setup. Then tap the link below, allow it to
+                                    open in Edge, and follow the prompts to install Jellyfin.
                                   </>
                               }
                             </div>
