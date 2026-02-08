@@ -110,6 +110,7 @@ export function JellyfinSetup() {
 
                             <ChangePasswordWarning />
                           </li>
+                          <li>Apply the recommended settings below.</li>
                         </ol>
                       </>
                       : <>
@@ -144,6 +145,7 @@ export function JellyfinSetup() {
                     <li>
                       Follow the prompts to install it as an app and it will appear as an app on your homescreen.
                     </li>
+                    <li>Apply the recommended settings below.</li>
                   </ol>
                 </TabsContent>
               </Tabs>
@@ -210,6 +212,7 @@ export function JellyfinSetup() {
                   <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
                   {" "}if you've already signed in on a another device.
                 </li>
+                <li>Apply the recommended settings below.</li>
               </ol>
 
               <div className="font-bold mt-8">Settings Recommendations</div>
@@ -219,11 +222,12 @@ export function JellyfinSetup() {
               <ul className="mt-0">
                 <li className="text-pretty">
                   Go to the "Playback" settings page and in the "Advanced" section, <b>check</b> the "Prefer fMP4-HLS
-                  Media Container" checkbox.{" "}
+                  Media Container" checkbox. Checking this may cause issues with Dolby Vision content on newer LG TVs
+                  so try unchecking this if that's the case.{" "}
 
                   <InfoHint>
-                    This fixes a black screen being display during playback and is required for proper streaming of
-                    Dolby Vision content.
+                    This fixes a black screen being display during playback of some Dolby Vision content on some LG
+                    TVs. This also fixes Dolby Vision not working content falling back to regular HDR for some LG TVs.
                   </InfoHint>
                 </li>
                 <li className="text-pretty">
@@ -270,6 +274,7 @@ export function JellyfinSetup() {
                   <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
                   {" "}if you've already signed in on a another device.
                 </li>
+                <li>Apply the recommended settings below.</li>
               </ol>
 
               <div className="font-bold mt-8">Settings Recommendations</div>
