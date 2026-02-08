@@ -226,8 +226,8 @@ export function JellyfinSetup() {
                   so try unchecking this if that's the case.{" "}
 
                   <InfoHint>
-                    This fixes a black screen being display during playback of some Dolby Vision content on some LG
-                    TVs. This also fixes Dolby Vision not working content falling back to regular HDR for some LG TVs.
+                    This fixes a black screen being displayed during playback of some Dolby Vision content on some LG
+                    TVs. This also fixes Dolby Vision content falling back to regular HDR for some LG TVs.
                   </InfoHint>
                 </li>
                 <li className="text-pretty">
