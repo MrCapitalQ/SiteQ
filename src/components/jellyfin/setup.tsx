@@ -1,11 +1,12 @@
 import { useDetectEdge } from "@/hooks/use-detect-edge";
 import { useDetectPlatform } from "@/hooks/use-detect-platform";
 import type { AccordionItemProps } from "@base-ui/react";
-import { AlertTriangleIcon, InfoIcon, LightbulbIcon } from "lucide-react";
+import { HelpCircleIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { AlertDescription, AlertTitle } from "../ui/alert";
+import { AlertInfo, AlertWarning } from "../ui/alert-variants";
 import { Button } from "../ui/button";
 import { Page } from "../ui/page";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -50,16 +51,15 @@ export function JellyfinSetup() {
         <p>
           Find the device you want to watch on below and follow the instructions to get started. These are the current
           recommendations for this particular server based on personal testing. Hover over or tap the{" "}
-          <InfoIcon className="inline size-4 -translate-y-1/8" size={16} />
-          {" "}throughout to see the reasoning behind each recommendations.
+          <HelpCircleIcon className="inline size-4 -translate-y-1/8" />
+          {" "}throughout to see the reasoning behind each recommendation.
         </p>
 
-        <Alert>
-          <LightbulbIcon />
-          <AlertDescription className="text-pretty">
-            Consider sharing your feedback on these recommendations so they can be improved.
-          </AlertDescription>
-        </Alert>
+        <AlertInfo>
+          <AlertTitle>
+            Consider sharing your feedback so these recommendations can be improved.
+          </AlertTitle>
+        </AlertInfo>
 
         <Accordion value={accordionValue} onValueChange={setAccordionValue}>
           <SectionAccordionItem id="android">
@@ -69,7 +69,7 @@ export function JellyfinSetup() {
                 On Android devices, it is recommended to install Jellyfin as a web app through the Microsoft Edge
                 browser for the best experience.{" "}
 
-                <InfoHint>
+                <HintPopover>
                   <div>
                     Using a browser avoids known bugs with the official app and adds the ability for
                     picture-in-picture and background playback.
@@ -79,7 +79,7 @@ export function JellyfinSetup() {
                     browsers like Chrome and Firefox. This avoids the need for "transcoding" where it can strain the
                     server and lead to playback issues like loss of HDR.
                   </div>
-                </InfoHint>
+                </HintPopover>
               </p>
 
               {
@@ -178,10 +178,10 @@ export function JellyfinSetup() {
                   If you plan on using subtitles, go to the "Subtitles" settings page, <b>check</b> the "Experimental
                   PGS subtitle rendering" checkbox.{" "}
 
-                  <InfoHint>
+                  <HintPopover>
                     This allows displaying subtitles in PGS format without losing HDR or Dolby Vision and reduces
                     strain on the server.
-                  </InfoHint>
+                  </HintPopover>
                 </li>
               </ul>
 
@@ -244,19 +244,19 @@ export function JellyfinSetup() {
                   Media Container" checkbox. Checking this may cause issues with Dolby Vision content on newer LG TVs
                   so try unchecking this if that's the case.{" "}
 
-                  <InfoHint>
+                  <HintPopover>
                     This fixes a black screen being displayed during playback of some Dolby Vision content on some LG
                     TVs. This also fixes Dolby Vision content falling back to regular HDR for some LG TVs.
-                  </InfoHint>
+                  </HintPopover>
                 </li>
                 <li className="text-pretty">
                   If you plan on using subtitles, go to the "Subtitles" settings page, <b>check</b> the "Experimental
                   PGS subtitle rendering" checkbox.{" "}
 
-                  <InfoHint>
+                  <HintPopover>
                     This allows displaying subtitles in PGS format without losing HDR or Dolby Vision and reduces
                     strain on the server.
-                  </InfoHint>
+                  </HintPopover>
                 </li>
               </ul>
 
@@ -270,7 +270,7 @@ export function JellyfinSetup() {
                 On Google TV devices or devices based on Google TV like some Amazon Fire TV, it is recommended to
                 access Jellyfin using the third-party Wholphin app for the best experience.{" "}
 
-                <InfoHint>
+                <HintPopover>
                   On these platforms, Wholphin has become the main recommendation in the Jellyfin community. At the
                   time of writing, the official app is not recommended due usability and playback issues including but
                   not limited to the following.
@@ -280,7 +280,7 @@ export function JellyfinSetup() {
                     <li>Subtitle selection is not remembered when going to the next episode.</li>
                     <li>No support for multi-part episodes.</li>
                   </ul>
-                </InfoHint>
+                </HintPopover>
               </div>
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
@@ -307,20 +307,20 @@ export function JellyfinSetup() {
                       <b>Disable</b> the "Always downmix to stereo" toggle and <b>enable</b> the "Device supports
                       AC3/Dolby Digital" toggle.{" "}
 
-                      <InfoHint>
+                      <HintPopover>
                         This is a workaround for a bug on some devices that can cause a loss of HDR and Dolby Vision if
                         the content has surround sound audio. If this causes unplayable content, revert it back to
                         disabled and enabled respectively.
-                      </InfoHint>
+                      </HintPopover>
                     </li>
                     <li className="text-pretty">
                       If you plan on using subtitles, <b>enable</b> both the "Direct play AAS subtitles" and "Direct
                       play PGS subtitles" toggles.{" "}
 
-                      <InfoHint>
+                      <HintPopover>
                         This allows displaying subtitles in ASS and PGS formats without losing HDR or Dolby Vision and
                         reduces strain on the server.
-                      </InfoHint>
+                      </HintPopover>
                     </li>
                   </ul>
                 </li>
@@ -363,7 +363,7 @@ export function JellyfinSetup() {
                 On Windows devices, it is recommended to install Jellyfin as a web app through the Microsoft Edge
                 browser for the best experience.{" "}
 
-                <InfoHint>
+                <HintPopover>
                   <div>
                     Using a browser avoids known bugs with the official app and adds the ability for picture-in-picture
                     and HDR playback.
@@ -373,7 +373,7 @@ export function JellyfinSetup() {
                     browsers like Chrome and Firefox. This avoids the need for "transcoding" where it can strain
                     the server and lead to playback issues like loss of HDR.
                   </div>
-                </InfoHint>
+                </HintPopover>
               </p>
 
               {
@@ -444,7 +444,7 @@ export function JellyfinSetup() {
                 On MacOS devices, there are currently no specific recommendations. However, Jellyfin can be accessed
                 using the Safari browser.{" "}
 
-                <InfoHint>
+                <HintPopover>
                   <div>
                     Using a browser avoids known bugs with the official app and adds the ability for picture-in-picture
                     and HDR playback.
@@ -453,7 +453,7 @@ export function JellyfinSetup() {
                     According to the official Jellyfin documentation, the Safari browser has the most complete support
                     for HDR content compared to other browsers
                   </div>
-                </InfoHint>
+                </HintPopover>
               </p>
 
               <small className="muted">
@@ -500,22 +500,21 @@ function SectionAccordionItem({ id, ...props }: AccordionItemProps) {
 
 function ChangePasswordWarning() {
   return (
-    <Alert className="border-yellow-200 bg-yellow-50 text-yellow-900 dark:border-yellow-800 dark:bg-yellow-950 dark:text-yellow-100">
-      <AlertTriangleIcon />
+    <AlertWarning className="mt-2">
       <AlertTitle>Still using your initial password?</AlertTitle>
       <AlertDescription className="text-pretty">
         Now's a good time to <Link to="/jellyfin/security#change-password">change your password</Link>.
       </AlertDescription>
-    </Alert>
+    </AlertWarning>
   )
 }
 
-function InfoHint({ children }: { children: ReactNode }) {
+function HintPopover({ children }: { children: ReactNode }) {
   return (
     <Popover >
       <PopoverTrigger openOnHover={true} render={
         <Button variant={"link"} size={'icon-sm'} className="size-4 translate-y-1/8">
-          <InfoIcon />
+          <HelpCircleIcon />
         </Button>
       } />
       <PopoverContent>
