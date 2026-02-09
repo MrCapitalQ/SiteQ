@@ -57,7 +57,7 @@ export function JellyfinSetup() {
         <Alert>
           <LightbulbIcon />
           <AlertDescription className="text-pretty">
-            Consider sharing your feedback on these recommendations so it can be improved.
+            Consider sharing your feedback on these recommendations so they can be improved.
           </AlertDescription>
         </Alert>
 

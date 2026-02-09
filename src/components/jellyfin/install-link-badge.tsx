@@ -8,12 +8,10 @@ export function InstallLinkBadge() {
   const isEdge = useDetectEdge();
 
   return (
-    <>
-      <Button nativeButton={false} render={
-        isEdge
-          ? <Link to={url} target="_blank">Install Jellyfin <ExternalLinkIcon data-icon="inline-end" /></Link>
-          : <Link to={`microsoft-edge:${url}`} target="_blank">Install Jellyfin in Edge <ExternalLinkIcon data-icon="inline-end" /></Link>
-      } />
-    </>
+    <Button nativeButton={false} render={
+      <Link to={isEdge ? url : `microsoft-edge:${url}`} target="_blank">
+        Install Jellyfin {!isEdge && 'in Edge'} <ExternalLinkIcon data-icon="inline-end" />
+      </Link>
+    } />
   )
 }

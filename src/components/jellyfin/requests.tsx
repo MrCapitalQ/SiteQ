@@ -18,9 +18,9 @@ export function JellyfinRequests() {
 
         <ol className="list-decimal ml-8 my-4 space-y-2">
           <li>
-            On Android, Windows, iOS, iPad, or MacOS, open the Jellyfin app that was installed using the {" "}
-            <Link to="/jellyfin/setup">recommended setup instructions</Link>. Alternatively, open a browser and go to
-            <ServerLinkBadge mode="navigate" />.
+            On Android, Windows, iOS, iPad, or MacOS, open the Jellyfin app that was installed using the{" "}
+            <Link to="/jellyfin/setup">recommended setup instructions</Link>. Alternatively, open a browser and go
+            to <ServerLinkBadge mode="navigate" />.
           </li>
           <li>
             Click or tap the search button at the top and search for the content you want to request. Content that can

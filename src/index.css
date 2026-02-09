@@ -180,4 +180,16 @@
   .muted {
     @apply text-muted-foreground;
   }
+
+  a:not([data-slot]) {
+    text-decoration: underline;
+  }
+
+  a[data-slot="button"] {
+    text-decoration: none !important;
+  }
+
+  a[data-slot="button"]:hover {
+    color: var(--primary-foreground) !important;
+  }
 }
