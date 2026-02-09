@@ -1,8 +1,9 @@
 import { useDetectEdge } from "@/hooks/use-detect-edge";
 import { useDetectPlatform } from "@/hooks/use-detect-platform";
+import type { AccordionItemProps } from "@base-ui/react";
 import { AlertTriangleIcon, InfoIcon, LightbulbIcon } from "lucide-react";
-import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState, type ReactNode } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Button } from "../ui/button";
@@ -15,7 +16,25 @@ import { ServerLinkBadge } from "./server-link-badge";
 const platform = useDetectPlatform();
 const isEdge = useDetectEdge();
 
+function scrollToAccordionItem(id: string) {
+  const element = document.getElementById(id);
+  if (element) {
+    setTimeout(() => element.scrollIntoView({ behavior: 'smooth' }), 200);
+  }
+}
+
 export function JellyfinSetup() {
+  const location = useLocation();
+  const [accordionValue, setAccordionValue] = useState<string[]>([])
+
+  useEffect(() => {
+    const hash = location.hash.slice(1); // Remove '#' from hash
+    if (hash) {
+      setAccordionValue([hash]);
+      scrollToAccordionItem(hash);
+    }
+  }, [location]);
+
   return (
     <Page className="mx-auto space-y-8">
       <title>Jellyfin Setup Guide</title>
@@ -42,8 +61,8 @@ export function JellyfinSetup() {
           </AlertDescription>
         </Alert>
 
-        <Accordion>
-          <AccordionItem value="android">
+        <Accordion value={accordionValue} onValueChange={setAccordionValue}>
+          <SectionAccordionItem id="android">
             <AccordionTrigger><h4>Android</h4></AccordionTrigger>
             <AccordionContent>
               <p className="text-pretty">
@@ -168,8 +187,8 @@ export function JellyfinSetup() {
 
               <RecommendedSettingsDisclaimer />
             </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="ios">
+          </SectionAccordionItem>
+          <SectionAccordionItem id="ios">
             <AccordionTrigger><h4>iPhone or iPad</h4></AccordionTrigger>
             <AccordionContent>
               On iPhone and iPad, there are currently no specific recommendations. However, the official Jellyfin app
@@ -196,8 +215,8 @@ export function JellyfinSetup() {
               The Jellyfin community also recommends the third-party Infuse app as an alternative but requires the
               premium version for features like 4K and HDR playback.
             </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="web-os">
+          </SectionAccordionItem>
+          <SectionAccordionItem id="web-os">
             <AccordionTrigger><h4>LG TV with WebOS</h4></AccordionTrigger>
             <AccordionContent>
               The official Jellyfin app is recommended on LG TVs with WebOS.
@@ -243,8 +262,8 @@ export function JellyfinSetup() {
 
               <RecommendedSettingsDisclaimer />
             </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="google-tv">
+          </SectionAccordionItem>
+          <SectionAccordionItem id="google-tv">
             <AccordionTrigger><h4>Google TV or Amazon Fire TV</h4></AccordionTrigger>
             <AccordionContent>
               <div className="text-pretty">
@@ -309,8 +328,8 @@ export function JellyfinSetup() {
 
               <RecommendedSettingsDisclaimer />
             </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="tizen">
+          </SectionAccordionItem>
+          <SectionAccordionItem id="tizen">
             <AccordionTrigger><h4>Samsung TV with Tizen</h4></AccordionTrigger>
             <AccordionContent>
               On Samsung TVs running Tizen, there are currently no specific recommendations. However the official
@@ -328,16 +347,16 @@ export function JellyfinSetup() {
                 </li>
               </ol>
             </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="apple-tv">
+          </SectionAccordionItem>
+          <SectionAccordionItem id="apple-tv">
             <AccordionTrigger><h4>Apple TV</h4></AccordionTrigger>
             <AccordionContent>
               On Apple TV, the official Swiftfin app is available but is problematic according the Jellyfin community.
               Instead, the third-party Infuse app is recommended as an alternative but requires the premium version for
               features like 4K and HDR playback.
             </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="windows">
+          </SectionAccordionItem>
+          <SectionAccordionItem id="windows">
             <AccordionTrigger><h4>Windows</h4></AccordionTrigger>
             <AccordionContent>
               <p className="text-pretty">
@@ -417,8 +436,8 @@ export function JellyfinSetup() {
                 </TabsContent>
               </Tabs>
             </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="mac">
+          </SectionAccordionItem>
+          <SectionAccordionItem id="mac">
             <AccordionTrigger><h4>MacOS</h4></AccordionTrigger>
             <AccordionContent>
               <p className="text-pretty">
@@ -458,11 +477,25 @@ export function JellyfinSetup() {
                 <li>Follow the prompts to install the app and it will appear in your apps folder.</li>
               </ol>
             </AccordionContent>
-          </AccordionItem>
+          </SectionAccordionItem>
         </Accordion>
       </div >
     </Page >
   )
+}
+
+function SectionAccordionItem({ id, ...props }: AccordionItemProps) {
+  return <AccordionItem id={id}
+    value={id}
+    onOpenChange={(value, details) => {
+      if (id && value && details.reason === 'trigger-press') {
+        window.history.replaceState(null, '', `#${id}`);
+        scrollToAccordionItem(id);
+      } else {
+        window.history.replaceState(null, '', '#');
+      }
+    }}
+    {...props} />
 }
 
 function ChangePasswordWarning() {

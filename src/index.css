@@ -180,8 +180,4 @@
   .muted {
     @apply text-muted-foreground;
   }
-
-  a {
-    text-decoration: revert;
-  }
 }
