@@ -20,7 +20,7 @@ const isEdge = useDetectEdge();
 function scrollToAccordionItem(id: string) {
   const element = document.getElementById(id);
   if (element) {
-    setTimeout(() => element.scrollIntoView({ behavior: 'smooth' }), 200);
+    element.scrollIntoView({ behavior: 'smooth' });
   }
 }
 
@@ -490,9 +490,13 @@ function SectionAccordionItem({ id, ...props }: AccordionItemProps) {
     onOpenChange={(value, details) => {
       if (id && value && details.reason === 'trigger-press') {
         window.history.replaceState(null, '', `#${id}`);
-        scrollToAccordionItem(id);
       } else {
         window.history.replaceState(null, '', '#');
+      }
+    }}
+    onAnimationEnd={(e) => {
+      if (id && e.animationName === 'accordion-down') {
+        scrollToAccordionItem(id);
       }
     }}
     {...props} />
