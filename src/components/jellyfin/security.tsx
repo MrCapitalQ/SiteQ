@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { AlertTitle } from "../ui/alert";
+import { AlertInfo } from "../ui/alert-variants";
 import { Page } from "../ui/page";
 import { ServerLinkBadge } from "./server-link-badge";
 
@@ -29,6 +31,10 @@ export function JellyfinSecurity() {
             Click or tap "Profile" and set a new strong your password.
           </li>
         </ol>
+
+        <AlertInfo>
+          <AlertTitle>If you forgot your password, a password reset can be requested by contacting Q.</AlertTitle>
+        </AlertInfo>
       </div>
 
       <div className="flex flex-col space-y-4">
