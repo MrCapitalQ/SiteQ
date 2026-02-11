@@ -57,7 +57,7 @@ export function JellyfinSetup() {
 
         <AlertInfo>
           <AlertTitle>
-            Consider sharing your feedback so these recommendations can be improved.
+            Consider sharing your feedback so this page can be improved.
           </AlertTitle>
         </AlertInfo>
 
