@@ -5,7 +5,7 @@ import { HelpCircleIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
-import { AlertDescription, AlertTitle } from "../ui/alert";
+import { AlertTitle } from "../ui/alert";
 import { AlertInfo, AlertWarning } from "../ui/alert-variants";
 import { Button } from "../ui/button";
 import { Page } from "../ui/page";
@@ -122,14 +122,16 @@ export function JellyfinSetup() {
 
                             <InstallLinkBadge />
                           </li>
+                          <li><SignInStep suggestPasswordChange={true} /></li>
                           <li>
-                            Sign in using your username and password or use{" "}
-                            <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                            {" "}if you've already signed in on a another device.
+                            Apply the recommended settings below.
 
-                            <ChangePasswordWarning />
+                            <AlertWarning className="mt-2">
+                              <AlertTitle>
+                                These settings are not synced and should be applied on <b>each</b> Android device.
+                              </AlertTitle>
+                            </AlertWarning>
                           </li>
-                          <li>Apply the recommended settings below.</li>
                         </ol>
                       </>
                       : <>
@@ -150,13 +152,7 @@ export function JellyfinSetup() {
                     <li>
                       In the Edge browser, go to <ServerLinkBadge />.
                     </li>
-                    <li>
-                      Sign in using your username and password or use{" "}
-                      <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                      {" "}if you've already signed in on a another device.
-
-                      <ChangePasswordWarning />
-                    </li>
+                    <li><SignInStep suggestPasswordChange={true} /></li>
                     <li>
                       To install Jellyfin as an app, tap the hamburger menu (three lines) at the bottom right and tap "Add
                       to phone." You may need to scroll to find this option.
@@ -164,14 +160,21 @@ export function JellyfinSetup() {
                     <li>
                       Follow the prompts to install it as an app and it will appear as an app on your homescreen.
                     </li>
-                    <li>Apply the recommended settings below.</li>
+                    <li>
+                      Apply the recommended settings below.
+
+                      <AlertWarning className="mt-2">
+                        <AlertTitle>
+                          These settings are not synced and should be applied on <b>each</b> Android device.
+                        </AlertTitle>
+                      </AlertWarning>
+                    </li>
                   </ol>
                 </TabsContent>
               </Tabs>
 
               <div className="font-bold mt-8">Settings Recommendations</div>
-              These settings are not synced and should be applied on <b>each</b> Android device. The settings menu can
-              be accessed by tapping the user icon at the top right.
+              The settings menu can be accessed by tapping the user icon at the top right.
 
               <ul className="mt-0">
                 <li className="text-pretty">
@@ -203,13 +206,7 @@ export function JellyfinSetup() {
                 <li>
                   Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
-                <li>
-                  Sign in using your username and password or use{" "}
-                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                  {" "}if you've already signed in on a another device.
-
-                  <ChangePasswordWarning />
-                </li>
+                <li><SignInStep suggestPasswordChange={true} /></li>
               </ol>
 
               The Jellyfin community also recommends the third-party Infuse app as an alternative but requires the
@@ -226,17 +223,20 @@ export function JellyfinSetup() {
                 <li>
                   Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
+                <li><SignInStep /></li>
                 <li>
-                  Sign in using your username and password or use{" "}
-                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                  {" "}if you've already signed in on a another device.
+                  Apply the recommended settings below.
+
+                  <AlertWarning className="mt-2">
+                    <AlertTitle>
+                      These settings are not synced and should be applied on <b>each</b> LG TV.
+                    </AlertTitle>
+                  </AlertWarning>
                 </li>
-                <li>Apply the recommended settings below.</li>
               </ol>
 
               <div className="font-bold mt-8">Settings Recommendations</div>
-              These settings are not synced and should be applied on <b>each</b> LG TV. The settings menu can be
-              accessed by selecting the user icon at the top right.
+              The settings menu can be accessed by selecting the user icon at the top right.
 
               <ul className="mt-0">
                 <li className="text-pretty">
@@ -288,17 +288,18 @@ export function JellyfinSetup() {
                 <li>
                   Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
+                <li><SignInStep /></li>
                 <li>
-                  Sign in using your username and password or use{" "}
-                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                  {" "}if you've already signed in on a another device.
+                  Apply the recommended settings below.
+
+                  <AlertWarning className="mt-2">
+                    <AlertTitle>These settings should be applied after each time Wholphin is installed.</AlertTitle>
+                  </AlertWarning>
                 </li>
-                <li>Apply the recommended settings below.</li>
               </ol>
 
               <div className="font-bold mt-8">Settings Recommendations</div>
-              These settings are not synced and should be applied on <b>each</b> Google TV-based device. These settings
-              can be accessed from left sidebar then "Advanced Settings."
+              These settings can be accessed from left sidebar then "Advanced Settings."
 
               <ul className="mt-0">
                 <li>Under the "Playback Backend" section, adjust the following.
@@ -340,11 +341,7 @@ export function JellyfinSetup() {
                 <li>
                   Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
-                <li>
-                  Sign in using your username and password or use{" "}
-                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                  {" "}if you've already signed in on a another device.
-                </li>
+                <li><SignInStep /></li>
               </ol>
             </AccordionContent>
           </SectionAccordionItem>
@@ -400,12 +397,15 @@ export function JellyfinSetup() {
                             <div>Click the link below and follow the prompts to install Jellyfin.</div>
                             <InstallLinkBadge />
                           </li>
+                          <li><SignInStep suggestPasswordChange={true} /></li>
                           <li>
-                            Sign in using your username and password or use{" "}
-                            <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                            {" "}if you've already signed in on a another device.
+                            Apply the recommended settings below.
 
-                            <ChangePasswordWarning />
+                            <AlertWarning className="mt-2">
+                              <AlertTitle>
+                                These settings are not synced and should be applied on <b>each</b> Windows device.
+                              </AlertTitle>
+                            </AlertWarning>
                           </li>
                         </ol>
                       </>
@@ -420,21 +420,41 @@ export function JellyfinSetup() {
                     <li>
                       In the Edge browser, go to <ServerLinkBadge />.
                     </li>
-                    <li>
-                      Sign in using your username and password or use{" "}
-                      <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                      {" "}if you've already signed in on a another device.
-
-                      <ChangePasswordWarning />
-                    </li>
+                    <li><SignInStep suggestPasswordChange={true} /></li>
                     <li>
                       To install Jellyfin as an app, click the "App available. Install Jelly" icon on the right side of the
                       address bar.
                     </li>
                     <li>Follow the prompts to install the app and it will appear in your list of apps.</li>
+                    <li>
+                      Apply the recommended settings below.
+
+                      <AlertWarning className="mt-2">
+                        <AlertTitle>
+                          These settings are not synced and should be applied on <b>each</b> Windows device.
+                        </AlertTitle>
+                      </AlertWarning>
+                    </li>
                   </ol>
                 </TabsContent>
               </Tabs>
+
+              <div className="font-bold mt-8">Settings Recommendations</div>
+              The settings menu can be accessed by tapping the user icon at the top right.
+
+              <ul className="mt-0">
+                <li className="text-pretty">
+                  If you plan on using subtitles, go to the "Subtitles" settings page, <b>check</b> the "Experimental
+                  PGS subtitle rendering" checkbox.{" "}
+
+                  <HintPopover>
+                    This allows displaying subtitles in PGS format without losing HDR or Dolby Vision and reduces
+                    strain on the server.
+                  </HintPopover>
+                </li>
+              </ul>
+
+              <RecommendedSettingsDisclaimer />
             </AccordionContent>
           </SectionAccordionItem>
           <SectionAccordionItem id="mac">
@@ -464,13 +484,7 @@ export function JellyfinSetup() {
                 <li>
                   In the Safari browser, go to <ServerLinkBadge />.
                 </li>
-                <li>
-                  Sign in using your username and password or use{" "}
-                  <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>
-                  {" "}if you've already signed in on a another device.
-
-                  <ChangePasswordWarning />
-                </li>
+                <li><SignInStep suggestPasswordChange={true} /></li>
                 <li>
                   To install Jellyfin as an app, click "File" &gt; "Add to Dock."
                 </li>
@@ -502,15 +516,20 @@ function SectionAccordionItem({ id, ...props }: AccordionItemProps) {
     {...props} />
 }
 
-function ChangePasswordWarning() {
-  return (
-    <AlertWarning className="mt-2">
-      <AlertTitle>Still using your initial password?</AlertTitle>
-      <AlertDescription className="text-pretty">
-        Now's a good time to <Link to="/jellyfin/security#change-password">change your password</Link>.
-      </AlertDescription>
-    </AlertWarning>
-  )
+function SignInStep({ suggestPasswordChange = false }: { suggestPasswordChange?: boolean }) {
+  return <>
+    Sign in using your username and password or{" "}
+    <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>.
+
+    {
+      suggestPasswordChange &&
+      <>
+        {" "}Now's a good time to{" "}
+        <Link to="/jellyfin/security#change-password">change your password</Link>{" "}
+        if you're still using your initially given password.
+      </>
+    }
+  </>
 }
 
 function HintPopover({ children }: { children: ReactNode }) {
