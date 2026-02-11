@@ -1,11 +1,11 @@
 import { createBrowserRouter, Outlet, RouterProvider, ScrollRestoration } from "react-router-dom";
-import { Toaster } from "sonner";
 import { Home } from "./components/home";
 import { JellyfinRequests } from "./components/jellyfin/requests";
 import { JellyfinSecurity } from "./components/jellyfin/security";
 import { JellyfinSetup } from "./components/jellyfin/setup";
 import { JellyfinWelcome } from "./components/jellyfin/welcome";
 import { ThemeProvider } from "./components/theme-provider";
+import { Toaster } from "./components/ui/sonner";
 
 export function App() {
   return (

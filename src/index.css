@@ -182,14 +182,10 @@
   }
 
   a:not([data-slot]) {
-    text-decoration: underline;
+    @apply underline;
   }
 
   a[data-slot="button"] {
-    text-decoration: none !important;
-  }
-
-  a[data-slot="button"]:hover {
-    color: var(--primary-foreground) !important;
+    @apply !no-underline !text-primary-foreground;
   }
 }
