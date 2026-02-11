@@ -6,7 +6,7 @@ import { ServerLinkBadge } from "./server-link-badge";
 export function JellyfinIssues() {
   return (
     <Page className="space-y-8">
-      <title>Report Jellyfin Issues</title>
+      <title>Jellyfin Issue Reporting</title>
       <div>
         <h1>Report Issues</h1>
         <p className="lead">Report problems with movies and TV shows.</p>

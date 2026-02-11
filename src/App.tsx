@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate, Outlet, RouterProvider, ScrollRestoration } from "react-router-dom";
+import { AppHeader, AppHeaderTitle } from "./components/app-header";
 import { Home } from "./components/home";
 import { JellyfinIssues } from "./components/jellyfin/issues";
 import { JellyfinRequests } from "./components/jellyfin/requests";
@@ -17,7 +18,7 @@ export function App() {
   );
 }
 
-function Layout() {
+function RootLayout() {
   return (
     <>
       <Outlet />
@@ -26,14 +27,28 @@ function Layout() {
   )
 }
 
+function JellyfinLayout() {
+  return (
+    <>
+      <AppHeader title={
+        <AppHeaderTitle className="bg-clip-text text-transparent bg-[linear-gradient(120deg,#AA5CC3,#00A4DC)]">
+          Jellyfin
+        </AppHeaderTitle>
+      } />
+      <Outlet />
+    </>
+  )
+}
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />,
+    element: <RootLayout />,
     children: [
       { index: true, element: <Home /> },
       {
         path: "jellyfin",
+        element: <JellyfinLayout />,
         children: [
           { index: true, element: <Navigate to={"welcome"} replace /> },
           { path: "welcome", element: <JellyfinWelcome /> },
