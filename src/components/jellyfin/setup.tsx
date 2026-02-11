@@ -1,7 +1,7 @@
 import { useDetectEdge } from "@/hooks/use-detect-edge";
 import { useDetectPlatform } from "@/hooks/use-detect-platform";
 import type { AccordionItemProps } from "@base-ui/react";
-import { HelpCircleIcon } from "lucide-react";
+import { HelpCircleIcon, MenuIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
@@ -154,8 +154,9 @@ export function JellyfinSetup() {
                     </li>
                     <li><SignInStep suggestPasswordChange={true} /></li>
                     <li>
-                      To install Jellyfin as an app, tap the hamburger menu (three lines) at the bottom right and tap "Add
-                      to phone." You may need to scroll to find this option.
+                      To install Jellyfin as an app, tap the hamburger menu (
+                      <MenuIcon className="inline size-4 -translate-y-1/8" />) at the bottom right and tap "Add to
+                      phone." You may need to scroll to find this option.
                     </li>
                     <li>
                       Follow the prompts to install it as an app and it will appear as an app on your homescreen.
