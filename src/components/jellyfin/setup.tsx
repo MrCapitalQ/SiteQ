@@ -1,7 +1,7 @@
-import { useDetectEdge } from "@/hooks/use-detect-edge";
+import { useDetectBrowser } from "@/hooks/use-detect-browser";
 import { useDetectPlatform } from "@/hooks/use-detect-platform";
 import type { AccordionItemProps } from "@base-ui/react";
-import { HelpCircleIcon, MenuIcon } from "lucide-react";
+import { EllipsisVerticalIcon, HelpCircleIcon, MenuIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
@@ -15,7 +15,7 @@ import { InstallLinkBadge } from "./install-link-badge";
 import { ServerLinkBadge } from "./server-link-badge";
 
 const platform = useDetectPlatform();
-const isEdge = useDetectEdge();
+const browser = useDetectBrowser();
 
 function scrollToAccordionItem(id: string) {
   const element = document.getElementById(id);
@@ -67,7 +67,7 @@ export function JellyfinSetup() {
             <AccordionContent>
               <p className="text-pretty">
                 On Android devices, it is recommended to install Jellyfin as a web app through the Microsoft Edge
-                browser for the best experience.{" "}
+                or Google Chrome browsers for the best experience.{" "}
 
                 <HintPopover>
                   <div>
@@ -75,17 +75,17 @@ export function JellyfinSetup() {
                     picture-in-picture and background playback.
                   </div>
                   <div>
-                    Edge is the recommended browser because it can play more media formats directly compared to other
-                    browsers like Chrome and Firefox. This avoids the need for "transcoding" where it can strain the
+                    Edge and Chrome are the recommended browsers because it can play more media formats directly
+                    compared to other browsers. This avoids the need for "transcoding" where it can strain the
                     server and lead to playback issues like loss of HDR.
                   </div>
                 </HintPopover>
               </p>
 
               {
-                !isEdge &&
+                !browser.isEdge && !browser.isChrome &&
                 <small className="muted">
-                  Note: This does <b>not</b> require you to switch to Edge as your default browser.
+                  Note: This does <b>not</b> require you to switch to Edge or Chrome as your default browser.
                 </small>
               }
 
@@ -96,70 +96,66 @@ export function JellyfinSetup() {
                 </TabsList>
                 <TabsContent value="simple">
                   {
-                    platform == 'Android'
-                      ? <>
-                        This method will install Jellyfin on your current Android device. For a different Android
-                        device, go to this page on that device or follow the "Manual Install" steps.
+                    platform === 'Android'
+                      ? ((browser.isEdge || browser.isChrome)
+                        ? <>
+                          This method will install Jellyfin on your current Android device. For a different Android
+                          device, go to this page on that device or follow the "Manual Install" steps.
 
-                        <ol className="list-decimal ml-8 mt-2 space-y-2">
-                          <li>
-                            <div>
-                              {
-                                isEdge
-                                  ? <>
-                                    Tap the link below and follow the prompts to install Jellyfin.
-                                  </>
-                                  : <>
-                                    Make sure you've{" "}
-                                    <Link to="https://play.google.com/store/apps/details?id=com.microsoft.emmx">
-                                      installed Edge from the Google Play Store
-                                    </Link>
-                                    {" "} and have gone through its initial setup. Then tap the link below, allow it to
-                                    open in Edge, and follow the prompts to install Jellyfin.
-                                  </>
-                              }
-                            </div>
+                          <ol className="list-decimal ml-8 mt-2 space-y-2">
+                            <li>
+                              <div>Tap the link below and follow the prompts to install Jellyfin.</div>
 
-                            <InstallLinkBadge />
-                          </li>
-                          <li><SignInStep suggestPasswordChange={true} /></li>
-                          <li>
-                            Apply the recommended settings below.
+                              <InstallLinkBadge />
+                            </li>
+                            <li><SignInStep suggestPasswordChange={true} /></li>
+                            <li>
+                              Apply the recommended settings below.
 
-                            <AlertWarning className="mt-2">
-                              <AlertTitle>
-                                These settings are not synced and should be applied on <b>each</b> Android device.
-                              </AlertTitle>
-                            </AlertWarning>
-                          </li>
-                        </ol>
-                      </>
+                              <AlertWarning className="mt-2">
+                                <AlertTitle>
+                                  These settings are not synced and should be applied on <b>each</b> Android device.
+                                </AlertTitle>
+                              </AlertWarning>
+                            </li>
+                          </ol>
+                        </>
+                        : <>
+                          Open this page in Edge or Chrome and use the install button that appears there to install
+                          Jellyfin. Alternatively, you can follow the "Manual Install" steps instead.
+                        </>
+                      )
                       : <>
-                        Open this page on an Android device to use the simple install method. Alternatively, you can
-                        follow the "Manual Install" steps instead.
+                        Open this page in Edge or Chrome on an Android device and use the install button that appears
+                        there to install Jellyfin. Alternatively, you can follow the "Manual Install" steps instead.
                       </>
                   }
 
                 </TabsContent>
                 <TabsContent value="manual">
                   <ol className="list-decimal ml-8 space-y-2">
-                    <li className="text-pretty">If you don't have Edge installed,{" "}
-                      <Link to="https://play.google.com/store/apps/details?id=com.microsoft.emmx">
-                        download it from the Google Play Store
-                      </Link>
-                      {" "} and go through its initial setup.
-                    </li>
                     <li>
-                      In the Edge browser, go to <ServerLinkBadge />.
+                      In Edge or Chrome, go to <ServerLinkBadge />.
                     </li>
                     <li><SignInStep suggestPasswordChange={true} /></li>
                     <li>
-                      To install Jellyfin as an app, tap the hamburger menu (
-                      <MenuIcon className="inline size-4 -translate-y-1/8" />) at the bottom right and tap "Add to
-                      phone." You may need to scroll to find this option.
+                      Start the install process based on your browser.
+
+                      <ul className="my-2">
+                        <li>
+                          In Edge, tap the hamburger menu (<MenuIcon className="inline size-4 -translate-y-1/8" />) at
+                          the bottom right and tap "Add to phone." You may need to scroll to find this option.
+                        </li>
+                        <li>
+                          In Chrome, tap the more menu (
+                          <EllipsisVerticalIcon className="inline size-4 -translate-y-1/8" />) at the top right and tap
+                          "Add to Home screen."
+                        </li>
+                      </ul>
                     </li>
                     <li>
-                      Follow the prompts to install it as an app and it will appear as an app on your homescreen.
+                      Follow the prompts to install it as an app and it will appear as an app on your homescreen or
+                      apps drawer.
                     </li>
                     <li>
                       Apply the recommended settings below.
@@ -359,7 +355,7 @@ export function JellyfinSetup() {
             <AccordionContent>
               <p className="text-pretty">
                 On Windows devices, it is recommended to install Jellyfin as a web app through the Microsoft Edge
-                browser for the best experience.{" "}
+                or Google Chrome browsers for the best experience.{" "}
 
                 <HintPopover>
                   <div>
@@ -367,17 +363,17 @@ export function JellyfinSetup() {
                     and HDR playback.
                   </div>
                   <div>
-                    Edge is the recommended browser because it can play more media formats directly compared to other
-                    browsers like Chrome and Firefox. This avoids the need for "transcoding" where it can strain
-                    the server and lead to playback issues like loss of HDR.
+                    Edge and Chrome are the recommended browsers because it can play more media formats directly
+                    compared to other browsers. This avoids the need for "transcoding" where it can strain the
+                    server and lead to playback issues like loss of HDR.
                   </div>
                 </HintPopover>
               </p>
 
               {
-                !isEdge &&
+                !browser.isEdge && !browser.isChrome &&
                 <small className="muted">
-                  Note: This does <b>not</b> require you to switch to Edge as your default browser.
+                  Note: This does <b>not</b> require you to switch to Edge or Chrome as your default browser.
                 </small>
               }
 
@@ -388,43 +384,49 @@ export function JellyfinSetup() {
                 </TabsList>
                 <TabsContent value="simple">
                   {
-                    platform == 'Windows'
-                      ? <>
-                        This method will install Jellyfin on your current Windows device. For a different Windows
-                        device, go to this page on that device or follow the "Manual Install" steps.
+                    platform === 'Windows'
+                      ? ((browser.isEdge || browser.isChrome)
+                        ? <>
+                          This method will install Jellyfin on your current Windows device. For a different Windows
+                          device, go to this page on that device or follow the "Manual Install" steps.
 
-                        <ol className="list-decimal ml-8 mt-2 space-y-2">
-                          <li>
-                            <div>Click the link below and follow the prompts to install Jellyfin.</div>
-                            <InstallLinkBadge />
-                          </li>
-                          <li><SignInStep suggestPasswordChange={true} /></li>
-                          <li>
-                            Apply the recommended settings below.
+                          <ol className="list-decimal ml-8 mt-2 space-y-2">
+                            <li>
+                              <div>Click the link below and follow the prompts to install Jellyfin.</div>
+                              <InstallLinkBadge />
+                            </li>
+                            <li><SignInStep suggestPasswordChange={true} /></li>
+                            <li>
+                              Apply the recommended settings below.
 
-                            <AlertWarning className="mt-2">
-                              <AlertTitle>
-                                These settings are not synced and should be applied on <b>each</b> Windows device.
-                              </AlertTitle>
-                            </AlertWarning>
-                          </li>
-                        </ol>
-                      </>
+                              <AlertWarning className="mt-2">
+                                <AlertTitle>
+                                  These settings are not synced and should be applied on <b>each</b> Windows device.
+                                </AlertTitle>
+                              </AlertWarning>
+                            </li>
+                          </ol>
+                        </>
+                        : <>
+                          Open this page in Edge or Chrome and use the install button that appears there to install
+                          Jellyfin. Alternatively, you can follow the "Manual Install" steps instead.
+                        </>
+                      )
                       : <>
-                        Open this page on a Windows device to use the simple install method. Alternatively, you can
-                        follow the "Manual Install" steps instead.
+                        Open this page in Edge or Chrome on a Windows device and use the install button that appears
+                        there to install Jellyfin. Alternatively, you can follow the "Manual Install" steps instead.
                       </>
                   }
                 </TabsContent>
                 <TabsContent value="manual">
                   <ol className="list-decimal ml-8 space-y-2">
                     <li>
-                      In the Edge browser, go to <ServerLinkBadge />.
+                      In Edge or Chrome, go to <ServerLinkBadge />.
                     </li>
                     <li><SignInStep suggestPasswordChange={true} /></li>
                     <li>
-                      To install Jellyfin as an app, click the "App available. Install Jelly" icon on the right side of the
-                      address bar.
+                      To install Jellyfin as an app, click the "Install Jellyfin" icon inside the address bar on the
+                      right.
                     </li>
                     <li>Follow the prompts to install the app and it will appear in your list of apps.</li>
                     <li>
