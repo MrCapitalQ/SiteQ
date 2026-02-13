@@ -1,11 +1,11 @@
 import { useDetectBrowser } from "@/hooks/use-detect-browser";
 import { useDetectPlatform } from "@/hooks/use-detect-platform";
 import type { AccordionItemProps } from "@base-ui/react";
-import { EllipsisVerticalIcon, HelpCircleIcon, MenuIcon } from "lucide-react";
+import { CircleUserRoundIcon, EllipsisVerticalIcon, HelpCircleIcon, MenuIcon, SettingsIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
-import { AlertTitle } from "../ui/alert";
+import { AlertDescription, AlertTitle } from "../ui/alert";
 import { AlertInfo, AlertWarning } from "../ui/alert-variants";
 import { Button } from "../ui/button";
 import { Page } from "../ui/page";
@@ -109,25 +109,16 @@ export function JellyfinSetup() {
                               <InstallLinkBadge />
                             </li>
                             <li><SignInStep suggestPasswordChange={true} /></li>
-                            <li>
-                              Apply the recommended settings below.
-
-                              <AlertWarning className="mt-2">
-                                <AlertTitle>
-                                  These settings are not synced and should be applied on <b>each</b> Android device.
-                                </AlertTitle>
-                              </AlertWarning>
-                            </li>
                           </ol>
                         </>
                         : <>
-                          Open this page in Edge or Chrome and use the install button that appears there to install
-                          Jellyfin. Alternatively, you can follow the "Manual Install" steps instead.
+                          Open this page in Edge or Chrome to see the simple install steps. Alternatively, you can
+                          follow the "Manual Install" steps instead.
                         </>
                       )
                       : <>
-                        Open this page in Edge or Chrome on an Android device and use the install button that appears
-                        there to install Jellyfin. Alternatively, you can follow the "Manual Install" steps instead.
+                        You're not currently on an Android device. Open this page on an Android device to see the
+                        simple install steps. Alternatively, you can follow the "Manual Install" steps instead.
                       </>
                   }
 
@@ -157,35 +148,9 @@ export function JellyfinSetup() {
                       Follow the prompts to install it as an app and it will appear as an app on your homescreen or
                       apps drawer.
                     </li>
-                    <li>
-                      Apply the recommended settings below.
-
-                      <AlertWarning className="mt-2">
-                        <AlertTitle>
-                          These settings are not synced and should be applied on <b>each</b> Android device.
-                        </AlertTitle>
-                      </AlertWarning>
-                    </li>
                   </ol>
                 </TabsContent>
               </Tabs>
-
-              <div className="font-bold mt-8">Settings Recommendations</div>
-              The settings menu can be accessed by tapping the user icon at the top right.
-
-              <ul className="mt-0">
-                <li className="text-pretty">
-                  If you plan on using subtitles, go to the "Subtitles" settings page, <b>check</b> the "Experimental
-                  PGS subtitle rendering" checkbox.{" "}
-
-                  <HintPopover>
-                    This allows displaying subtitles in PGS format without losing HDR or Dolby Vision and reduces
-                    strain on the server.
-                  </HintPopover>
-                </li>
-              </ul>
-
-              <RecommendedSettingsDisclaimer />
             </AccordionContent>
           </SectionAccordionItem>
           <SectionAccordionItem id="ios">
@@ -221,43 +186,17 @@ export function JellyfinSetup() {
                   Open the app, enter <ServerLinkBadge /> as the server address, and connect.
                 </li>
                 <li><SignInStep /></li>
-                <li>
-                  Apply the recommended settings below.
-
-                  <AlertWarning className="mt-2">
-                    <AlertTitle>
-                      These settings are not synced and should be applied on <b>each</b> LG TV.
-                    </AlertTitle>
-                  </AlertWarning>
-                </li>
               </ol>
 
-              <div className="font-bold mt-8">Settings Recommendations</div>
-              The settings menu can be accessed by selecting the user icon at the top right.
-
-              <ul className="mt-0">
-                <li className="text-pretty">
-                  Go to the "Playback" settings page and in the "Advanced" section, <b>check</b> the "Prefer fMP4-HLS
-                  Media Container" checkbox. Checking this may cause issues with Dolby Vision content on newer LG TVs
-                  so try unchecking this if that's the case.{" "}
-
-                  <HintPopover>
-                    This fixes a black screen being displayed during playback of some Dolby Vision content on some LG
-                    TVs. This also fixes Dolby Vision content falling back to regular HDR for some LG TVs.
-                  </HintPopover>
-                </li>
-                <li className="text-pretty">
-                  If you plan on using subtitles, go to the "Subtitles" settings page, <b>check</b> the "Experimental
-                  PGS subtitle rendering" checkbox.{" "}
-
-                  <HintPopover>
-                    This allows displaying subtitles in PGS format without losing HDR or Dolby Vision and reduces
-                    strain on the server.
-                  </HintPopover>
-                </li>
-              </ul>
-
-              <RecommendedSettingsDisclaimer />
+              <AlertWarning className="my-2">
+                <AlertTitle>Some newer LG TVs have playback issues with the default settings.</AlertTitle>
+                <AlertDescription>
+                  If you experience video playback issues, especially with Dolby Vision content, try disabling the
+                  "Prefer fMP4 HLS Media Container" option. To find this option, select the user icon
+                  (<CircleUserRoundIcon className="inline size-4 -translate-y-1/8" />) at the top right, then playback,
+                  then scroll down to the "Advanced" section.
+                </AlertDescription>
+              </AlertWarning>
             </AccordionContent>
           </SectionAccordionItem>
           <SectionAccordionItem id="google-tv">
@@ -287,19 +226,10 @@ export function JellyfinSetup() {
                 </li>
                 <li><SignInStep /></li>
                 <li>
-                  Apply the recommended settings below.
+                  Open the left sidebar and select the settings icon (
+                  <SettingsIcon className="inline size-4 -translate-y-1/8" />) then select "Advanced Settings". Under
+                  the "Playback Backend" section, adjust the following.
 
-                  <AlertWarning className="mt-2">
-                    <AlertTitle>These settings should be applied after each time Wholphin is installed.</AlertTitle>
-                  </AlertWarning>
-                </li>
-              </ol>
-
-              <div className="font-bold mt-8">Settings Recommendations</div>
-              These settings can be accessed from left sidebar then "Advanced Settings."
-
-              <ul className="mt-0">
-                <li>Under the "Playback Backend" section, adjust the following.
                   <ul className="my-0">
                     <li className="text-pretty">
                       <b>Disable</b> the "Always downmix to stereo" toggle and <b>enable</b> the "Device supports
@@ -321,10 +251,17 @@ export function JellyfinSetup() {
                       </HintPopover>
                     </li>
                   </ul>
-                </li>
-              </ul>
 
-              <RecommendedSettingsDisclaimer />
+                  <AlertWarning className="my-2">
+                    <AlertTitle>These settings should be applied after each time Wholphin is installed.</AlertTitle>
+                  </AlertWarning>
+
+                  <small className="muted">
+                    Settings recommendations are highly suggested based on trial and error but your experiences may
+                    vary. Revert settings to defaults if you encounter issues.
+                  </small>
+                </li>
+              </ol>
             </AccordionContent>
           </SectionAccordionItem>
           <SectionAccordionItem id="tizen">
@@ -396,25 +333,16 @@ export function JellyfinSetup() {
                               <InstallLinkBadge />
                             </li>
                             <li><SignInStep suggestPasswordChange={true} /></li>
-                            <li>
-                              Apply the recommended settings below.
-
-                              <AlertWarning className="mt-2">
-                                <AlertTitle>
-                                  These settings are not synced and should be applied on <b>each</b> Windows device.
-                                </AlertTitle>
-                              </AlertWarning>
-                            </li>
                           </ol>
                         </>
                         : <>
-                          Open this page in Edge or Chrome and use the install button that appears there to install
-                          Jellyfin. Alternatively, you can follow the "Manual Install" steps instead.
+                          Open this page in Edge or Chrome to see the simple install steps. Alternatively, you can
+                          follow the "Manual Install" steps instead.
                         </>
                       )
                       : <>
-                        Open this page in Edge or Chrome on a Windows device and use the install button that appears
-                        there to install Jellyfin. Alternatively, you can follow the "Manual Install" steps instead.
+                        You're not currently on a Windows device. Open this page on a Windows device to see the simple
+                        install steps. Alternatively, you can follow the "Manual Install" steps instead.
                       </>
                   }
                 </TabsContent>
@@ -429,35 +357,9 @@ export function JellyfinSetup() {
                       right.
                     </li>
                     <li>Follow the prompts to install the app and it will appear in your list of apps.</li>
-                    <li>
-                      Apply the recommended settings below.
-
-                      <AlertWarning className="mt-2">
-                        <AlertTitle>
-                          These settings are not synced and should be applied on <b>each</b> Windows device.
-                        </AlertTitle>
-                      </AlertWarning>
-                    </li>
                   </ol>
                 </TabsContent>
               </Tabs>
-
-              <div className="font-bold mt-8">Settings Recommendations</div>
-              The settings menu can be accessed by tapping the user icon at the top right.
-
-              <ul className="mt-0">
-                <li className="text-pretty">
-                  If you plan on using subtitles, go to the "Subtitles" settings page, <b>check</b> the "Experimental
-                  PGS subtitle rendering" checkbox.{" "}
-
-                  <HintPopover>
-                    This allows displaying subtitles in PGS format without losing HDR or Dolby Vision and reduces
-                    strain on the server.
-                  </HintPopover>
-                </li>
-              </ul>
-
-              <RecommendedSettingsDisclaimer />
             </AccordionContent>
           </SectionAccordionItem>
           <SectionAccordionItem id="mac">
@@ -547,14 +449,5 @@ function HintPopover({ children }: { children: ReactNode }) {
         {children}
       </PopoverContent>
     </Popover>
-  )
-}
-
-function RecommendedSettingsDisclaimer() {
-  return (
-    <small className="muted">
-      Settings recommendations are highly suggested based on trial and error but your experience may vary.
-      Revert settings to defaults if you encounter issues.
-    </small>
   )
 }
