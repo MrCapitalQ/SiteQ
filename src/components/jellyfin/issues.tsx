@@ -1,5 +1,5 @@
 import { AlertTriangleIcon } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Page } from "../ui/page";
 import { ServerLinkBadge } from "./server-link-badge";
 

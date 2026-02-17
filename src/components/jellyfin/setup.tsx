@@ -3,7 +3,7 @@ import { useDetectPlatform } from "@/hooks/use-detect-platform";
 import type { AccordionItemProps } from "@base-ui/react";
 import { CircleUserRoundIcon, EllipsisVerticalIcon, HelpCircleIcon, MenuIcon, SettingsIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 import { AlertDescription, AlertTitle } from "../ui/alert";
 import { AlertInfo, AlertWarning } from "../ui/alert-variants";

@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, Outlet, RouterProvider, ScrollRestoration } from "react-router-dom";
+import { createBrowserRouter, Navigate, Outlet, RouterProvider, ScrollRestoration } from "react-router";
 import { AppHeader, AppHeaderTitle } from "./components/app-header";
 import { Home } from "./components/home";
 import { JellyfinIssues } from "./components/jellyfin/issues";

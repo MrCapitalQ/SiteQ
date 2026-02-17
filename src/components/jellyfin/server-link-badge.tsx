@@ -1,6 +1,6 @@
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import { CheckIcon, CopyIcon, ExternalLinkIcon } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link } from "react-router"
 import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
 

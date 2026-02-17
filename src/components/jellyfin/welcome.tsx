@@ -1,5 +1,5 @@
 import { ChevronRightIcon, ConciergeBellIcon, HammerIcon, KeyRoundIcon, MessageSquareWarningIcon } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "../ui/item";
 import { Page } from "../ui/page";
 

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { AlertTitle } from "../ui/alert";
 import { AlertInfo } from "../ui/alert-variants";
 import { Page } from "../ui/page";

@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { ChevronsRightIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 export function AppHeader({ title }: { title?: ReactNode }) {
 	return (
