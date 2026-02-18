@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createBrowserRouter, Navigate, Outlet, RouterProvider, ScrollRestoration } from "react-router";
 import { AppHeader, AppHeaderTitle } from "./components/app-header";
 import { Home } from "./components/home";
@@ -8,8 +9,20 @@ import { JellyfinSetup } from "./components/jellyfin/setup";
 import { JellyfinWelcome } from "./components/jellyfin/welcome";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
+import { useNavigationDirection } from "./hooks/use-navigation-direction";
 
 export function App() {
+  const navigationDirection = useNavigationDirection();
+
+  useEffect(() => {
+    document.documentElement.classList.remove('forward-transition', 'back-transition');
+    if (navigationDirection === 'back') {
+      document.documentElement.classList.add('back-transition');
+    } else if (navigationDirection === 'forward') {
+      document.documentElement.classList.add('forward-transition');
+    }
+  }, [navigationDirection])
+
   return (
     <ThemeProvider storageKey="vite-ui-theme">
       <RouterProvider router={router} />

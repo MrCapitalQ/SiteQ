@@ -424,13 +424,13 @@ function SectionAccordionItem({ id, ...props }: AccordionItemProps) {
 function SignInStep({ suggestPasswordChange = false }: { suggestPasswordChange?: boolean }) {
   return <>
     Sign in using your username and password or{" "}
-    <Link to="/jellyfin/security#quick-connect">Quick Connect</Link>.
+    <Link to="/jellyfin/security#quick-connect" viewTransition>Quick Connect</Link>.
 
     {
       suggestPasswordChange &&
       <>
         {" "}Now's a good time to{" "}
-        <Link to="/jellyfin/security#change-password">change your password</Link>{" "}
+        <Link to="/jellyfin/security#change-password" viewTransition>change your password</Link>{" "}
         if you're still using your initially given password.
       </>
     }

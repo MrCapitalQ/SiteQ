@@ -5,7 +5,8 @@ import { Link } from "react-router";
 
 export function AppHeader({ title }: { title?: ReactNode }) {
 	return (
-		<header className="bg-background/75 sticky top-0 z-50 flex w-full h-(--header-height) items-center border-b backdrop-blur">
+		<header className="bg-background/75 sticky top-0 z-50 flex w-full h-(--header-height) items-center border-b backdrop-blur"
+			style={{ viewTransitionName: 'app-header' }}>
 			<div className="flex w-full items-center gap-2 px-4 sm:px-8">
 				<Link to={"/"} className="text-4xl font-extrabold no-underline">Q</Link>
 				{title &&

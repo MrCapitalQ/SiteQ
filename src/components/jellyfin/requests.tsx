@@ -19,7 +19,7 @@ export function JellyfinRequests() {
         <ol className="list-decimal ml-8 my-4 space-y-2">
           <li>
             Requesting new content is only available in the mobile and desktop apps that were installed using the{" "}
-            <Link to="/jellyfin/setup">recommended setup instructions</Link> or in the browser at{" "}
+            <Link to="/jellyfin/setup" viewTransition>recommended setup instructions</Link> or in the browser at{" "}
             <ServerLinkBadge mode="navigate" />.
           </li>
           <li>

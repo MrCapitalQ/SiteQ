@@ -23,7 +23,7 @@ export function JellyfinSecurity() {
         <ol className="list-decimal ml-8 my-4 space-y-2">
           <li>
             Changing your password can be done in the mobile and desktop apps that were installed using the{" "}
-            <Link to="/jellyfin/setup">recommended setup instructions</Link> or in the browser at{" "}
+            <Link to="/jellyfin/setup" viewTransition>recommended setup instructions</Link> or in the browser at{" "}
             <ServerLinkBadge mode="navigate" />.
           </li>
           <li>Click or tap the user icon in the top right.</li>

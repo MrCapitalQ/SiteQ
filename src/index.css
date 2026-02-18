@@ -5,6 +5,62 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-from-right {
+  from {
+    transform: translateX(var(--slide-transition-amount));
+  }
+}
+
+@keyframes slide-to-left {
+  to {
+    transform: translateX(-(var(--slide-transition-amount)));
+  }
+}
+
+@keyframes slide-from-left {
+  from {
+    transform: translateX(-(var(--slide-transition-amount)));
+  }
+}
+
+@keyframes slide-to-right {
+  to {
+    transform: translateX(var(--slide-transition-amount));
+  }
+}
+
+.forward-transition::view-transition-old(root) {
+  animation: 90ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
+    300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-to-left;
+}
+
+.forward-transition::view-transition-new(root) {
+  animation: 210ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in,
+    300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-right;
+}
+
+.back-transition::view-transition-old(root) {
+  animation: 90ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
+    300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-to-right;
+}
+
+.back-transition::view-transition-new(root) {
+  animation: 210ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in,
+    300ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-left;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -38,6 +94,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --slide-transition-amount: calc(var(--spacing) * 8);
   --header-height: calc(var(--spacing) * 16);
 }
 

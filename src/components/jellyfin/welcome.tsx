@@ -44,7 +44,7 @@ export function JellyfinWelcome() {
 
         {items.map((item, i) => (
           <Item key={i} variant="outline" render={
-            <Link to={item.link}>
+            <Link to={item.link} viewTransition>
               <ItemMedia variant="icon">{item.icon}</ItemMedia>
               <ItemContent>
                 <ItemTitle>{item.title}</ItemTitle>
