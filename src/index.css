@@ -25,13 +25,13 @@
 
 @keyframes slide-to-left {
   to {
-    transform: translateX(-(var(--slide-transition-amount)));
+    transform: translateX(calc(var(--slide-transition-amount) * -1));
   }
 }
 
 @keyframes slide-from-left {
   from {
-    transform: translateX(-(var(--slide-transition-amount)));
+    transform: translateX(calc(var(--slide-transition-amount) * -1));
   }
 }
 
