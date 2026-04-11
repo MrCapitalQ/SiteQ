@@ -63,7 +63,14 @@ export function JellyfinSetup() {
 
         <Accordion value={accordionValue} onValueChange={setAccordionValue}>
           <SectionAccordionItem id="android">
-            <AccordionTrigger><h4>Android</h4></AccordionTrigger>
+            <AccordionTrigger>
+              <div>
+                <h4>Android</h4>
+                <span className="muted">
+                  Including Android based devices Amazon Fire tablets
+                </span>
+              </div>
+            </AccordionTrigger>
             <AccordionContent>
               <p className="text-pretty">
                 On Android devices, it is recommended to install Jellyfin as a web app through the Microsoft Edge
@@ -200,7 +207,14 @@ export function JellyfinSetup() {
             </AccordionContent>
           </SectionAccordionItem>
           <SectionAccordionItem id="google-tv">
-            <AccordionTrigger><h4>Google TV or Amazon Fire TV</h4></AccordionTrigger>
+            <AccordionTrigger>
+              <div>
+                <h4>Google TV and Android TV</h4>
+                <span className="muted">
+                  Including Android TV based devices like Nvidia Shield and some Amazon Fire TVs
+                </span>
+              </div>
+            </AccordionTrigger>
             <AccordionContent>
               <div className="text-pretty">
                 On Google TV devices or devices based on Google TV like some Amazon Fire TV, it is recommended to
