@@ -9,6 +9,7 @@ import { JellyfinSetup } from "./components/jellyfin/setup";
 import { JellyfinWelcome } from "./components/jellyfin/welcome";
 import { MaisonNoixPets } from "./components/maison-noix/pets";
 import { MaisonNoixWelcome } from "./components/maison-noix/welcome";
+import { MaisonNoixWifi } from "./components/maison-noix/wifi";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
 import { useNavigationDirection } from "./hooks/use-navigation-direction";
@@ -96,6 +97,7 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <Navigate to={"welcome"} replace /> },
           { path: "welcome", element: <MaisonNoixWelcome /> },
+          { path: "wifi", element: <MaisonNoixWifi /> },
           { path: "pets", element: <MaisonNoixPets /> }
         ]
       }

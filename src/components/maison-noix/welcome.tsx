@@ -1,9 +1,15 @@
-import { BoneIcon, ChevronRightIcon } from "lucide-react";
+import { BoneIcon, ChevronRightIcon, WifiIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "../ui/item";
 import { Page } from "../ui/page";
 
 const items = [
+  {
+    link: "/maison-noix/wifi",
+    icon: <WifiIcon />,
+    title: "Guest Wi-Fi",
+    description: "Wi-Fi is on the house!"
+  },
   {
     link: "/maison-noix/pets",
     icon: <BoneIcon />,
@@ -22,7 +28,7 @@ export function MaisonNoixWelcome() {
       </div>
 
       <div className="flex flex-col space-y-4">
-        <h2>Where to?</h2>
+        <h2>Looking for something?</h2>
 
         {items.map((item, i) => (
           <Item key={i} variant="outline" render={
