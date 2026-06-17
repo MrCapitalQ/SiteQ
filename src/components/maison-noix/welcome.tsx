@@ -1,4 +1,4 @@
-import { BoneIcon, ChevronRightIcon, WifiIcon } from "lucide-react";
+import { BoneIcon, ChevronRightIcon, TvIcon, WifiIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "../ui/item";
 import { Page } from "../ui/page";
@@ -9,6 +9,12 @@ const items = [
     icon: <WifiIcon />,
     title: "Guest Wi-Fi",
     description: "Wi-Fi is on the house!"
+  },
+  {
+    link: "/maison-noix/media",
+    icon: <TvIcon />,
+    title: "Media and TV",
+    description: "A library of movies, shows, and live TV is available for your enjoyment."
   },
   {
     link: "/maison-noix/pets",
