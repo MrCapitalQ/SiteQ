@@ -26,7 +26,7 @@ export function MaisonNoixMedia() {
 
   return (
     <Page className="mx-auto space-y-8">
-      <title>Media and TV</title>
+      <title>Maison Noix - Media and TV</title>
       <div>
         <h1>Media and TV</h1>
         <p className="lead">

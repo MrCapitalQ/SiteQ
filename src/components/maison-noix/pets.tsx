@@ -4,7 +4,7 @@ import { Page } from "../ui/page";
 export function MaisonNoixPets() {
   return (
     <Page className="mx-auto space-y-8">
-      <title>Petcare Guide</title>
+      <title>Maison Noix - Petcare Guide</title>
       <div>
         <h1>Petcare Guide</h1>
         <p className="lead">How to tend to the furballs and keep their tails wagging.</p>

@@ -3,7 +3,7 @@ import { Page } from "../ui/page";
 export function MaisonNoixWifi() {
   return (
     <Page className="mx-auto space-y-8">
-      <title>Guest Wi-Fi</title>
+      <title>Maison Noix - Guest Wi-Fi</title>
       <div>
         <h1>Guest Wi-Fi</h1>
         <p className="lead">Wi-Fi is on the house!</p>
