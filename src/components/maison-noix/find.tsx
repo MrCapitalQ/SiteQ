@@ -43,6 +43,10 @@ export function MaisonNoixFind() {
             bottom right-most corner of the upper left door.
           </li>
           <li>
+            <strong>Kitchen Towels</strong> - Additional kitchen towels are in the top island drawer to the left of the
+            microwave, closest to the range.
+          </li>
+          <li>
             <strong>Trash and Recycling</strong> - The island base cabinet to the left of the microwave. The front bin
             closest to the cabinate face is for trash and the other is for recycling.
           </li>
