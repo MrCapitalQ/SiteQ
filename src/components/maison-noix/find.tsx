@@ -40,7 +40,7 @@ export function MaisonNoixFind() {
           <li>
             <strong>Water</strong> - A self-refilling filtered water pitcher and water dispenser are available in
             refrigerator's beverage center. The beverage center can be accessed by reaching under and pulling on the
-            bottom right-most corner of the upper left door.
+            bottom center of the left door.
           </li>
           <li>
             <strong>Kitchen Towels</strong> - Additional kitchen towels are in the top island drawer to the left of the
