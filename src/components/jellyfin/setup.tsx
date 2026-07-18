@@ -163,8 +163,7 @@ export function JellyfinSetup() {
           <SectionAccordionItem id="ios">
             <AccordionTrigger><h4>iPhone or iPad</h4></AccordionTrigger>
             <AccordionContent>
-              On iPhone and iPad, there are currently no specific recommendations. However, the official Jellyfin app
-              is available.
+              The official Jellyfin app is recommended on iPhone and iPad.
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>
@@ -177,9 +176,6 @@ export function JellyfinSetup() {
                 </li>
                 <li><SignInStep suggestPasswordChange={true} /></li>
               </ol>
-
-              The Jellyfin community also recommends the third-party Infuse app as an alternative but requires the
-              premium version for features like 4K and HDR playback.
             </AccordionContent>
           </SectionAccordionItem>
           <SectionAccordionItem id="web-os">
