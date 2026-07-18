@@ -35,25 +35,8 @@ export function JellyfinRequests() {
         </ol>
       </div>
 
-      <div className="flex flex-col space-y-4">
-        <h2>Request More Seasons for a Shows</h2>
-        Some shows may be available but are missing seasons. Requesting more seasons cannot be done from the show's
-        details page but can be done using the search feature.
-
-        <ol className="list-decimal ml-8 my-4 space-y-2">
-          <li>
-            Click or tap the search button at the top and search the show you want to request more seasons for as if
-            you're requesting the show for the first time.
-          </li>
-          <li>
-            Click or tap on the show you want that appears in the "Discover on Seerr" section, not the "Shows" section.
-          </li>
-          <li>
-            Click or tap the "Request more" or "Request missing" button and follow the prompts to request additional
-            season.
-          </li>
-        </ol>
-      </div>
+      You can request missing seasons of a show by viewing the show's page and clicking "Request More" under "Seasons".
+      Similarly, you can request missing movies in a collection by viewing the collection's page.
     </Page >
   )
 }
