@@ -28,7 +28,7 @@ export function JellyfinSecurity() {
           </li>
           <li>Click or tap the user icon in the top right.</li>
           <li>
-            Click or tap "Profile" and set a new strong your password.
+            Click or tap "Profile" and set a new strong password.
           </li>
         </ol>
 
