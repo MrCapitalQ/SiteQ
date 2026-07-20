@@ -181,7 +181,8 @@ export function JellyfinSetup() {
           <SectionAccordionItem id="web-os">
             <AccordionTrigger><h4>LG TV with WebOS</h4></AccordionTrigger>
             <AccordionContent>
-              The official Jellyfin app is recommended on LG TVs with WebOS.
+              The official Jellyfin app is recommended on LG TVs running WebOS but may have issues with certain content
+              on certain models.
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>Search for Jellyfin in the apps catalog and install the app.</li>
@@ -277,8 +278,8 @@ export function JellyfinSetup() {
           <SectionAccordionItem id="tizen">
             <AccordionTrigger><h4>Samsung TV with Tizen</h4></AccordionTrigger>
             <AccordionContent>
-              On Samsung TVs running Tizen, there are currently no specific recommendations. However the official
-              Jellyfin app is available on supported models.
+              The official Jellyfin app is available on supported Samsung TVs running Tizen but has not been personally
+              tested to ensure an adequate experience.
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>Search for Jellyfin in the apps catalog and install the app.</li>
@@ -292,9 +293,16 @@ export function JellyfinSetup() {
           <SectionAccordionItem id="apple-tv">
             <AccordionTrigger><h4>Apple TV</h4></AccordionTrigger>
             <AccordionContent>
-              On Apple TV, the official Swiftfin app is available but is problematic according the Jellyfin community.
-              Instead, the third-party Infuse app is recommended as an alternative but requires the premium version for
-              features like 4K and HDR playback.
+              The official app, named Swiftfin, is available on Apple TV but has not been personally tested to ensure
+              an adequate experience.
+
+              <ol className="list-decimal ml-8 my-4 space-y-2">
+                <li>Download the Swiftfin app from the App Store.</li>
+                <li>
+                  Open the app, enter <ServerLinkBadge /> as the server address, and connect.
+                </li>
+                <li><SignInStep /></li>
+              </ol>
             </AccordionContent>
           </SectionAccordionItem>
           <SectionAccordionItem id="windows">
