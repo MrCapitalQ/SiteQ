@@ -90,7 +90,7 @@ export function JellyfinSetup() {
 
                   <ul className="my-0">
                     <li>
-                      <LinkBadge to="https://play.google.com/store/apps/details?id=org.jellyfin.mobile" mode="navigate" className="no-underline">
+                      <LinkBadge to="https://play.google.com/store/apps/details?id=org.jellyfin.mobile" mode="navigate">
                         Google Play Store
                       </LinkBadge>
                       {" "}- for most Android mobile devices like Samsung Galaxy or Google Pixel
