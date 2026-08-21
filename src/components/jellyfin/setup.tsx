@@ -1,7 +1,7 @@
 import { useDetectBrowser } from "@/hooks/use-detect-browser";
 import { useDetectPlatform } from "@/hooks/use-detect-platform";
 import type { AccordionItemProps } from "@base-ui/react";
-import { CircleUserRoundIcon, EllipsisVerticalIcon, HelpCircleIcon, MenuIcon, SettingsIcon } from "lucide-react";
+import { CircleUserRoundIcon, HelpCircleIcon, SettingsIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
@@ -12,6 +12,7 @@ import { Page } from "../ui/page";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { InstallLinkBadge } from "./install-link-badge";
+import { LinkBadge } from "./link-badge";
 import { ServerLinkBadge } from "./server-link-badge";
 
 const platform = useDetectPlatform();
@@ -73,20 +74,7 @@ export function JellyfinSetup() {
             </AccordionTrigger>
             <AccordionContent>
               <p className="text-pretty">
-                On Android devices, it is recommended to install Jellyfin as a web app through the Microsoft Edge
-                or Google Chrome browsers for the best experience.{" "}
-
-                <HintPopover>
-                  <div>
-                    Using a browser avoids known bugs with the official app and adds the ability for
-                    picture-in-picture and background playback.
-                  </div>
-                  <div>
-                    Edge and Chrome are the recommended browsers because it can play more media formats directly
-                    compared to other browsers. This avoids the need for "transcoding" where it can strain the
-                    server and lead to playback issues like loss of HDR.
-                  </div>
-                </HintPopover>
+                The official Jellyfin app is recommended on Android mobile devices.
               </p>
 
               {
@@ -96,68 +84,36 @@ export function JellyfinSetup() {
                 </small>
               }
 
-              <Tabs defaultValue="simple" className="mt-2">
-                <TabsList variant="line">
-                  <TabsTrigger value="simple">Simple Install</TabsTrigger>
-                  <TabsTrigger value="manual">Manual Install</TabsTrigger>
-                </TabsList>
-                <TabsContent value="simple">
-                  {
-                    platform === 'Android'
-                      ? ((browser.isEdge || browser.isChrome)
-                        ? <>
-                          This method will install Jellyfin on your current Android device. For a different Android
-                          device, go to this page on that device or follow the "Manual Install" steps.
+              <ol className="list-decimal ml-8 my-4 space-y-2">
+                <li>
+                  Download the Jellyfin app from the app store that applies to your device.
 
-                          <ol className="list-decimal ml-8 mt-2 space-y-2">
-                            <li>
-                              <div>Tap the link below and follow the prompts to install Jellyfin.</div>
-
-                              <InstallLinkBadge />
-                            </li>
-                            <li><SignInStep suggestPasswordChange={true} /></li>
-                          </ol>
-                        </>
-                        : <>
-                          Open this page in Edge or Chrome to see the simple install steps. Alternatively, you can
-                          follow the "Manual Install" steps instead.
-                        </>
-                      )
-                      : <>
-                        You're not currently on an Android device. Open this page on an Android device to see the
-                        simple install steps. Alternatively, you can follow the "Manual Install" steps instead.
-                      </>
-                  }
-
-                </TabsContent>
-                <TabsContent value="manual">
-                  <ol className="list-decimal ml-8 space-y-2">
+                  <ul className="my-0">
                     <li>
-                      In Edge or Chrome, go to <ServerLinkBadge />.
-                    </li>
-                    <li><SignInStep suggestPasswordChange={true} /></li>
-                    <li>
-                      Start the install process based on your browser.
-
-                      <ul className="my-2">
-                        <li>
-                          In Edge, tap the hamburger menu (<MenuIcon className="inline size-4 -translate-y-1/8" />) at
-                          the bottom right and tap "Add to phone." You may need to scroll to find this option.
-                        </li>
-                        <li>
-                          In Chrome, tap the more menu (
-                          <EllipsisVerticalIcon className="inline size-4 -translate-y-1/8" />) at the top right and tap
-                          "Add to Home screen."
-                        </li>
-                      </ul>
+                      <LinkBadge to="https://play.google.com/store/apps/details?id=org.jellyfin.mobile" mode="navigate" className="no-underline">
+                        Google Play Store
+                      </LinkBadge>
+                      {" "}- for most Android mobile devices like Samsung Galaxy or Google Pixel
                     </li>
                     <li>
-                      Follow the prompts to install it as an app and it will appear as an app on your homescreen or
-                      apps drawer.
+                      <LinkBadge to="https://www.amazon.com/gp/aw/d/B081RFTTQ9" mode="navigate">
+                        Amazon Appstore
+                      </LinkBadge>
+                      {" "}- for compatible Amazon mobile devices
                     </li>
-                  </ol>
-                </TabsContent>
-              </Tabs>
+                    <li>
+                      <LinkBadge to="https://f-droid.org/en/packages/org.jellyfin.mobile/" mode="navigate">
+                        F-Droid
+                      </LinkBadge>
+                      {" "}- for other Android mobile devices without the Play Store or services
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  Open the app, enter <ServerLinkBadge /> as the server address, and connect.
+                </li>
+                <li><SignInStep suggestPasswordChange={true} /></li>
+              </ol>
             </AccordionContent>
           </SectionAccordionItem>
           <SectionAccordionItem id="ios">
@@ -167,9 +123,11 @@ export function JellyfinSetup() {
 
               <ol className="list-decimal ml-8 my-4 space-y-2">
                 <li>
-                  <Link to="https://apps.apple.com/us/app/jellyfin-mobile/id1480192618">
-                    Download the Jellyfin app from the App Store.
-                  </Link>
+                  Download the Jellyfin app from the{" "}
+                  <LinkBadge to="https://apps.apple.com/us/app/jellyfin-mobile/id1480192618" mode="navigate">
+                    Apple App Store
+                  </LinkBadge>
+                  .
                 </li>
                 <li>
                   Open the app, enter <ServerLinkBadge /> as the server address, and connect.

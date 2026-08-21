@@ -1,22 +1,9 @@
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
-import { CheckIcon, CopyIcon, ExternalLinkIcon } from "lucide-react"
-import { Link } from "react-router"
-import { Badge } from "../ui/badge"
-import { Button } from "../ui/button"
+import { LinkBadge } from "./link-badge"
 
 export function ServerLinkBadge({ mode = 'copy' }: { mode?: 'copy' | 'navigate' }) {
   const url = 'https://jellyfin.mr-q.me'
-  const { copyToClipboard, isCopied } = useCopyToClipboard()
 
   return (
-    <Badge render={
-      mode === 'navigate'
-        ? <Link to={url} target="_blank">{url} <ExternalLinkIcon data-icon="inline-end" /></Link>
-        : (
-          <Button size="icon-xs" onClick={() => copyToClipboard(url)}>
-            {url} {isCopied ? <CheckIcon data-icon="inline-end" /> : <CopyIcon data-icon="inline-end" />}
-          </Button>
-        )
-    } />
+    <LinkBadge to={url} mode={mode}>{url}</LinkBadge>
   )
 }
