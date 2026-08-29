@@ -14,6 +14,7 @@ import { MaisonNoixWelcome } from "./components/maison-noix/welcome";
 import { MaisonNoixWifi } from "./components/maison-noix/wifi";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
+import { YargLibrary } from "./components/yarg/library";
 import { useNavigationDirection } from "./hooks/use-navigation-direction";
 
 export function App() {
@@ -104,6 +105,10 @@ const router = createBrowserRouter([
           { path: "media", element: <MaisonNoixMedia /> },
           { path: "pets", element: <MaisonNoixPets /> }
         ]
+      },
+      {
+        path: "yarg",
+        element: <YargLibrary />
       }
     ]
   }
