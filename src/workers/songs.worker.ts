@@ -11,6 +11,7 @@ type LoadedSong = {
     id: string;
     name: string;
     artist: string;
+    isMaster: boolean;
     searchText: string;
     vocalParts: number;
     leadGuitar: number;
@@ -22,6 +23,7 @@ type LoadedSong = {
     harmonyDifficulty: number;
     vocalsDifficulty: number;
     keysDifficulty: number;
+    bandDifficulty: number;
     guitar: DifficultyVariation[];
     drums: DifficultyVariation[];
     vocals: DifficultyVariation[];
@@ -62,7 +64,7 @@ const compareSongs = (a: LoadedSong, b: LoadedSong) => {
     const nameB = stripLeadingArticles(b.name ?? "");
 
     const artistResult = artistA.localeCompare(artistB, undefined, {
-        sensitivity: "base",
+        sensitivity: "base"
     });
 
     if (artistResult !== 0) {
@@ -70,7 +72,7 @@ const compareSongs = (a: LoadedSong, b: LoadedSong) => {
     }
 
     return nameA.localeCompare(nameB, undefined, {
-        sensitivity: "base",
+        sensitivity: "base"
     });
 };
 
@@ -87,32 +89,34 @@ const toLoadedSong = (row: SongRow): LoadedSong => {
     const harmonyDifficulty = parseDifficulty(row["Harmony Difficulty"]);
     const vocalsDifficulty = parseDifficulty(row["Vocals Difficulty"]);
     const keysDifficulty = parseDifficulty(row["Keys Difficulty"]);
+    const bandDifficulty = parseDifficulty(row["Band Difficulty"]);
 
     const guitar = buildVariations([
         { partName: "Lead", rating: row["Guitar (5-Fret) Difficulty"] },
         { partName: "Co-op", rating: row["Co-op (5-Fret) Difficulty"] },
         { partName: "Rhythm", rating: row["Rhythm (5-Fret) Difficulty"] },
-        { partName: "Bass", rating: row["Bass (5-Fret) Difficulty"] },
+        { partName: "Bass", rating: row["Bass (5-Fret) Difficulty"] }
     ]);
 
     const drums = buildVariations([
-        { partName: "Pro Drums", rating: row["Pro Drums Difficulty"] },
-        { partName: "Drums", rating: row["Drums (4-Lane) Difficulty"] },
+        { partName: "Pro", rating: row["Pro Drums Difficulty"] },
+        { partName: "Drums", rating: row["Drums (4-Lane) Difficulty"] }
     ]);
 
     const vocals = buildVariations([
-        { partName: `${vocalParts} Harmonies`, rating: row["Harmony Difficulty"] },
-        { partName: "Vocals", rating: row["Vocals Difficulty"] },
+        { partName: vocalParts === 1 ? "1 Part" : `${vocalParts} Parts`, rating: row["Harmony Difficulty"] },
+        { partName: "1 Part", rating: row["Vocals Difficulty"] }
     ]);
 
     const keys = buildVariations([
-        { partName: "Keys", rating: row["Keys Difficulty"] },
+        { partName: "Keys", rating: row["Keys Difficulty"] }
     ]);
 
     return {
         id: row.Hash ?? `${name}-${artist}`,
         name,
         artist,
+        isMaster: row["Master"] !== "True",
         searchText: normalizeSearchTerm(`${name} ${artist}`),
         vocalParts,
         leadGuitar,
@@ -124,10 +128,11 @@ const toLoadedSong = (row: SongRow): LoadedSong => {
         harmonyDifficulty,
         vocalsDifficulty,
         keysDifficulty,
+        bandDifficulty,
         guitar,
         drums,
         vocals,
-        keys,
+        keys
     };
 };
 
@@ -135,7 +140,7 @@ self.onmessage = (event: MessageEvent<string>) => {
     const parsed = Papa.parse<SongRow>(event.data, {
         header: true,
         skipEmptyLines: true,
-        transformHeader: (header: string) => header.trim(),
+        transformHeader: (header: string) => header.trim()
     });
 
     if (parsed.errors.length > 0) {

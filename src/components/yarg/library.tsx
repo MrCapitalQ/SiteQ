@@ -1,5 +1,5 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Circle, Drum, Guitar, KeyboardMusic, MicVocal, Minus, SlidersHorizontal, type LucideIcon } from "lucide-react";
+import { Circle, Drum, Guitar, KeyboardMusic, MicVocal, Minus, SlidersHorizontal, Users, type LucideIcon } from "lucide-react";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -52,6 +52,7 @@ type Song = {
   id: string;
   name: string;
   artist: string;
+  isMaster: boolean;
   searchText: string;
   vocalParts: number;
   leadGuitar: number;
@@ -63,6 +64,7 @@ type Song = {
   harmonyDifficulty: number;
   vocalsDifficulty: number;
   keysDifficulty: number;
+  bandDifficulty: number;
   guitar: DifficultyVariation[];
   drums: DifficultyVariation[];
   vocals: DifficultyVariation[];
@@ -79,6 +81,7 @@ const sortOptions = [
   { value: "drums", label: "Drums Difficulty" },
   { value: "vocals", label: "Vocals Difficulty" },
   { value: "keys", label: "Keys Difficulty" },
+  { value: "bandDifficulty", label: "Band Difficulty" },
 ] as const;
 
 type SortOption = (typeof sortOptions)[number]["value"];
@@ -89,9 +92,9 @@ const filterOptions = [
   { value: "coOpGuitar", label: "Co-op Guitar" },
   { value: "bassGuitar", label: "Bass Guitar" },
   { value: "drums", label: "Drums" },
-  { value: "vocalParts1", label: "Vocal Parts 1" },
-  { value: "vocalParts2", label: "Vocal Parts 2" },
-  { value: "vocalParts3", label: "Vocal Parts 3" },
+  { value: "vocalParts1", label: "Vocals - 1 Part" },
+  { value: "vocalParts2", label: "Vocals - 2 Parts" },
+  { value: "vocalParts3", label: "Vocals - 3 Parts" },
   { value: "keys", label: "Keys" },
 ] as const;
 
@@ -113,6 +116,8 @@ function getDifficultyRating(song: Song, option: SortOption) {
       return song.harmonyDifficulty >= 0 ? song.harmonyDifficulty : song.vocalsDifficulty;
     case "keys":
       return song.keysDifficulty;
+    case "bandDifficulty":
+      return song.bandDifficulty;
     default:
       return -1;
   }
@@ -197,16 +202,14 @@ function matchesFilter(song: Song, filter: FilterOption) {
   }
 }
 
-const XS_SCREEN_ROW_HEIGHT = 185;
-const SM_SCREEN_ROW_HEIGHT = 130;
-const MD_SCREEN_ROW_HEIGHT = 100;
-
 function getEstimatedRowHeight() {
-  return window.innerWidth < 375
-    ? XS_SCREEN_ROW_HEIGHT
-    : window.innerWidth < 768
-      ? SM_SCREEN_ROW_HEIGHT
-      : MD_SCREEN_ROW_HEIGHT;
+  return window.innerWidth < 324
+    ? 194
+    : window.innerWidth < 480
+      ? 140
+      : window.innerWidth < 824
+        ? 110
+        : 24;
 }
 
 export function YargLibrary() {
@@ -218,8 +221,82 @@ export function YargLibrary() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [selectedFilters, setSelectedFilters] = useState<FilterOption[]>([]);
   const parentRef = useRef<HTMLDivElement | null>(null);
-  const selectedSortLabel = sortOptions.find((option) => option.value === sortBy)?.label ?? "Artist";
-  const activeControlCount = selectedFilters.length + (sortBy !== "artist" || sortDirection !== "asc" ? 1 : 0);
+
+  const availableSortOptions = useMemo(() => {
+    const options: Array<(typeof sortOptions)[number]> = [sortOptions[0], sortOptions[1]];
+
+    if (songs.some((song) => song.leadGuitar >= 0)) {
+      options.push(sortOptions[2]);
+    }
+
+    if (songs.some((song) => song.rhythmGuitar >= 0)) {
+      options.push(sortOptions[3]);
+    }
+
+    if (songs.some((song) => song.coOpGuitar >= 0)) {
+      options.push(sortOptions[4]);
+    }
+
+    if (songs.some((song) => song.bassGuitar >= 0)) {
+      options.push(sortOptions[5]);
+    }
+
+    if (songs.some((song) => song.proDrums >= 0 || song.drumsDifficulty >= 0)) {
+      options.push(sortOptions[6]);
+    }
+
+    if (songs.some((song) => song.harmonyDifficulty >= 0 || song.vocalsDifficulty >= 0)) {
+      options.push(sortOptions[7]);
+    }
+
+    if (songs.some((song) => song.keysDifficulty >= 0)) {
+      options.push(sortOptions[8]);
+    }
+
+    if (songs.some((song) => song.bandDifficulty >= 0)) {
+      options.push(sortOptions[9]);
+    }
+
+    return options;
+  }, [songs]);
+
+  const availableFilterOptions = useMemo(() => {
+    return filterOptions.filter((option) => {
+      switch (option.value) {
+        case "leadGuitar":
+          return songs.some((song) => song.leadGuitar >= 0);
+        case "rhythmGuitar":
+          return songs.some((song) => song.rhythmGuitar >= 0);
+        case "coOpGuitar":
+          return songs.some((song) => song.coOpGuitar >= 0);
+        case "bassGuitar":
+          return songs.some((song) => song.bassGuitar >= 0);
+        case "drums":
+          return songs.some((song) => song.proDrums >= 0 || song.drumsDifficulty >= 0);
+        case "vocalParts1":
+          return songs.some((song) => song.vocalParts === 1);
+        case "vocalParts2":
+          return songs.some((song) => song.vocalParts === 2);
+        case "vocalParts3":
+          return songs.some((song) => song.vocalParts === 3);
+        case "keys":
+          return songs.some((song) => song.keysDifficulty >= 0);
+        default:
+          return true;
+      }
+    });
+  }, [songs]);
+
+  const selectedSortLabel = availableSortOptions.find((option) => option.value === sortBy)?.label ?? "Artist";
+  const activeFilterCount = selectedFilters.length;
+
+  useEffect(() => {
+    if (!availableSortOptions.some((option) => option.value === sortBy)) {
+      setSortBy("artist");
+    }
+
+    setSelectedFilters((current) => current.filter((filter) => availableFilterOptions.some((option) => option.value === filter)));
+  }, [availableFilterOptions, availableSortOptions, sortBy]);
 
   const filteredSongs = useMemo(() => {
     const query = normalizeSearchTerm(searchTerm);
@@ -355,26 +432,24 @@ export function YargLibrary() {
             </div>
 
             <Popover>
-              <PopoverTrigger>
-                <div className="relative shrink-0">
-                  <Button
+              <PopoverTrigger
+                render={
+                  <button
                     type="button"
-                    variant="outline"
-                    size="icon"
                     aria-label="Sort and filter songs"
-                    className="rounded-full"
                     title="Sort and filter"
+                    className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-input bg-background text-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                   >
                     <SlidersHorizontal className="size-4" />
-                  </Button>
 
-                  {activeControlCount > 0 ? (
-                    <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
-                      {Math.min(activeControlCount, 9)}
-                    </span>
-                  ) : null}
-                </div>
-              </PopoverTrigger>
+                    {activeFilterCount > 0 ? (
+                      <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
+                        {Math.min(activeFilterCount, 9)}
+                      </span>
+                    ) : null}
+                  </button>
+                }
+              />
               <PopoverContent align="end" className="space-y-2">
                 <div className="space-y-2">
                   <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Sort</div>
@@ -384,7 +459,7 @@ export function YargLibrary() {
                     </SelectTrigger>
                     <SelectMenuContent>
                       <SelectGroup>
-                        {sortOptions.map((option) => (
+                        {availableSortOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
                           </SelectItem>
@@ -420,7 +495,7 @@ export function YargLibrary() {
                 <div className="space-y-2">
                   <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Filters</div>
                   <div className="flex flex-wrap gap-2">
-                    {filterOptions.map((option) => {
+                    {availableFilterOptions.map((option) => {
                       const isSelected = selectedFilters.includes(option.value);
 
                       return (
@@ -486,13 +561,16 @@ export function YargLibrary() {
                     }}
                   >
                     <div className="mt-4">
-                      <div className="font-semibold">{song.name}</div>
-                      <div className="text-sm text-muted-foreground">{song.artist}</div>
-                      <div className="grid grid-cols-1 min-[375px]:grid-cols-2 md:grid-cols-4 gap-y-2 mt-1">
+                      <div className="font-semibold">
+                        {song.name}
+                        <span className="text-sm text-muted-foreground">{song.isMaster ? " as made famous by " : " by "}{song.artist}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
                         <GuitarDifficulty song={song} />
                         <DrumsDifficulty song={song} />
                         <VocalsDifficulty song={song} />
                         <KeysDifficulty song={song} />
+                        <BandDifficulty song={song} />
                       </div>
                     </div>
                     <Separator className="mt-4" />
@@ -590,6 +668,10 @@ const KeysDifficulty = memo(function KeysDifficulty({ song }: { song: Song }) {
   return <Difficulty icon={KeyboardMusic} partName={difficulty.partName} rating={difficulty.rating} />;
 });
 
+const BandDifficulty = memo(function KeysDifficulty({ song }: { song: Song }) {
+  return <Difficulty icon={Users} partName="Band" rating={song.bandDifficulty} />;
+});
+
 const Difficulty = memo(function Difficulty({
   icon: Icon,
   partName,
@@ -600,10 +682,14 @@ const Difficulty = memo(function Difficulty({
   rating?: number
 }) {
   return <div className="flex items-center gap-1">
-    <Badge className="w-26">
-      {<Icon data-icon="inline-start" />}
-      {partName}
-    </Badge>
+    <div className="relative shrink-0">
+      <Badge className="w-18 flex justify-start pl-6" variant="secondary">
+        {partName}
+      </Badge>
+      <Badge className="size-5 !px-0 absolute top-0">
+        {<Icon data-icon="inline-start" />}
+      </Badge>
+    </div>
     <DifficultyRating rating={rating} />
   </div>
 });
@@ -612,8 +698,8 @@ const DifficultyRating = memo(function DifficultyRating({ rating }: { rating?: n
   if (rating === undefined)
     return <div>
       <div className="flex">
-        {Array.from({ length: 5 }, () => (
-          <Minus size="12" className="text-muted-foreground" />
+        {Array.from({ length: 5 }, (_, i) => (
+          <Minus key={i} size="12" color="var(--muted-foreground)" />
         ))}
       </div>
     </div>;
@@ -621,7 +707,10 @@ const DifficultyRating = memo(function DifficultyRating({ rating }: { rating?: n
   return <div>
     <div className="flex">
       {Array.from({ length: 5 }, (_, i) => (
-        <Circle size="12" fill={rating === 6 ? "red" : (i < rating ? "var(--foreground)" : undefined)} />
+        <Circle key={i}
+          size="12"
+          color={rating === 6 ? "red" : (i < rating ? "var(--foreground)" : "var(--muted-foreground)")}
+          fill={rating === 6 ? "red" : (i < rating ? "var(--foreground)" : "transparent")} />
       ))}
     </div>
   </div>;
