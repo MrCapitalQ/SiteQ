@@ -1,4 +1,4 @@
-import type { Song } from "@/workers/songs.worker";
+import type { DifficultyVariation, Song } from "@/workers/songs.worker";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import {
   Circle,
@@ -92,15 +92,17 @@ type FilterOption = (typeof filterOptions)[number]["value"];
 function getDifficultyRating(song: Song, option: SortOption) {
   switch (option) {
     case "leadGuitar":
-      return song.leadGuitar;
+      return song.leadGuitarDifficulty;
     case "rhythmGuitar":
-      return song.rhythmGuitar;
+      return song.rhythmGuitarDifficulty;
     case "coOpGuitar":
-      return song.coOpGuitar;
+      return song.coOpGuitarDifficulty;
     case "bassGuitar":
-      return song.bassGuitar;
+      return song.bassGuitarDifficulty;
     case "drums":
-      return song.proDrums >= 0 ? song.proDrums : song.drumsDifficulty;
+      return song.proDrumsDifficulty >= 0
+        ? song.proDrumsDifficulty
+        : song.drumsDifficulty;
     case "vocals":
       return song.harmonyDifficulty >= 0
         ? song.harmonyDifficulty
@@ -191,15 +193,15 @@ function stripLeadingArticles(value: string) {
 function matchesFilter(song: Song, filter: FilterOption) {
   switch (filter) {
     case "leadGuitar":
-      return song.leadGuitar >= 0;
+      return song.leadGuitarDifficulty >= 0;
     case "rhythmGuitar":
-      return song.rhythmGuitar >= 0;
+      return song.rhythmGuitarDifficulty >= 0;
     case "coOpGuitar":
-      return song.coOpGuitar >= 0;
+      return song.coOpGuitarDifficulty >= 0;
     case "bassGuitar":
-      return song.bassGuitar >= 0;
+      return song.bassGuitarDifficulty >= 0;
     case "drums":
-      return song.proDrums >= 0 || song.drumsDifficulty >= 0;
+      return song.proDrumsDifficulty >= 0 || song.drumsDifficulty >= 0;
     case "vocalParts1":
       return song.vocalParts === 1;
     case "vocalParts2":
@@ -214,13 +216,7 @@ function matchesFilter(song: Song, filter: FilterOption) {
 }
 
 function getEstimatedRowHeight() {
-  return window.innerWidth < 324
-    ? 194
-    : window.innerWidth < 480
-      ? 140
-      : window.innerWidth < 824
-        ? 110
-        : 24;
+  return window.innerWidth < 324 ? 137 : window.innerWidth < 668 ? 109 : 81;
 }
 
 export function YargLibrary() {
@@ -241,23 +237,27 @@ export function YargLibrary() {
       sortOptions[1],
     ];
 
-    if (songs.some((song) => song.leadGuitar >= 0)) {
+    if (songs.some((song) => song.leadGuitarDifficulty >= 0)) {
       options.push(sortOptions[2]);
     }
 
-    if (songs.some((song) => song.rhythmGuitar >= 0)) {
+    if (songs.some((song) => song.rhythmGuitarDifficulty >= 0)) {
       options.push(sortOptions[3]);
     }
 
-    if (songs.some((song) => song.coOpGuitar >= 0)) {
+    if (songs.some((song) => song.coOpGuitarDifficulty >= 0)) {
       options.push(sortOptions[4]);
     }
 
-    if (songs.some((song) => song.bassGuitar >= 0)) {
+    if (songs.some((song) => song.bassGuitarDifficulty >= 0)) {
       options.push(sortOptions[5]);
     }
 
-    if (songs.some((song) => song.proDrums >= 0 || song.drumsDifficulty >= 0)) {
+    if (
+      songs.some(
+        (song) => song.proDrumsDifficulty >= 0 || song.drumsDifficulty >= 0,
+      )
+    ) {
       options.push(sortOptions[6]);
     }
 
@@ -284,16 +284,16 @@ export function YargLibrary() {
     return filterOptions.filter((option) => {
       switch (option.value) {
         case "leadGuitar":
-          return songs.some((song) => song.leadGuitar >= 0);
+          return songs.some((song) => song.leadGuitarDifficulty >= 0);
         case "rhythmGuitar":
-          return songs.some((song) => song.rhythmGuitar >= 0);
+          return songs.some((song) => song.rhythmGuitarDifficulty >= 0);
         case "coOpGuitar":
-          return songs.some((song) => song.coOpGuitar >= 0);
+          return songs.some((song) => song.coOpGuitarDifficulty >= 0);
         case "bassGuitar":
-          return songs.some((song) => song.bassGuitar >= 0);
+          return songs.some((song) => song.bassGuitarDifficulty >= 0);
         case "drums":
           return songs.some(
-            (song) => song.proDrums >= 0 || song.drumsDifficulty >= 0,
+            (song) => song.proDrumsDifficulty >= 0 || song.drumsDifficulty >= 0,
           );
         case "vocalParts1":
           return songs.some((song) => song.vocalParts === 1);
@@ -593,7 +593,7 @@ export function YargLibrary() {
 
           <div
             ref={parentRef}
-            className="overflow-y-auto overflow-x-hidden"
+            className="overflow-y-auto overflow-x-hidden -ml-4 pl-4"
             style={{ scrollbarWidth: "none" }}
           >
             <div
@@ -630,6 +630,7 @@ export function YargLibrary() {
                       <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
                         <GuitarDifficulty song={song} />
                         <DrumsDifficulty song={song} />
+                        <Guitar2Difficulty song={song} />
                         <VocalsDifficulty song={song} />
                         <KeysDifficulty song={song} />
                         <BandDifficulty song={song} />
@@ -647,9 +648,7 @@ export function YargLibrary() {
   );
 }
 
-function hasDifferentRatings(
-  variations: { partName: string; rating: number }[],
-) {
+function hasDifferentRatings(variations: DifficultyVariation[]) {
   if (variations.length <= 1) {
     return false;
   }
@@ -658,7 +657,7 @@ function hasDifferentRatings(
 }
 
 function useRotatingDifficulty(
-  variations: { partName: string; rating: number }[],
+  variations: DifficultyVariation[],
   defaultPartName: string,
   shouldCycle = true,
 ) {
@@ -704,13 +703,7 @@ const GuitarDifficulty = memo(function GuitarDifficulty({
 
   const difficulty = useRotatingDifficulty(variations, defaultPartName);
 
-  return (
-    <Difficulty
-      icon={Guitar}
-      partName={difficulty.partName}
-      rating={difficulty.rating}
-    />
-  );
+  return <Difficulty icon={Guitar} value={difficulty} />;
 });
 
 const DrumsDifficulty = memo(function DrumsDifficulty({
@@ -728,13 +721,20 @@ const DrumsDifficulty = memo(function DrumsDifficulty({
     shouldCycle,
   );
 
-  return (
-    <Difficulty
-      icon={Drum}
-      partName={difficulty.partName}
-      rating={difficulty.rating}
-    />
-  );
+  return <Difficulty icon={Drum} value={difficulty} />;
+});
+
+const Guitar2Difficulty = memo(function GuitarDifficulty({
+  song,
+}: {
+  song: Song;
+}) {
+  const defaultPartName = "Guitar";
+  const variations = song.guitar2;
+
+  const difficulty = useRotatingDifficulty(variations, defaultPartName);
+
+  return <Difficulty icon={Guitar} value={difficulty} />;
 });
 
 const VocalsDifficulty = memo(function VocalsDifficulty({
@@ -752,13 +752,7 @@ const VocalsDifficulty = memo(function VocalsDifficulty({
     shouldCycle,
   );
 
-  return (
-    <Difficulty
-      icon={MicVocal}
-      partName={difficulty.partName}
-      rating={difficulty.rating}
-    />
-  );
+  return <Difficulty icon={MicVocal} value={difficulty} />;
 });
 
 const KeysDifficulty = memo(function KeysDifficulty({ song }: { song: Song }) {
@@ -767,41 +761,43 @@ const KeysDifficulty = memo(function KeysDifficulty({ song }: { song: Song }) {
 
   const difficulty = useRotatingDifficulty(variations, defaultPartName);
 
-  return (
-    <Difficulty
-      icon={KeyboardMusic}
-      partName={difficulty.partName}
-      rating={difficulty.rating}
-    />
-  );
+  return <Difficulty icon={KeyboardMusic} value={difficulty} />;
 });
 
 const BandDifficulty = memo(function KeysDifficulty({ song }: { song: Song }) {
-  return (
-    <Difficulty icon={Users} partName="Band" rating={song.bandDifficulty} />
-  );
+  return <Difficulty icon={Users} value={{ rating: song.bandDifficulty }} />;
 });
 
 const Difficulty = memo(function Difficulty({
   icon: Icon,
-  partName,
-  rating,
+  value,
 }: {
   icon: LucideIcon;
-  partName: string;
-  rating?: number;
+  value: DifficultyVariation;
 }) {
   return (
     <div className="flex items-center gap-1">
       <div className="relative shrink-0">
-        <Badge className="w-18 flex justify-start pl-6" variant="secondary">
-          {partName}
-        </Badge>
-        <Badge className="size-5 !px-0 absolute top-0">
-          {<Icon data-icon="inline-start" />}
-        </Badge>
+        <div className="size-5">
+          <Badge className="size-5 !px-0 absolute top-0">
+            {
+              <Icon
+                data-icon="inline-start"
+                className={value.variationName ? "-mt-1" : ""}
+              />
+            }
+          </Badge>
+          {value.variationName && (
+            <Badge
+              className="absolute p-0.5 h-2.5 -bottom-1 2 left-1/2 transform -translate-x-1/2 !text-[.5rem]"
+              variant="secondary"
+            >
+              {value.variationName}
+            </Badge>
+          )}
+        </div>
       </div>
-      <DifficultyRating rating={rating} />
+      <DifficultyRating rating={value.rating} />
     </div>
   );
 });
