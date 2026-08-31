@@ -85,18 +85,18 @@ const toLoadedSong = (row: Record<string, string>): Song => {
     row["Co-op (5-Fret) Difficulty"],
   );
   const bassGuitarDifficulty = parseDifficulty(row["Bass (5-Fret) Difficulty"]);
-  const proGuitar17Difficulty = parseDifficulty(
-    row["Pro Guitar (17-Fret) Difficulty"],
-  );
-  const proGuitar22Difficulty = parseDifficulty(
-    row["Pro Guitar (22-Fret) Difficulty"],
-  );
-  const proBass17Difficulty = parseDifficulty(
-    row["Pro Bass (17-Fret) Difficulty"],
-  );
-  const proBass22Difficulty = parseDifficulty(
-    row["Pro Bass (22-Fret) Difficulty"],
-  );
+  // const proGuitar17Difficulty = parseDifficulty(
+  //   row["Pro Guitar (17-Fret) Difficulty"],
+  // );
+  // const proGuitar22Difficulty = parseDifficulty(
+  //   row["Pro Guitar (22-Fret) Difficulty"],
+  // );
+  // const proBass17Difficulty = parseDifficulty(
+  //   row["Pro Bass (17-Fret) Difficulty"],
+  // );
+  // const proBass22Difficulty = parseDifficulty(
+  //   row["Pro Bass (22-Fret) Difficulty"],
+  // );
   const proDrumsDifficulty = parseDifficulty(row["Pro Drums Difficulty"]);
   const drumsDifficulty = parseDifficulty(row["Drums (4-Lane) Difficulty"]);
   const harmonyDifficulty = parseDifficulty(row["Harmony Difficulty"]);
