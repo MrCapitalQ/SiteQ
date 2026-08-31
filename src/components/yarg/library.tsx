@@ -63,28 +63,30 @@ function clearDifficultyRotationTimer() {
 const sortOptions = [
   { value: "artist", label: "Artist" },
   { value: "song", label: "Song" },
-  { value: "leadGuitar", label: "Lead Guitar Difficulty" },
+  { value: "leadGuitar", label: "Guitar Difficulty" },
   { value: "rhythmGuitar", label: "Rhythm Guitar Difficulty" },
   { value: "coOpGuitar", label: "Co-op Guitar Difficulty" },
-  { value: "bassGuitar", label: "Bass Guitar Difficulty" },
+  { value: "bassGuitar", label: "Bass Difficulty" },
   { value: "drums", label: "Drums Difficulty" },
   { value: "vocals", label: "Vocals Difficulty" },
   { value: "keys", label: "Keys Difficulty" },
+  { value: "proKeys", label: "Pro Keys Difficulty" },
   { value: "bandDifficulty", label: "Band Difficulty" },
 ] as const;
 
 type SortOption = (typeof sortOptions)[number]["value"];
 
 const filterOptions = [
-  { value: "leadGuitar", label: "Lead Guitar" },
+  { value: "leadGuitar", label: "Guitar" },
   { value: "rhythmGuitar", label: "Rhythm Guitar" },
   { value: "coOpGuitar", label: "Co-op Guitar" },
-  { value: "bassGuitar", label: "Bass Guitar" },
+  { value: "bassGuitar", label: "Bass" },
   { value: "drums", label: "Drums" },
   { value: "vocalParts1", label: "Vocals - 1 Part" },
   { value: "vocalParts2", label: "Vocals - 2 Parts" },
   { value: "vocalParts3", label: "Vocals - 3 Parts" },
   { value: "keys", label: "Keys" },
+  { value: "proKeys", label: "Pro Keys" },
 ] as const;
 
 type FilterOption = (typeof filterOptions)[number]["value"];
@@ -109,6 +111,8 @@ function getDifficultyRating(song: Song, option: SortOption) {
         : song.vocalsDifficulty;
     case "keys":
       return song.keysDifficulty;
+    case "proKeys":
+      return song.proKeysDifficulty;
     case "bandDifficulty":
       return song.bandDifficulty;
     default:
@@ -210,6 +214,8 @@ function matchesFilter(song: Song, filter: FilterOption) {
       return song.vocalParts === 3;
     case "keys":
       return song.keysDifficulty >= 0;
+    case "proKeys":
+      return song.proKeysDifficulty >= 0;
     default:
       return true;
   }
