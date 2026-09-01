@@ -14,7 +14,10 @@ import {
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
+import { Field } from "../ui/field";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import { Page } from "../ui/page";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
@@ -567,7 +570,7 @@ export function YargLibrary() {
   }, []);
 
   return (
-    <Page className="mx-auto !pb-0 space-y-4 max-h-screen overflow-none flex flex-col">
+    <Page className="mx-auto !pb-0 space-y-4 max-h-screen  overflow-hidden flex flex-col">
       <title>YARG Library</title>
 
       {isLoading ? (
@@ -589,7 +592,7 @@ export function YargLibrary() {
               />
             </div>
 
-            <Popover>
+            <Popover modal>
               <PopoverTrigger
                 render={
                   <Button
@@ -731,25 +734,38 @@ export function YargLibrary() {
                       const isSelected = selectedSources.includes(option.value);
 
                       return (
-                        <Button
-                          key={option.value}
-                          type="button"
-                          size="sm"
-                          variant={isSelected ? "default" : "outline"}
-                          onClick={() => {
-                            setSelectedSources((current) =>
-                              current.includes(option.value)
-                                ? current.filter(
-                                    (value) => value !== option.value,
-                                  )
-                                : [...current, option.value],
-                            );
-                          }}
-                          aria-pressed={isSelected}
-                          className="rounded-full"
-                        >
-                          {option.label}
-                        </Button>
+                        <Field orientation="horizontal">
+                          <Checkbox
+                            id={`source-filter_${option.value}`}
+                            name={option.value}
+                            checked={isSelected}
+                            onCheckedChange={() => {
+                              setSelectedSources((current) =>
+                                current.includes(option.value)
+                                  ? current.filter(
+                                      (value) => value !== option.value,
+                                    )
+                                  : [...current, option.value],
+                              );
+                            }}
+                          />
+                          <Label
+                            htmlFor={`source-filter_${option.value}`}
+                            autoFocus={false}
+                            onClick={(event) => {
+                              event.preventDefault();
+                              setSelectedSources((current) =>
+                                current.includes(option.value)
+                                  ? current.filter(
+                                      (value) => value !== option.value,
+                                    )
+                                  : [...current, option.value],
+                              );
+                            }}
+                          >
+                            {option.label}
+                          </Label>
+                        </Field>
                       );
                     })}
                   </div>
