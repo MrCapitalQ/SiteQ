@@ -567,11 +567,8 @@ export function YargLibrary() {
   }, []);
 
   return (
-    <Page className="mx-auto !pb-0 space-y-4 max-h-[100vh] flex flex-col">
+    <Page className="mx-auto !pb-0 space-y-4 max-h-screen overflow-none flex flex-col">
       <title>YARG Library</title>
-      <div>
-        <h1>YARG Library</h1>
-      </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
@@ -595,11 +592,12 @@ export function YargLibrary() {
             <Popover>
               <PopoverTrigger
                 render={
-                  <button
-                    type="button"
+                  <Button
                     aria-label="Sort and filter songs"
                     title="Sort and filter"
-                    className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-input bg-background text-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full relative"
                   >
                     <SlidersHorizontal className="size-4" />
 
@@ -608,12 +606,12 @@ export function YargLibrary() {
                         {activeFilterCount > 99 ? "99+" : activeFilterCount}
                       </Badge>
                     ) : null}
-                  </button>
+                  </Button>
                 }
               />
               <PopoverContent
                 align="end"
-                className="space-y-2 max-h-screen overflow-auto"
+                className="space-y-2 max-h-[calc(100vh-theme(space.9)-4rem)] overflow-auto"
               >
                 <div className="space-y-2">
                   <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
