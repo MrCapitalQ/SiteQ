@@ -1,6 +1,10 @@
 import type { DifficultyVariation, Song } from "@/workers/songs.worker";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import {
+  ArrowDown01,
+  ArrowDownAZ,
+  ArrowUp10,
+  ArrowUpZA,
   Circle,
   Drum,
   Guitar,
@@ -9,6 +13,7 @@ import {
   Skull,
   SlidersHorizontal,
   Users,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
@@ -29,6 +34,7 @@ import {
 } from "../ui/select";
 import { Separator } from "../ui/separator";
 import { Spinner } from "../ui/spinner";
+import { Toggle } from "../ui/toggle";
 
 const DIFFICULTY_ROTATION_MS = 2500;
 
@@ -576,7 +582,7 @@ export function YargLibrary() {
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <Spinner className="size-5" />
+            <Spinner />
             Loading library...
           </div>
         </div>
@@ -620,42 +626,53 @@ export function YargLibrary() {
                   <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     Sort
                   </div>
-                  <Select
-                    value={sortBy}
-                    onValueChange={(value) => setSortBy(value as SortOption)}
-                  >
-                    <SelectTrigger className="w-full justify-between">
-                      <span>{selectedSortLabel}</span>
-                    </SelectTrigger>
-                    <SelectMenuContent>
-                      <SelectGroup>
-                        {availableSortOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectMenuContent>
-                  </Select>
 
                   <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={sortDirection === "asc" ? "default" : "outline"}
-                      onClick={() => setSortDirection("asc")}
-                      className="flex-1 rounded-full"
+                    <Select
+                      value={sortBy}
+                      onValueChange={(value) => setSortBy(value as SortOption)}
                     >
-                      Ascending
-                    </Button>
+                      <SelectTrigger className="w-full justify-between">
+                        <span>{selectedSortLabel}</span>
+                      </SelectTrigger>
+                      <SelectMenuContent>
+                        <SelectGroup>
+                          {availableSortOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectMenuContent>
+                    </Select>
+
                     <Button
-                      type="button"
-                      size="sm"
-                      variant={sortDirection === "desc" ? "default" : "outline"}
-                      onClick={() => setSortDirection("desc")}
-                      className="flex-1 rounded-full"
+                      aria-label={
+                        sortDirection === "desc" ? "Descending" : "Ascending"
+                      }
+                      title={
+                        sortDirection === "desc" ? "Descending" : "Ascending"
+                      }
+                      variant="outline"
+                      size="icon"
+                      className="rounded-full"
+                      onClick={() =>
+                        setSortDirection(
+                          sortDirection === "asc" ? "desc" : "asc",
+                        )
+                      }
                     >
-                      Descending
+                      {sortDirection === "asc" ? (
+                        sortBy === "artist" || sortBy === "song" ? (
+                          <ArrowDownAZ />
+                        ) : (
+                          <ArrowDown01 />
+                        )
+                      ) : sortBy === "artist" || sortBy === "song" ? (
+                        <ArrowUpZA />
+                      ) : (
+                        <ArrowUp10 />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -671,7 +688,7 @@ export function YargLibrary() {
                       <Button
                         type="button"
                         size="xs"
-                        variant="link"
+                        variant="ghost"
                         onClick={() => setSelectedInstruments([])}
                         className="-my-1"
                       >
@@ -686,11 +703,11 @@ export function YargLibrary() {
                       );
 
                       return (
-                        <Button
+                        <Toggle
                           key={option.value}
-                          type="button"
+                          variant="outline"
                           size="sm"
-                          variant={isSelected ? "default" : "outline"}
+                          pressed={isSelected}
                           onClick={() => {
                             setSelectedInstruments((current) =>
                               current.includes(option.value)
@@ -700,11 +717,10 @@ export function YargLibrary() {
                                 : [...current, option.value],
                             );
                           }}
-                          aria-pressed={isSelected}
-                          className="rounded-full"
                         >
                           {option.label}
-                        </Button>
+                          {isSelected && <X />}
+                        </Toggle>
                       );
                     })}
                   </div>
@@ -721,7 +737,7 @@ export function YargLibrary() {
                       <Button
                         type="button"
                         size="xs"
-                        variant="link"
+                        variant="ghost"
                         onClick={() => setSelectedSources([])}
                         className="-my-1"
                       >
