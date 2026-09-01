@@ -29,6 +29,91 @@ import { Spinner } from "../ui/spinner";
 
 const DIFFICULTY_ROTATION_MS = 2500;
 
+const SOURCE_LABELS: Record<string, string> = {
+  yarg: "YARG",
+  yargdlc: "YARG DLC",
+  yarn: "YARN",
+  gh: "Guitar Hero",
+  gh1: "Guitar Hero",
+  ghdx: "Guitar Hero Deluxe",
+  gh1dx: "Guitar Hero Deluxe",
+  gh2: "Guitar Hero II",
+  gh2dlc: "Guitar Hero II DLC",
+  gh2dx: "Guitar Hero II Deluxe",
+  gh2dxdlc: "Guitar Hero II Deluxe DLC",
+  gh2dxcustoms: "Guitar Hero II Deluxe Customs",
+  gh80s: "Guitar Hero Encore: Rocks the 80s",
+  gh80sdx: "Guitar Hero Encore Deluxe",
+  gh3: "Guitar Hero III: Legends of Rock",
+  gh3dlc: "Guitar Hero III DLC",
+  ghot: "Guitar Hero: On Tour",
+  gha: "Guitar Hero: Aerosmith",
+  ghwt: "Guitar Hero: World Tour",
+  ghwtdlc: "Guitar Hero: World Tour DLC",
+  ghm: "Guitar Hero: Metallica",
+  ghmdlc: "Death Magnetic DLC",
+  ghwor: "Guitar Hero: Warriors of Rock",
+  ghwordlc: "Guitar Hero: Warriors of Rock DLC",
+  ghvh: "Guitar Hero: Van Halen",
+  ghsh: "Guitar Hero: Smash Hits",
+  gh5: "Guitar Hero 5",
+  gh5dlc: "Guitar Hero 5 DLC",
+  ghotd: "Guitar Hero On Tour: Decades",
+  ghotmh: "Guitar Hero On Tour: Modern Hits",
+  bandhero: "Band Hero",
+  bh: "Band Hero",
+  bandhero2: "Band Hero 2",
+  bh2: "Band Hero 2",
+  ghl: "Guitar Hero Live",
+  ghtv: "Guitar Hero TV",
+  rb1: "Rock Band 1",
+  rb1dlc: "Rock Band 1 DLC",
+  rb1_dlc: "Rock Band 1 DLC",
+  rb2: "Rock Band 2",
+  rb2_real: "Rock Band 2",
+  rb2dlc: "Rock Band 2 DLC",
+  rb2_dlc: "Rock Band 2 DLC",
+  rb3: "Rock Band 3",
+  rb3dlc: "Rock Band 3 DLC",
+  rb3_dlc: "Rock Band 3 DLC",
+  rb4: "Rock Band 4",
+  rb4dlc: "Rock Band 4 DLC",
+  rb4_dlc: "Rock Band 4 DLC",
+  rbr: "Rock Band Rivals",
+  rb4_rivals: "Rock Band Rivals",
+  tbrb: "The Beatles Rock Band",
+  beatles: "The Beatles Rock Band",
+  tbrbdlc: "The Beatles: Rock Band DLC",
+  beatles_dlc: "The Beatles: Rock Band DLC",
+  rbacdc: "AC/DC Live: Rock Band Track Pack",
+  rbtp_acdc: "AC/DC Live: Rock Band Track Pack",
+  lrb: "Lego Rock Band",
+  lego: "Lego Rock Band",
+  rbn: "Rock Band Network",
+  rbn1: "Rock Band Network 1.0",
+  ugc: "Rock Band Network 1.0",
+  ugc1: "Rock Band Network 1.0",
+  rbn2: "Rock Band Network 2.0",
+  ugc_plus: "Rock Band Network 2.0",
+  ugc2: "Rock Band Network 2.0",
+  ugc_lost: "Lost Rock Band Network",
+  rbn_lost: "Lost Rock Band Network",
+  ugc1_lost: "Lost Rock Band Network 1.0",
+  rbn1_lost: "Lost Rock Band Network 1.0",
+  ugc2_lost: "Lost Rock Band Network 2.0",
+  rbn2_lost: "Lost Rock Band Network 2.0",
+  rb_blitz: "Rock Band Blitz",
+  rbb: "Rock Band Blitz",
+  blitz: "Rock Band Blitz",
+  gdrb: "Green Day: Rock Band",
+  greenday: "Green Day: Rock Band",
+  gdrbdlc: "Green Day: Rock Band DLC",
+  gdrbp: "Green Day: Rock Band DLC",
+  gdrb_plus: "Green Day: Rock Band DLC",
+  rbvr: "Rock Band VR",
+  fnfestival: "Fortnite Festival",
+};
+
 function normalizeSearchTerm(value: string) {
   return value
     .trim()
@@ -76,7 +161,7 @@ const sortOptions = [
 
 type SortOption = (typeof sortOptions)[number]["value"];
 
-const filterOptions = [
+const instrumentOptions = [
   { value: "leadGuitar", label: "Guitar" },
   { value: "rhythmGuitar", label: "Rhythm Guitar" },
   { value: "coOpGuitar", label: "Co-op Guitar" },
@@ -89,7 +174,7 @@ const filterOptions = [
   { value: "proKeys", label: "Pro Keys" },
 ] as const;
 
-type FilterOption = (typeof filterOptions)[number]["value"];
+type InstrumentOption = (typeof instrumentOptions)[number]["value"];
 
 function getDifficultyRating(song: Song, option: SortOption) {
   switch (option) {
@@ -194,7 +279,7 @@ function stripLeadingArticles(value: string) {
   return value.replace(/^(a|an|the)\s+/i, "").trim();
 }
 
-function matchesFilter(song: Song, filter: FilterOption) {
+function matchesInstrumentFilter(song: Song, filter: InstrumentOption) {
   switch (filter) {
     case "leadGuitar":
       return song.leadGuitarDifficulty >= 0;
@@ -234,7 +319,11 @@ export function YargLibrary() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("artist");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [selectedFilters, setSelectedFilters] = useState<FilterOption[]>([]);
+  const [selectedInstruments, setSelectedInstruments] = useState<
+    InstrumentOption[]
+  >([]);
+  const [selectedSources, setSelectedSources] = useState<string[]>([]);
+
   const parentRef = useRef<HTMLDivElement | null>(null);
 
   const availableSortOptions = useMemo(() => {
@@ -286,8 +375,8 @@ export function YargLibrary() {
     return options;
   }, [songs]);
 
-  const availableFilterOptions = useMemo(() => {
-    return filterOptions.filter((option) => {
+  const availableInstrumentOptions = useMemo(() => {
+    return instrumentOptions.filter((option) => {
       switch (option.value) {
         case "leadGuitar":
           return songs.some((song) => song.leadGuitarDifficulty >= 0);
@@ -315,22 +404,31 @@ export function YargLibrary() {
     });
   }, [songs]);
 
+  const availableSourceOptions = useMemo(() => {
+    return Array.from(new Set(songs.map((x) => x.source)))
+      .map((x) => ({
+        value: x,
+        label: SOURCE_LABELS[x] ?? "Custom/Unknown",
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [songs]);
+
   const selectedSortLabel =
     availableSortOptions.find((option) => option.value === sortBy)?.label ??
     "Artist";
-  const activeFilterCount = selectedFilters.length;
+  const activeFilterCount = selectedInstruments.length + selectedSources.length;
 
   useEffect(() => {
     if (!availableSortOptions.some((option) => option.value === sortBy)) {
       setSortBy("artist");
     }
 
-    setSelectedFilters((current) =>
+    setSelectedInstruments((current) =>
       current.filter((filter) =>
-        availableFilterOptions.some((option) => option.value === filter),
+        availableInstrumentOptions.some((option) => option.value === filter),
       ),
     );
-  }, [availableFilterOptions, availableSortOptions, sortBy]);
+  }, [availableInstrumentOptions, availableSortOptions, sortBy]);
 
   const filteredSongs = useMemo(() => {
     const query = normalizeSearchTerm(searchTerm);
@@ -341,14 +439,14 @@ export function YargLibrary() {
           return false;
         }
 
-        const vocalFilters = selectedFilters.filter(
+        const vocalFilters = selectedInstruments.filter(
           (filter) =>
             filter === "vocalParts1" ||
             filter === "vocalParts2" ||
             filter === "vocalParts3",
         );
 
-        const nonVocalFilters = selectedFilters.filter(
+        const nonVocalFilters = selectedInstruments.filter(
           (filter) =>
             filter !== "vocalParts1" &&
             filter !== "vocalParts2" &&
@@ -356,13 +454,17 @@ export function YargLibrary() {
         );
 
         const matchesNonVocalFilters = nonVocalFilters.every((filter) =>
-          matchesFilter(song, filter),
+          matchesInstrumentFilter(song, filter),
         );
         const matchesVocalFilters =
           vocalFilters.length === 0 ||
-          vocalFilters.some((filter) => matchesFilter(song, filter));
+          vocalFilters.some((filter) => matchesInstrumentFilter(song, filter));
 
-        return matchesNonVocalFilters && matchesVocalFilters;
+        const matchesSource =
+          selectedSources.length === 0 ||
+          selectedSources.some((filter) => song.source === filter);
+
+        return matchesNonVocalFilters && matchesVocalFilters && matchesSource;
       })
       .sort((a, b) => {
         const isDifficultySort = sortBy !== "artist" && sortBy !== "song";
@@ -398,7 +500,14 @@ export function YargLibrary() {
         const result = compareSongs(a, b, sortBy);
         return sortDirection === "asc" ? result : -result;
       });
-  }, [searchTerm, selectedFilters, songs, sortBy, sortDirection]);
+  }, [
+    searchTerm,
+    selectedInstruments,
+    selectedSources,
+    songs,
+    sortBy,
+    sortDirection,
+  ]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -495,14 +604,17 @@ export function YargLibrary() {
                     <SlidersHorizontal className="size-4" />
 
                     {activeFilterCount > 0 ? (
-                      <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
-                        {Math.min(activeFilterCount, 9)}
-                      </span>
+                      <Badge className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
+                        {activeFilterCount > 99 ? "99+" : activeFilterCount}
+                      </Badge>
                     ) : null}
                   </button>
                 }
               />
-              <PopoverContent align="end" className="space-y-2">
+              <PopoverContent
+                align="end"
+                className="space-y-2 max-h-screen overflow-auto"
+              >
                 <div className="space-y-2">
                   <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     Sort
@@ -550,12 +662,27 @@ export function YargLibrary() {
                 <Separator />
 
                 <div className="space-y-2">
-                  <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Filters
+                  <div className="flex justify-between items-center">
+                    <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Instruments
+                    </div>
+                    {selectedInstruments.length > 0 ? (
+                      <Button
+                        type="button"
+                        size="xs"
+                        variant="link"
+                        onClick={() => setSelectedInstruments([])}
+                        className="-my-1"
+                      >
+                        Clear
+                      </Button>
+                    ) : null}
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {availableFilterOptions.map((option) => {
-                      const isSelected = selectedFilters.includes(option.value);
+                    {availableInstrumentOptions.map((option) => {
+                      const isSelected = selectedInstruments.includes(
+                        option.value,
+                      );
 
                       return (
                         <Button
@@ -564,7 +691,7 @@ export function YargLibrary() {
                           size="sm"
                           variant={isSelected ? "default" : "outline"}
                           onClick={() => {
-                            setSelectedFilters((current) =>
+                            setSelectedInstruments((current) =>
                               current.includes(option.value)
                                 ? current.filter(
                                     (value) => value !== option.value,
@@ -580,18 +707,54 @@ export function YargLibrary() {
                       );
                     })}
                   </div>
+                </div>
 
-                  {selectedFilters.length > 0 ? (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setSelectedFilters([])}
-                      className="rounded-full"
-                    >
-                      Clear filters
-                    </Button>
-                  ) : null}
+                <Separator />
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Source
+                    </div>
+                    {selectedSources.length > 0 ? (
+                      <Button
+                        type="button"
+                        size="xs"
+                        variant="link"
+                        onClick={() => setSelectedSources([])}
+                        className="-my-1"
+                      >
+                        Clear
+                      </Button>
+                    ) : null}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {availableSourceOptions.map((option) => {
+                      const isSelected = selectedSources.includes(option.value);
+
+                      return (
+                        <Button
+                          key={option.value}
+                          type="button"
+                          size="sm"
+                          variant={isSelected ? "default" : "outline"}
+                          onClick={() => {
+                            setSelectedSources((current) =>
+                              current.includes(option.value)
+                                ? current.filter(
+                                    (value) => value !== option.value,
+                                  )
+                                : [...current, option.value],
+                            );
+                          }}
+                          aria-pressed={isSelected}
+                          className="rounded-full"
+                        >
+                          {option.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
                 </div>
               </PopoverContent>
             </Popover>
@@ -626,12 +789,15 @@ export function YargLibrary() {
                     }}
                   >
                     <div className="mt-4">
-                      <div className="font-semibold">
-                        {song.name}
-                        <span className="text-sm text-muted-foreground">
-                          {song.isMaster ? " as made famous by " : " by "}
-                          {song.artist}
-                        </span>
+                      <div className="flex justify-between">
+                        <div className="font-semibold">{song.name}</div>
+                        <Badge className="hidden sm:block">
+                          {SOURCE_LABELS[song.source] ?? "Custom/Unknown"}
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {song.isMaster ? " as made famous by " : " by "}
+                        {song.artist}
                       </div>
                       <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
                         <GuitarDifficulty song={song} />

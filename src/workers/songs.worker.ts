@@ -28,6 +28,7 @@ export interface Song {
   guitar2: DifficultyVariation[];
   vocals: DifficultyVariation[];
   keys: DifficultyVariation[];
+  source: string;
 }
 
 const normalizeSearchTerm = (value: string) => {
@@ -181,6 +182,7 @@ const toLoadedSong = (row: Record<string, string>): Song => {
     guitar2,
     vocals,
     keys,
+    source: row["Source"],
   };
 };
 
