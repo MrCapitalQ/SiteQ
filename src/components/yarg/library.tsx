@@ -835,7 +835,7 @@ export function YargLibrary() {
                       const isSelected = selectedSources.includes(option.value);
 
                       return (
-                        <Field orientation="horizontal">
+                        <Field key={option.value} orientation="horizontal">
                           <Checkbox
                             id={`source-filter_${option.value}`}
                             name={option.value}
