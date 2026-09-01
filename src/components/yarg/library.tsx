@@ -90,8 +90,8 @@ const SOURCE_LABELS: Record<string, string> = {
   rb4_dlc: "Rock Band 4 DLC",
   rbr: "Rock Band Rivals",
   rb4_rivals: "Rock Band Rivals",
-  tbrb: "The Beatles Rock Band",
-  beatles: "The Beatles Rock Band",
+  tbrb: "The Beatles: Rock Band",
+  beatles: "The Beatles: Rock Band",
   tbrbdlc: "The Beatles: Rock Band DLC",
   beatles_dlc: "The Beatles: Rock Band DLC",
   rbacdc: "AC/DC Live: Rock Band Track Pack",
@@ -121,6 +121,91 @@ const SOURCE_LABELS: Record<string, string> = {
   gdrb_plus: "Green Day: Rock Band DLC",
   rbvr: "Rock Band VR",
   fnfestival: "Fortnite Festival",
+};
+
+const SOURCE_ICONS: Record<string, string> = {
+  yarg: "yarg.png",
+  yargdlc: "yargdlc.png",
+  yarn: "yarn.png",
+  gh: "gh.png",
+  gh1: "gh.png",
+  ghdx: "ghdx.png",
+  gh1dx: "ghdx.png",
+  gh2: "gh2.png",
+  gh2dlc: "gh2dlc.png",
+  gh2dx: "gh2dx.png",
+  gh2dxdlc: "gh2dxdlc.png",
+  gh2dxcustoms: "gh2dxcustoms.png",
+  gh80s: "gh80s.png",
+  gh80sdx: "gh80sdx.png",
+  gh3: "gh3.png",
+  gh3dlc: "gh3dlc.png",
+  ghot: "ghot.png",
+  gha: "gha.png",
+  ghwt: "ghwt.png",
+  ghwtdlc: "ghwtdlc.png",
+  ghm: "ghm.png",
+  ghmdlc: "ghmdlc.png",
+  ghwor: "ghwor.png",
+  ghwordlc: "ghwordlc.png",
+  ghvh: "ghvh.png",
+  ghsh: "ghsh.png",
+  gh5: "gh5.png",
+  gh5dlc: "gh5dlc.png",
+  ghotd: "ghotd.png",
+  ghotmh: "ghotmh.png",
+  bandhero: "bandhero.png",
+  bh: "bh.png",
+  bandhero2: "bh2.png",
+  bh2: "bh2.png",
+  ghl: "ghl.png",
+  ghtv: "ghtv.png",
+  rb1: "rb1.png",
+  rb1dlc: "rb1dlc.png",
+  rb1_dlc: "rb1dlc.png",
+  rb2: "rb2.png",
+  rb2_real: "rb2.png",
+  rb2dlc: "rb2dlc.png",
+  rb2_dlc: "rb2dlc.png",
+  rb3: "rb3.png",
+  rb3dlc: "rb3dlc.png",
+  rb3_dlc: "rb3dlc.png",
+  rb4: "rb4.png",
+  rb4dlc: "rb4dlc.png",
+  rb4_dlc: "rb4dlc.png",
+  rbr: "rb4rivals.png",
+  rb4_rivals: "rb4rivals.png",
+  tbrb: "tbrb.png",
+  beatles: "tbrb.png",
+  tbrbdlc: "tbrbdlc.png",
+  beatles_dlc: "tbrbdlc.png",
+  rbacdc: "rbacdc.png",
+  rbtp_acdc: "rbacdc.png",
+  lrb: "lrb.png",
+  lego: "lrb.png",
+  rbn: "rb1.png",
+  rbn1: "rbn1.png",
+  ugc: "rbn1.png",
+  ugc1: "rbn1.png",
+  rbn2: "rbn2.png",
+  ugc_plus: "rbn2.png",
+  ugc2: "rbn2.png",
+  ugc_lost: "rbn1lost.png",
+  rbn_lost: "rbn1lost.png",
+  ugc1_lost: "rbn1lost.png",
+  rbn1_lost: "rbn1lost.png",
+  ugc2_lost: "rbn2lost.png",
+  rbn2_lost: "rbn2lost.png",
+  rb_blitz: "rb_blitz.png",
+  rbb: "rb_blitz.png",
+  blitz: "rb_blitz.png",
+  gdrb: "gdrb.png",
+  greenday: "gdrb.png",
+  gdrbdlc: "gdrbdlc.png",
+  gdrbp: "gdrbdlc.png",
+  gdrb_plus: "gdrbdlc.png",
+  rbvr: "rbvr.png",
+  fnfestival: "fnfestival.png",
 };
 
 function normalizeSearchTerm(value: string) {
@@ -539,7 +624,7 @@ export function YargLibrary() {
   useEffect(() => {
     const loadSongs = async () => {
       try {
-        const response = await fetch("/songs.csv");
+        const response = await fetch("/yarg/songs.csv");
 
         if (!response.ok) {
           throw new Error(`Failed to fetch songs.csv: ${response.status}`);
@@ -819,15 +904,35 @@ export function YargLibrary() {
                     }}
                   >
                     <div className="mt-4">
-                      <div className="flex justify-between">
-                        <div className="font-semibold">{song.name}</div>
-                        <Badge className="hidden sm:block">
-                          {SOURCE_LABELS[song.source] ?? "Custom/Unknown"}
-                        </Badge>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {song.isMaster ? " as made famous by " : " by "}
-                        {song.artist}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="truncate">
+                          <div className="font-semibold truncate text-ellipsis">
+                            {song.name}
+                          </div>
+                          <div className="text-sm text-muted-foreground truncate text-ellipsis">
+                            {song.isMaster ? " as made famous by " : " by "}
+                            {song.artist}
+                          </div>
+                        </div>
+
+                        <div className="flex-none size-8 p-0.5 background-muted rounded-full flex items-center justify-center bg-neutral-800">
+                          <Popover>
+                            <PopoverTrigger openOnHover={true}>
+                              <img
+                                src={`/yarg/icons/${SOURCE_ICONS[song.source] ?? "custom.png"}`}
+                                alt={
+                                  SOURCE_LABELS[song.source] ?? "Custom/Unknown"
+                                }
+                              />
+                            </PopoverTrigger>
+                            <PopoverContent
+                              side="left"
+                              className="w-auto px-2 py-1 text-sm"
+                            >
+                              {SOURCE_LABELS[song.source] ?? "Custom/Unknown"}
+                            </PopoverContent>
+                          </Popover>
+                        </div>
                       </div>
                       <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
                         <GuitarDifficulty song={song} />
