@@ -501,9 +501,8 @@ export function YargLibrary() {
   }, []);
 
   return (
-    <Page className="mx-auto !pb-0 h-screen max-h-screen overflow-hidden flex flex-col">
+    <>
       <title>YARG Library</title>
-
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -513,189 +512,134 @@ export function YargLibrary() {
         </div>
       ) : (
         <>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 min-w-0">
-              <Input
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search songs or artists"
-                aria-label="Search songs or artists"
-              />
-            </div>
+          <div className="fixed z-1 w-full bg-background/75 shadow-md backdrop-blur">
+            <div className="w-full max-w-4xl mx-auto p-4 pb-0 sm:p-8 sm:pb-0 flex items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <Input
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder="Search songs or artists"
+                  aria-label="Search songs or artists"
+                />
+              </div>
 
-            <Popover modal>
-              <PopoverTrigger
-                render={
-                  <Button
-                    aria-label="Sort and filter songs"
-                    title="Sort and filter"
-                    variant="outline"
-                    size="icon"
-                    className="rounded-full relative"
-                  >
-                    <SlidersHorizontal className="size-4" />
-
-                    {activeFilterCount > 0 ? (
-                      <Badge className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
-                        {activeFilterCount > 99 ? "99+" : activeFilterCount}
-                      </Badge>
-                    ) : null}
-                  </Button>
-                }
-              />
-              <PopoverContent
-                align="end"
-                className="space-y-2 max-h-[calc(100vh-theme(space.9)-4rem)] overflow-auto"
-              >
-                <div className="space-y-2">
-                  <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Sort
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Select
-                      value={sortBy}
-                      onValueChange={(value) => setSortBy(value as SortOption)}
-                    >
-                      <SelectTrigger className="w-full justify-between">
-                        <span>{selectedSortLabel}</span>
-                      </SelectTrigger>
-                      <SelectMenuContent>
-                        <SelectGroup>
-                          {availableSortOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectMenuContent>
-                    </Select>
-
+              <Popover modal>
+                <PopoverTrigger
+                  render={
                     <Button
-                      aria-label={
-                        sortDirection === "desc" ? "Descending" : "Ascending"
-                      }
-                      title={
-                        sortDirection === "desc" ? "Descending" : "Ascending"
-                      }
+                      aria-label="Sort and filter songs"
+                      title="Sort and filter"
                       variant="outline"
                       size="icon"
-                      className="rounded-full"
-                      onClick={() =>
-                        setSortDirection(
-                          sortDirection === "asc" ? "desc" : "asc",
-                        )
-                      }
+                      className="rounded-full relative"
                     >
-                      {sortDirection === "asc" ? (
-                        sortBy === "artist" || sortBy === "song" ? (
-                          <ArrowDownAZ />
-                        ) : (
-                          <ArrowDown01 />
-                        )
-                      ) : sortBy === "artist" || sortBy === "song" ? (
-                        <ArrowUpZA />
-                      ) : (
-                        <ArrowUp10 />
-                      )}
+                      <SlidersHorizontal className="size-4" />
+
+                      {activeFilterCount > 0 ? (
+                        <Badge className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
+                          {activeFilterCount > 99 ? "99+" : activeFilterCount}
+                        </Badge>
+                      ) : null}
                     </Button>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
+                  }
+                />
+                <PopoverContent
+                  align="end"
+                  className="space-y-2 max-h-[calc(100vh-theme(space.9)-4rem)] overflow-auto"
+                >
+                  <div className="space-y-2">
                     <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      Instruments
+                      Sort
                     </div>
-                    {selectedInstruments.length > 0 ? (
-                      <Button
-                        type="button"
-                        size="xs"
-                        variant="ghost"
-                        onClick={() => setSelectedInstruments([])}
-                        className="-my-1"
-                      >
-                        Clear
-                      </Button>
-                    ) : null}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {availableInstrumentOptions.map((option) => {
-                      const isSelected = selectedInstruments.includes(
-                        option.value,
-                      );
 
-                      return (
-                        <Toggle
-                          key={option.value}
-                          variant="outline"
-                          size="sm"
-                          pressed={isSelected}
-                          onClick={() => {
-                            setSelectedInstruments((current) =>
-                              current.includes(option.value)
-                                ? current.filter(
-                                    (value) => value !== option.value,
-                                  )
-                                : [...current, option.value],
-                            );
-                          }}
+                    <div className="flex gap-2">
+                      <Select
+                        value={sortBy}
+                        onValueChange={(value) =>
+                          setSortBy(value as SortOption)
+                        }
+                      >
+                        <SelectTrigger className="w-full justify-between">
+                          <span>{selectedSortLabel}</span>
+                        </SelectTrigger>
+                        <SelectMenuContent>
+                          <SelectGroup>
+                            {availableSortOptions.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectMenuContent>
+                      </Select>
+
+                      <Button
+                        aria-label={
+                          sortDirection === "desc" ? "Descending" : "Ascending"
+                        }
+                        title={
+                          sortDirection === "desc" ? "Descending" : "Ascending"
+                        }
+                        variant="outline"
+                        size="icon"
+                        className="rounded-full"
+                        onClick={() =>
+                          setSortDirection(
+                            sortDirection === "asc" ? "desc" : "asc",
+                          )
+                        }
+                      >
+                        {sortDirection === "asc" ? (
+                          sortBy === "artist" || sortBy === "song" ? (
+                            <ArrowDownAZ />
+                          ) : (
+                            <ArrowDown01 />
+                          )
+                        ) : sortBy === "artist" || sortBy === "song" ? (
+                          <ArrowUpZA />
+                        ) : (
+                          <ArrowUp10 />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Instruments
+                      </div>
+                      {selectedInstruments.length > 0 ? (
+                        <Button
+                          type="button"
+                          size="xs"
+                          variant="ghost"
+                          onClick={() => setSelectedInstruments([])}
+                          className="-my-1"
                         >
-                          {option.label}
-                          {isSelected && <X />}
-                        </Toggle>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      Source
+                          Clear
+                        </Button>
+                      ) : null}
                     </div>
-                    {selectedSources.length > 0 ? (
-                      <Button
-                        type="button"
-                        size="xs"
-                        variant="ghost"
-                        onClick={() => setSelectedSources([])}
-                        className="-my-1"
-                      >
-                        Clear
-                      </Button>
-                    ) : null}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {availableSourceOptions.map((option) => {
-                      const isSelected = selectedSources.includes(option.value);
+                    <div className="flex flex-wrap gap-2">
+                      {availableInstrumentOptions.map((option) => {
+                        const isSelected = selectedInstruments.includes(
+                          option.value,
+                        );
 
-                      return (
-                        <Field key={option.value} orientation="horizontal">
-                          <Checkbox
-                            id={`source-filter_${option.value}`}
-                            name={option.value}
-                            checked={isSelected}
-                            onCheckedChange={() => {
-                              setSelectedSources((current) =>
-                                current.includes(option.value)
-                                  ? current.filter(
-                                      (value) => value !== option.value,
-                                    )
-                                  : [...current, option.value],
-                              );
-                            }}
-                          />
-                          <Label
-                            htmlFor={`source-filter_${option.value}`}
-                            autoFocus={false}
-                            onClick={(event) => {
-                              event.preventDefault();
-                              setSelectedSources((current) =>
+                        return (
+                          <Toggle
+                            key={option.value}
+                            variant="outline"
+                            size="sm"
+                            pressed={isSelected}
+                            onClick={() => {
+                              setSelectedInstruments((current) =>
                                 current.includes(option.value)
                                   ? current.filter(
                                       (value) => value !== option.value,
@@ -705,131 +649,197 @@ export function YargLibrary() {
                             }}
                           >
                             {option.label}
-                          </Label>
-                        </Field>
-                      );
-                    })}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div className="relative min-h-0 flex-1 overflow-hidden">
-            <div
-              ref={parentRef}
-              className="absolute inset-0 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden -ml-4 pl-4"
-              style={{ scrollbarWidth: "none" }}
-            >
-              <div
-                className="mb-32"
-                style={{
-                  height: virtualizer.getTotalSize(),
-                  width: "100%",
-                  position: "relative",
-                }}
-              >
-                {virtualizer.getVirtualItems().map((virtualRow) => {
-                  const song = filteredSongs[virtualRow.index];
-
-                  return (
-                    <div
-                      key={song.id ?? virtualRow.index}
-                      data-index={virtualRow.index}
-                      ref={virtualizer.measureElement}
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        transform: `translateY(${virtualRow.start}px)`,
-                      }}
-                    >
-                      <div className="mt-4">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="truncate">
-                            <div className="font-semibold truncate text-ellipsis">
-                              {song.name}
-                            </div>
-                            <div className="text-sm text-muted-foreground truncate text-ellipsis">
-                              {song.isMaster ? " as made famous by " : " by "}
-                              {song.artist}
-                            </div>
-                          </div>
-
-                          <div className="flex-none size-8 p-0.5 background-muted rounded-full flex items-center justify-center bg-neutral-800">
-                            <Popover>
-                              <PopoverTrigger openOnHover={true}>
-                                <img
-                                  src={`/yarg/icons/${SOURCE_ICONS[song.source] ?? "custom.png"}`}
-                                  alt={
-                                    SOURCE_LABELS[song.source] ??
-                                    "Custom/Unknown"
-                                  }
-                                />
-                              </PopoverTrigger>
-                              <PopoverContent
-                                side="left"
-                                className="w-auto px-2 py-1 text-sm"
-                              >
-                                {SOURCE_LABELS[song.source] ?? "Custom/Unknown"}
-                              </PopoverContent>
-                            </Popover>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
-                          <GuitarDifficulty song={song} />
-                          <DrumsDifficulty song={song} />
-                          <Guitar2Difficulty song={song} />
-                          <VocalsDifficulty song={song} />
-                          <KeysDifficulty song={song} />
-                          <BandDifficulty song={song} />
-                        </div>
-                      </div>
-                      <Separator className="mt-4" />
+                            {isSelected && <X />}
+                          </Toggle>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+                  </div>
 
-            {!isLoading &&
-            filteredSongs.length > 0 &&
-            (!isAtTop || !isAtBottom) ? (
-              <div className="z-10">
-                {!isAtTop ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="absolute top-4 left-1/2 -translate-x-1/2 bg-background/60 shadow-md backdrop-blur"
-                    onClick={() =>
-                      virtualizer.scrollToIndex(0, { align: "start" })
-                    }
-                  >
-                    <ArrowUpToLine />
-                    Scroll to top
-                  </Button>
-                ) : null}
-                {isAtTop ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/60 shadow-md backdrop-blur"
-                    onClick={() =>
-                      virtualizer.scrollToIndex(filteredSongs.length - 1, {
-                        align: "end",
-                      })
-                    }
-                  >
-                    <ArrowDownToLine />
-                    Scroll to bottom
-                  </Button>
-                ) : null}
-              </div>
-            ) : null}
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Source
+                      </div>
+                      {selectedSources.length > 0 ? (
+                        <Button
+                          type="button"
+                          size="xs"
+                          variant="ghost"
+                          onClick={() => setSelectedSources([])}
+                          className="-my-1"
+                        >
+                          Clear
+                        </Button>
+                      ) : null}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {availableSourceOptions.map((option) => {
+                        const isSelected = selectedSources.includes(
+                          option.value,
+                        );
+
+                        return (
+                          <Field key={option.value} orientation="horizontal">
+                            <Checkbox
+                              id={`source-filter_${option.value}`}
+                              name={option.value}
+                              checked={isSelected}
+                              onCheckedChange={() => {
+                                setSelectedSources((current) =>
+                                  current.includes(option.value)
+                                    ? current.filter(
+                                        (value) => value !== option.value,
+                                      )
+                                    : [...current, option.value],
+                                );
+                              }}
+                            />
+                            <Label
+                              htmlFor={`source-filter_${option.value}`}
+                              autoFocus={false}
+                              onClick={(event) => {
+                                event.preventDefault();
+                                setSelectedSources((current) =>
+                                  current.includes(option.value)
+                                    ? current.filter(
+                                        (value) => value !== option.value,
+                                      )
+                                    : [...current, option.value],
+                                );
+                              }}
+                            >
+                              {option.label}
+                            </Label>
+                          </Field>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
+          <Page className="mx-auto !py-0 h-screen max-h-screen overflow-hidden flex flex-col">
+            <div className="relative min-h-0 flex-1 overflow-hidden">
+              <div
+                ref={parentRef}
+                className="absolute inset-0 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden -ml-4 pl-4"
+                style={{ scrollbarWidth: "none" }}
+              >
+                <div
+                  className="mt-[calc(theme(space.9)+theme(space.4))] sm:mt-[calc(theme(space.9)+theme(space.8))] mb-32"
+                  style={{
+                    height: virtualizer.getTotalSize(),
+                    width: "100%",
+                    position: "relative",
+                  }}
+                >
+                  {virtualizer.getVirtualItems().map((virtualRow) => {
+                    const song = filteredSongs[virtualRow.index];
+
+                    return (
+                      <div
+                        key={song.id ?? virtualRow.index}
+                        data-index={virtualRow.index}
+                        ref={virtualizer.measureElement}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          transform: `translateY(${virtualRow.start}px)`,
+                        }}
+                      >
+                        <div className="mt-4">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="truncate">
+                              <div className="font-semibold truncate text-ellipsis">
+                                {song.name}
+                              </div>
+                              <div className="text-sm text-muted-foreground truncate text-ellipsis">
+                                {song.isMaster ? " as made famous by " : " by "}
+                                {song.artist}
+                              </div>
+                            </div>
+
+                            <div className="flex-none size-8 p-0.5 background-muted rounded-full flex items-center justify-center bg-neutral-800">
+                              <Popover>
+                                <PopoverTrigger openOnHover={true}>
+                                  <img
+                                    src={`/yarg/icons/${SOURCE_ICONS[song.source] ?? "custom.png"}`}
+                                    alt={
+                                      SOURCE_LABELS[song.source] ??
+                                      "Custom/Unknown"
+                                    }
+                                  />
+                                </PopoverTrigger>
+                                <PopoverContent
+                                  side="left"
+                                  className="w-auto px-2 py-1 text-sm"
+                                >
+                                  {SOURCE_LABELS[song.source] ??
+                                    "Custom/Unknown"}
+                                </PopoverContent>
+                              </Popover>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
+                            <GuitarDifficulty song={song} />
+                            <DrumsDifficulty song={song} />
+                            <Guitar2Difficulty song={song} />
+                            <VocalsDifficulty song={song} />
+                            <KeysDifficulty song={song} />
+                            <BandDifficulty song={song} />
+                          </div>
+                        </div>
+                        <Separator className="mt-4" />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {!isLoading &&
+              filteredSongs.length > 0 &&
+              (!isAtTop || !isAtBottom) ? (
+                <div className="z-10 ">
+                  {!isAtTop ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="absolute top-[calc(theme(space.9)+theme(space.4)+theme(space.4))] sm:top-[calc(theme(space.9)+theme(space.8)+theme(space.4))]  left-1/2 -translate-x-1/2 bg-background/60 shadow-md backdrop-blur"
+                      onClick={() =>
+                        virtualizer.scrollToIndex(0, { align: "start" })
+                      }
+                    >
+                      <ArrowUpToLine />
+                      Scroll to top
+                    </Button>
+                  ) : null}
+                  {isAtTop ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/60 shadow-md backdrop-blur"
+                      onClick={() =>
+                        virtualizer.scrollToIndex(filteredSongs.length - 1, {
+                          align: "end",
+                        })
+                      }
+                    >
+                      <ArrowDownToLine />
+                      Scroll to bottom
+                    </Button>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          </Page>
         </>
       )}
-    </Page>
+    </>
   );
 }
