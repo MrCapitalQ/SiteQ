@@ -226,6 +226,7 @@ export function YargLibrary() {
     InstrumentOption[]
   >([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isAtTop, setIsAtTop] = useState(true);
   const [isAtBottom, setIsAtBottom] = useState(false);
 
@@ -429,6 +430,19 @@ export function YargLibrary() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    if (!isFilterOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isFilterOpen]);
+
   const virtualizer = useVirtualizer({
     count: filteredSongs.length,
     getScrollElement: () => parentRef.current,
@@ -523,7 +537,7 @@ export function YargLibrary() {
                 />
               </div>
 
-              <Popover modal>
+              <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
                 <PopoverTrigger
                   render={
                     <Button
