@@ -3,7 +3,9 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import {
   ArrowDown01,
   ArrowDownAZ,
+  ArrowDownToLine,
   ArrowUp10,
+  ArrowUpToLine,
   ArrowUpZA,
   SlidersHorizontal,
   X,
@@ -224,6 +226,8 @@ export function YargLibrary() {
     InstrumentOption[]
   >([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
+  const [isAtTop, setIsAtTop] = useState(true);
+  const [isAtBottom, setIsAtBottom] = useState(false);
 
   const parentRef = useRef<HTMLDivElement | null>(null);
 
@@ -433,6 +437,31 @@ export function YargLibrary() {
   });
 
   useEffect(() => {
+    const scrollElement = parentRef.current;
+
+    if (!scrollElement) {
+      return;
+    }
+
+    const updateScrollPosition = () => {
+      const maxScrollTop =
+        scrollElement.scrollHeight - scrollElement.clientHeight;
+
+      setIsAtTop(scrollElement.scrollTop <= 1);
+      setIsAtBottom(scrollElement.scrollTop >= maxScrollTop - 1);
+    };
+
+    updateScrollPosition();
+    scrollElement.addEventListener("scroll", updateScrollPosition);
+    window.addEventListener("resize", updateScrollPosition);
+
+    return () => {
+      scrollElement.removeEventListener("scroll", updateScrollPosition);
+      window.removeEventListener("resize", updateScrollPosition);
+    };
+  }, [filteredSongs.length, isLoading]);
+
+  useEffect(() => {
     const loadSongs = async () => {
       try {
         const response = await fetch("/yarg/songs.csv");
@@ -472,7 +501,7 @@ export function YargLibrary() {
   }, []);
 
   return (
-    <Page className="mx-auto !pb-0 space-y-4 max-h-screen  overflow-hidden flex flex-col">
+    <Page className="mx-auto !pb-0 h-screen max-h-screen overflow-hidden flex flex-col">
       <title>YARG Library</title>
 
       {isLoading ? (
@@ -686,79 +715,118 @@ export function YargLibrary() {
             </Popover>
           </div>
 
-          <div
-            ref={parentRef}
-            className="overflow-y-auto overflow-x-hidden -ml-4 pl-4"
-            style={{ scrollbarWidth: "none" }}
-          >
+          <div className="relative min-h-0 flex-1 overflow-hidden">
             <div
-              style={{
-                height: virtualizer.getTotalSize(),
-                width: "100%",
-                position: "relative",
-              }}
+              ref={parentRef}
+              className="absolute inset-0 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden -ml-4 pl-4"
+              style={{ scrollbarWidth: "none" }}
             >
-              {virtualizer.getVirtualItems().map((virtualRow) => {
-                const song = filteredSongs[virtualRow.index];
+              <div
+                className="mb-32"
+                style={{
+                  height: virtualizer.getTotalSize(),
+                  width: "100%",
+                  position: "relative",
+                }}
+              >
+                {virtualizer.getVirtualItems().map((virtualRow) => {
+                  const song = filteredSongs[virtualRow.index];
 
-                return (
-                  <div
-                    key={song.id ?? virtualRow.index}
-                    data-index={virtualRow.index}
-                    ref={virtualizer.measureElement}
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      transform: `translateY(${virtualRow.start}px)`,
-                    }}
-                  >
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="truncate">
-                          <div className="font-semibold truncate text-ellipsis">
-                            {song.name}
+                  return (
+                    <div
+                      key={song.id ?? virtualRow.index}
+                      data-index={virtualRow.index}
+                      ref={virtualizer.measureElement}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        transform: `translateY(${virtualRow.start}px)`,
+                      }}
+                    >
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="truncate">
+                            <div className="font-semibold truncate text-ellipsis">
+                              {song.name}
+                            </div>
+                            <div className="text-sm text-muted-foreground truncate text-ellipsis">
+                              {song.isMaster ? " as made famous by " : " by "}
+                              {song.artist}
+                            </div>
                           </div>
-                          <div className="text-sm text-muted-foreground truncate text-ellipsis">
-                            {song.isMaster ? " as made famous by " : " by "}
-                            {song.artist}
+
+                          <div className="flex-none size-8 p-0.5 background-muted rounded-full flex items-center justify-center bg-neutral-800">
+                            <Popover>
+                              <PopoverTrigger openOnHover={true}>
+                                <img
+                                  src={`/yarg/icons/${SOURCE_ICONS[song.source] ?? "custom.png"}`}
+                                  alt={
+                                    SOURCE_LABELS[song.source] ??
+                                    "Custom/Unknown"
+                                  }
+                                />
+                              </PopoverTrigger>
+                              <PopoverContent
+                                side="left"
+                                className="w-auto px-2 py-1 text-sm"
+                              >
+                                {SOURCE_LABELS[song.source] ?? "Custom/Unknown"}
+                              </PopoverContent>
+                            </Popover>
                           </div>
                         </div>
-
-                        <div className="flex-none size-8 p-0.5 background-muted rounded-full flex items-center justify-center bg-neutral-800">
-                          <Popover>
-                            <PopoverTrigger openOnHover={true}>
-                              <img
-                                src={`/yarg/icons/${SOURCE_ICONS[song.source] ?? "custom.png"}`}
-                                alt={
-                                  SOURCE_LABELS[song.source] ?? "Custom/Unknown"
-                                }
-                              />
-                            </PopoverTrigger>
-                            <PopoverContent
-                              side="left"
-                              className="w-auto px-2 py-1 text-sm"
-                            >
-                              {SOURCE_LABELS[song.source] ?? "Custom/Unknown"}
-                            </PopoverContent>
-                          </Popover>
+                        <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
+                          <GuitarDifficulty song={song} />
+                          <DrumsDifficulty song={song} />
+                          <Guitar2Difficulty song={song} />
+                          <VocalsDifficulty song={song} />
+                          <KeysDifficulty song={song} />
+                          <BandDifficulty song={song} />
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
-                        <GuitarDifficulty song={song} />
-                        <DrumsDifficulty song={song} />
-                        <Guitar2Difficulty song={song} />
-                        <VocalsDifficulty song={song} />
-                        <KeysDifficulty song={song} />
-                        <BandDifficulty song={song} />
-                      </div>
+                      <Separator className="mt-4" />
                     </div>
-                    <Separator className="mt-4" />
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
+
+            {!isLoading &&
+            filteredSongs.length > 0 &&
+            (!isAtTop || !isAtBottom) ? (
+              <div className="z-10">
+                {!isAtTop ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="absolute top-4 left-1/2 -translate-x-1/2 bg-background/60 shadow-md backdrop-blur"
+                    onClick={() =>
+                      virtualizer.scrollToIndex(0, { align: "start" })
+                    }
+                  >
+                    <ArrowUpToLine />
+                    Scroll to top
+                  </Button>
+                ) : null}
+                {isAtTop ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/60 shadow-md backdrop-blur"
+                    onClick={() =>
+                      virtualizer.scrollToIndex(filteredSongs.length - 1, {
+                        align: "end",
+                      })
+                    }
+                  >
+                    <ArrowDownToLine />
+                    Scroll to bottom
+                  </Button>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </>
       )}
