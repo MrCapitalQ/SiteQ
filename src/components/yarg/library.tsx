@@ -31,6 +31,7 @@ import { Spinner } from "../ui/spinner";
 import { Toggle } from "../ui/toggle";
 import {
   BandDifficulty,
+  DifficultyRating,
   DrumsDifficulty,
   Guitar2Difficulty,
   GuitarDifficulty,
@@ -211,6 +212,55 @@ function matchesInstrumentFilter(song: Song, filter: InstrumentOption) {
 
 function getEstimatedRowHeight() {
   return window.innerWidth < 324 ? 137 : window.innerWidth < 668 ? 109 : 81;
+}
+
+type LibraryRow =
+  | { type: "header"; key: string; label: string; rating?: number }
+  | { type: "song"; song: Song };
+
+function getSongGroup(song: Song, sortBy: SortOption) {
+  if (sortBy === "artist") {
+    const artist = stripLeadingArticles(song.artist).trim();
+    return { key: `artist:${artist.toLocaleLowerCase()}`, label: song.artist };
+  }
+
+  if (sortBy === "song") {
+    const name = stripLeadingArticles(song.name).trim();
+    const firstCharacter = name.normalize("NFKD").charAt(0).toUpperCase();
+
+    if (/\d/.test(firstCharacter)) {
+      return { key: "song:0-9", label: "0-9" };
+    }
+
+    if (!/[A-Z]/.test(firstCharacter)) {
+      return { key: "song:#", label: "#" };
+    }
+
+    return { key: `song:${firstCharacter}`, label: firstCharacter };
+  }
+
+  const rating = getDifficultyRating(song, sortBy);
+  return rating >= 0
+    ? { key: `difficulty:${rating}`, label: String(rating), rating }
+    : { key: "difficulty:none", label: "No difficulty", undefined };
+}
+
+function groupSongs(songs: Song[], sortBy: SortOption): LibraryRow[] {
+  const rows: LibraryRow[] = [];
+  let previousGroupKey: string | undefined;
+
+  for (const song of songs) {
+    const group = getSongGroup(song, sortBy);
+
+    if (group.key !== previousGroupKey) {
+      rows.push({ type: "header", ...group });
+      previousGroupKey = group.key;
+    }
+
+    rows.push({ type: "song", song });
+  }
+
+  return rows;
 }
 
 export function YargLibrary() {
@@ -419,6 +469,11 @@ export function YargLibrary() {
     sortDirection,
   ]);
 
+  const libraryRows = useMemo(
+    () => groupSongs(filteredSongs, sortBy),
+    [filteredSongs, sortBy],
+  );
+
   useEffect(() => {
     const handleResize = () => {
       setEstimatedRowHeight(getEstimatedRowHeight());
@@ -444,7 +499,7 @@ export function YargLibrary() {
   }, [isFilterOpen]);
 
   const virtualizer = useVirtualizer({
-    count: filteredSongs.length,
+    count: libraryRows.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => estimatedRowHeight,
     overscan: 8,
@@ -473,7 +528,7 @@ export function YargLibrary() {
       scrollElement.removeEventListener("scroll", updateScrollPosition);
       window.removeEventListener("resize", updateScrollPosition);
     };
-  }, [filteredSongs.length, isLoading]);
+  }, [libraryRows.length, isLoading]);
 
   useEffect(() => {
     const loadSongs = async () => {
@@ -752,11 +807,15 @@ export function YargLibrary() {
                   }}
                 >
                   {virtualizer.getVirtualItems().map((virtualRow) => {
-                    const song = filteredSongs[virtualRow.index];
+                    const row = libraryRows[virtualRow.index];
 
                     return (
                       <div
-                        key={song.id ?? virtualRow.index}
+                        key={
+                          row.type === "header"
+                            ? row.key
+                            : (row.song.id ?? virtualRow.index)
+                        }
                         data-index={virtualRow.index}
                         ref={virtualizer.measureElement}
                         style={{
@@ -767,49 +826,63 @@ export function YargLibrary() {
                           transform: `translateY(${virtualRow.start}px)`,
                         }}
                       >
-                        <div className="mt-4">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="truncate">
-                              <div className="font-semibold truncate text-ellipsis">
-                                {song.name}
+                        {row.type === "header" ? (
+                          <Button className="w-full mt-8" variant="outline">
+                            <span className="flex items-center justify-center gap-2 truncate text-ellipsis">
+                              {sortBy !== "artist" && sortBy !== "song" ? (
+                                <DifficultyRating rating={row.rating} />
+                              ) : (
+                                row.label
+                              )}
+                            </span>
+                          </Button>
+                        ) : (
+                          <div className="mt-4">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="truncate">
+                                <div className="font-semibold truncate text-ellipsis">
+                                  {row.song.name}
+                                </div>
+                                <div className="text-sm text-muted-foreground truncate text-ellipsis">
+                                  {row.song.isMaster
+                                    ? " as made famous by "
+                                    : " by "}
+                                  {row.song.artist}
+                                </div>
                               </div>
-                              <div className="text-sm text-muted-foreground truncate text-ellipsis">
-                                {song.isMaster ? " as made famous by " : " by "}
-                                {song.artist}
-                              </div>
-                            </div>
 
-                            <div className="flex-none size-8 p-0.5 background-muted rounded-full flex items-center justify-center bg-neutral-800">
-                              <Popover>
-                                <PopoverTrigger openOnHover={true}>
-                                  <img
-                                    src={`/yarg/icons/${SOURCE_ICONS[song.source] ?? "custom.png"}`}
-                                    alt={
-                                      SOURCE_LABELS[song.source] ??
-                                      "Custom/Unknown"
-                                    }
-                                  />
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  side="left"
-                                  className="w-auto px-2 py-1 text-sm"
-                                >
-                                  {SOURCE_LABELS[song.source] ??
-                                    "Custom/Unknown"}
-                                </PopoverContent>
-                              </Popover>
+                              <div className="flex-none size-8 p-0.5 background-muted rounded-full flex items-center justify-center bg-neutral-800">
+                                <Popover>
+                                  <PopoverTrigger openOnHover={true}>
+                                    <img
+                                      src={`/yarg/icons/${SOURCE_ICONS[row.song.source] ?? "custom.png"}`}
+                                      alt={
+                                        SOURCE_LABELS[row.song.source] ??
+                                        "Custom/Unknown"
+                                      }
+                                    />
+                                  </PopoverTrigger>
+                                  <PopoverContent
+                                    side="left"
+                                    className="w-auto px-2 py-1 text-sm"
+                                  >
+                                    {SOURCE_LABELS[row.song.source] ??
+                                      "Custom/Unknown"}
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
                             </div>
+                            <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
+                              <GuitarDifficulty song={row.song} />
+                              <DrumsDifficulty song={row.song} />
+                              <Guitar2Difficulty song={row.song} />
+                              <VocalsDifficulty song={row.song} />
+                              <KeysDifficulty song={row.song} />
+                              <BandDifficulty song={row.song} />
+                            </div>
+                            <Separator className="mt-4" />
                           </div>
-                          <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
-                            <GuitarDifficulty song={song} />
-                            <DrumsDifficulty song={song} />
-                            <Guitar2Difficulty song={song} />
-                            <VocalsDifficulty song={song} />
-                            <KeysDifficulty song={song} />
-                            <BandDifficulty song={song} />
-                          </div>
-                        </div>
-                        <Separator className="mt-4" />
+                        )}
                       </div>
                     );
                   })}
@@ -817,7 +890,7 @@ export function YargLibrary() {
               </div>
 
               {!isLoading &&
-              filteredSongs.length > 0 &&
+              libraryRows.length > 0 &&
               (!isAtTop || !isAtBottom) ? (
                 <div className="z-10 ">
                   {!isAtTop ? (
@@ -839,7 +912,7 @@ export function YargLibrary() {
                       size="sm"
                       className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/60 shadow-md backdrop-blur"
                       onClick={() =>
-                        virtualizer.scrollToIndex(filteredSongs.length - 1, {
+                        virtualizer.scrollToIndex(libraryRows.length - 1, {
                           align: "end",
                         })
                       }

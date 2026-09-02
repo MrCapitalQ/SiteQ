@@ -127,7 +127,7 @@ export const Difficulty = memo(function Difficulty({
   );
 });
 
-const DifficultyRating = memo(function DifficultyRating({
+export const DifficultyRating = memo(function DifficultyRating({
   rating,
 }: {
   rating?: number;
@@ -148,7 +148,7 @@ const DifficultyRating = memo(function DifficultyRating({
                 size="18"
                 color="var(--background)"
                 fill="var(--destructive)"
-                className="-m-[3px]"
+                className="-m-[3px] size-4.5"
               />
             );
 
@@ -160,6 +160,7 @@ const DifficultyRating = memo(function DifficultyRating({
                 i < rating ? "var(--foreground)" : "var(--muted-foreground)"
               }
               fill={i < rating ? "var(--foreground)" : "transparent"}
+              className="size-3"
             />
           );
         })}
