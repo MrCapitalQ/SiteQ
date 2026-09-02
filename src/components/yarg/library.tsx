@@ -1,22 +1,14 @@
-import type { DifficultyVariation, Song } from "@/workers/songs.worker";
+import type { Song } from "@/workers/songs.worker";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import {
   ArrowDown01,
   ArrowDownAZ,
   ArrowUp10,
   ArrowUpZA,
-  Circle,
-  Drum,
-  Guitar,
-  KeyboardMusic,
-  MicVocal,
-  Skull,
   SlidersHorizontal,
-  Users,
   X,
-  type LucideIcon,
 } from "lucide-react";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -35,178 +27,15 @@ import {
 import { Separator } from "../ui/separator";
 import { Spinner } from "../ui/spinner";
 import { Toggle } from "../ui/toggle";
-
-const DIFFICULTY_ROTATION_MS = 2500;
-
-const SOURCE_LABELS: Record<string, string> = {
-  yarg: "YARG",
-  yargdlc: "YARG DLC",
-  yarn: "YARN",
-  gh: "Guitar Hero",
-  gh1: "Guitar Hero",
-  ghdx: "Guitar Hero Deluxe",
-  gh1dx: "Guitar Hero Deluxe",
-  gh2: "Guitar Hero II",
-  gh2dlc: "Guitar Hero II DLC",
-  gh2dx: "Guitar Hero II Deluxe",
-  gh2dxdlc: "Guitar Hero II Deluxe DLC",
-  gh2dxcustoms: "Guitar Hero II Deluxe Customs",
-  gh80s: "Guitar Hero Encore: Rocks the 80s",
-  gh80sdx: "Guitar Hero Encore Deluxe",
-  gh3: "Guitar Hero III: Legends of Rock",
-  gh3dlc: "Guitar Hero III DLC",
-  ghot: "Guitar Hero: On Tour",
-  gha: "Guitar Hero: Aerosmith",
-  ghwt: "Guitar Hero: World Tour",
-  ghwtdlc: "Guitar Hero: World Tour DLC",
-  ghm: "Guitar Hero: Metallica",
-  ghmdlc: "Death Magnetic DLC",
-  ghwor: "Guitar Hero: Warriors of Rock",
-  ghwordlc: "Guitar Hero: Warriors of Rock DLC",
-  ghvh: "Guitar Hero: Van Halen",
-  ghsh: "Guitar Hero: Smash Hits",
-  gh5: "Guitar Hero 5",
-  gh5dlc: "Guitar Hero 5 DLC",
-  ghotd: "Guitar Hero On Tour: Decades",
-  ghotmh: "Guitar Hero On Tour: Modern Hits",
-  bandhero: "Band Hero",
-  bh: "Band Hero",
-  bandhero2: "Band Hero 2",
-  bh2: "Band Hero 2",
-  ghl: "Guitar Hero Live",
-  ghtv: "Guitar Hero TV",
-  rb1: "Rock Band 1",
-  rb1dlc: "Rock Band 1 DLC",
-  rb1_dlc: "Rock Band 1 DLC",
-  rb2: "Rock Band 2",
-  rb2_real: "Rock Band 2",
-  rb2dlc: "Rock Band 2 DLC",
-  rb2_dlc: "Rock Band 2 DLC",
-  rb3: "Rock Band 3",
-  rb3dlc: "Rock Band 3 DLC",
-  rb3_dlc: "Rock Band 3 DLC",
-  rb4: "Rock Band 4",
-  rb4dlc: "Rock Band 4 DLC",
-  rb4_dlc: "Rock Band 4 DLC",
-  rbr: "Rock Band Rivals",
-  rb4_rivals: "Rock Band Rivals",
-  tbrb: "The Beatles: Rock Band",
-  beatles: "The Beatles: Rock Band",
-  tbrbdlc: "The Beatles: Rock Band DLC",
-  beatles_dlc: "The Beatles: Rock Band DLC",
-  rbacdc: "AC/DC Live: Rock Band Track Pack",
-  rbtp_acdc: "AC/DC Live: Rock Band Track Pack",
-  lrb: "Lego Rock Band",
-  lego: "Lego Rock Band",
-  rbn: "Rock Band Network",
-  rbn1: "Rock Band Network 1.0",
-  ugc: "Rock Band Network 1.0",
-  ugc1: "Rock Band Network 1.0",
-  rbn2: "Rock Band Network 2.0",
-  ugc_plus: "Rock Band Network 2.0",
-  ugc2: "Rock Band Network 2.0",
-  ugc_lost: "Lost Rock Band Network",
-  rbn_lost: "Lost Rock Band Network",
-  ugc1_lost: "Lost Rock Band Network 1.0",
-  rbn1_lost: "Lost Rock Band Network 1.0",
-  ugc2_lost: "Lost Rock Band Network 2.0",
-  rbn2_lost: "Lost Rock Band Network 2.0",
-  rb_blitz: "Rock Band Blitz",
-  rbb: "Rock Band Blitz",
-  blitz: "Rock Band Blitz",
-  gdrb: "Green Day: Rock Band",
-  greenday: "Green Day: Rock Band",
-  gdrbdlc: "Green Day: Rock Band DLC",
-  gdrbp: "Green Day: Rock Band DLC",
-  gdrb_plus: "Green Day: Rock Band DLC",
-  rbvr: "Rock Band VR",
-  fnfestival: "Fortnite Festival",
-};
-
-const SOURCE_ICONS: Record<string, string> = {
-  yarg: "yarg.png",
-  yargdlc: "yargdlc.png",
-  yarn: "yarn.png",
-  gh: "gh.png",
-  gh1: "gh.png",
-  ghdx: "ghdx.png",
-  gh1dx: "ghdx.png",
-  gh2: "gh2.png",
-  gh2dlc: "gh2dlc.png",
-  gh2dx: "gh2dx.png",
-  gh2dxdlc: "gh2dxdlc.png",
-  gh2dxcustoms: "gh2dxcustoms.png",
-  gh80s: "gh80s.png",
-  gh80sdx: "gh80sdx.png",
-  gh3: "gh3.png",
-  gh3dlc: "gh3dlc.png",
-  ghot: "ghot.png",
-  gha: "gha.png",
-  ghwt: "ghwt.png",
-  ghwtdlc: "ghwtdlc.png",
-  ghm: "ghm.png",
-  ghmdlc: "ghmdlc.png",
-  ghwor: "ghwor.png",
-  ghwordlc: "ghwordlc.png",
-  ghvh: "ghvh.png",
-  ghsh: "ghsh.png",
-  gh5: "gh5.png",
-  gh5dlc: "gh5dlc.png",
-  ghotd: "ghotd.png",
-  ghotmh: "ghotmh.png",
-  bandhero: "bandhero.png",
-  bh: "bh.png",
-  bandhero2: "bh2.png",
-  bh2: "bh2.png",
-  ghl: "ghl.png",
-  ghtv: "ghtv.png",
-  rb1: "rb1.png",
-  rb1dlc: "rb1dlc.png",
-  rb1_dlc: "rb1dlc.png",
-  rb2: "rb2.png",
-  rb2_real: "rb2.png",
-  rb2dlc: "rb2dlc.png",
-  rb2_dlc: "rb2dlc.png",
-  rb3: "rb3.png",
-  rb3dlc: "rb3dlc.png",
-  rb3_dlc: "rb3dlc.png",
-  rb4: "rb4.png",
-  rb4dlc: "rb4dlc.png",
-  rb4_dlc: "rb4dlc.png",
-  rbr: "rb4rivals.png",
-  rb4_rivals: "rb4rivals.png",
-  tbrb: "tbrb.png",
-  beatles: "tbrb.png",
-  tbrbdlc: "tbrbdlc.png",
-  beatles_dlc: "tbrbdlc.png",
-  rbacdc: "rbacdc.png",
-  rbtp_acdc: "rbacdc.png",
-  lrb: "lrb.png",
-  lego: "lrb.png",
-  rbn: "rb1.png",
-  rbn1: "rbn1.png",
-  ugc: "rbn1.png",
-  ugc1: "rbn1.png",
-  rbn2: "rbn2.png",
-  ugc_plus: "rbn2.png",
-  ugc2: "rbn2.png",
-  ugc_lost: "rbn1lost.png",
-  rbn_lost: "rbn1lost.png",
-  ugc1_lost: "rbn1lost.png",
-  rbn1_lost: "rbn1lost.png",
-  ugc2_lost: "rbn2lost.png",
-  rbn2_lost: "rbn2lost.png",
-  rb_blitz: "rb_blitz.png",
-  rbb: "rb_blitz.png",
-  blitz: "rb_blitz.png",
-  gdrb: "gdrb.png",
-  greenday: "gdrb.png",
-  gdrbdlc: "gdrbdlc.png",
-  gdrbp: "gdrbdlc.png",
-  gdrb_plus: "gdrbdlc.png",
-  rbvr: "rbvr.png",
-  fnfestival: "fnfestival.png",
-};
+import {
+  BandDifficulty,
+  DrumsDifficulty,
+  Guitar2Difficulty,
+  GuitarDifficulty,
+  KeysDifficulty,
+  VocalsDifficulty,
+} from "./difficulty";
+import { SOURCE_ICONS, SOURCE_LABELS } from "./source";
 
 function normalizeSearchTerm(value: string) {
   return value
@@ -215,28 +44,6 @@ function normalizeSearchTerm(value: string) {
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "");
-}
-
-const difficultyRotationSubscribers = new Set<() => void>();
-let difficultyRotationTimer: number | undefined;
-
-function ensureDifficultyRotationTimer() {
-  if (difficultyRotationTimer !== undefined) {
-    return;
-  }
-
-  difficultyRotationTimer = window.setInterval(() => {
-    difficultyRotationSubscribers.forEach((subscriber) => subscriber());
-  }, DIFFICULTY_ROTATION_MS);
-}
-
-function clearDifficultyRotationTimer() {
-  if (difficultyRotationTimer === undefined) {
-    return;
-  }
-
-  window.clearInterval(difficultyRotationTimer);
-  difficultyRotationTimer = undefined;
 }
 
 const sortOptions = [
@@ -504,7 +311,11 @@ export function YargLibrary() {
         value: x,
         label: SOURCE_LABELS[x] ?? "Custom/Unknown",
       }))
-      .sort((a, b) => a.label.localeCompare(b.label));
+      .sort((a, b) =>
+        stripLeadingArticles(a.label).localeCompare(
+          stripLeadingArticles(b.label),
+        ),
+      );
   }, [songs]);
 
   const selectedSortLabel =
@@ -954,198 +765,3 @@ export function YargLibrary() {
     </Page>
   );
 }
-
-function hasDifferentRatings(variations: DifficultyVariation[]) {
-  if (variations.length <= 1) {
-    return false;
-  }
-
-  return new Set(variations.map((variation) => variation.rating)).size > 1;
-}
-
-function useRotatingDifficulty(
-  variations: DifficultyVariation[],
-  defaultPartName: string,
-  shouldCycle = true,
-) {
-  const [variationIndex, setVariationIndex] = useState(0);
-
-  useEffect(() => {
-    if (!shouldCycle || variations.length <= 1) {
-      setVariationIndex(0);
-      return;
-    }
-
-    const tick = () => {
-      setVariationIndex((current) => (current + 1) % variations.length);
-    };
-
-    difficultyRotationSubscribers.add(tick);
-    ensureDifficultyRotationTimer();
-
-    return () => {
-      difficultyRotationSubscribers.delete(tick);
-
-      if (difficultyRotationSubscribers.size === 0) {
-        clearDifficultyRotationTimer();
-      }
-    };
-  }, [shouldCycle, variations]);
-
-  return (
-    variations[variationIndex] ?? {
-      partName: defaultPartName,
-      rating: undefined,
-    }
-  );
-}
-
-const GuitarDifficulty = memo(function GuitarDifficulty({
-  song,
-}: {
-  song: Song;
-}) {
-  const defaultPartName = "Guitar";
-  const variations = song.guitar;
-
-  const difficulty = useRotatingDifficulty(variations, defaultPartName);
-
-  return <Difficulty icon={Guitar} value={difficulty} />;
-});
-
-const DrumsDifficulty = memo(function DrumsDifficulty({
-  song,
-}: {
-  song: Song;
-}) {
-  const defaultPartName = "Drums";
-  const variations = song.drums;
-
-  const shouldCycle = hasDifferentRatings(variations);
-  const difficulty = useRotatingDifficulty(
-    variations,
-    defaultPartName,
-    shouldCycle,
-  );
-
-  return <Difficulty icon={Drum} value={difficulty} />;
-});
-
-const Guitar2Difficulty = memo(function GuitarDifficulty({
-  song,
-}: {
-  song: Song;
-}) {
-  const defaultPartName = "Guitar";
-  const variations = song.guitar2;
-
-  const difficulty = useRotatingDifficulty(variations, defaultPartName);
-
-  return <Difficulty icon={Guitar} value={difficulty} />;
-});
-
-const VocalsDifficulty = memo(function VocalsDifficulty({
-  song,
-}: {
-  song: Song;
-}) {
-  const defaultPartName = "Vocals";
-  const variations = song.vocals;
-
-  const shouldCycle = hasDifferentRatings(variations);
-  const difficulty = useRotatingDifficulty(
-    variations,
-    defaultPartName,
-    shouldCycle,
-  );
-
-  return <Difficulty icon={MicVocal} value={difficulty} />;
-});
-
-const KeysDifficulty = memo(function KeysDifficulty({ song }: { song: Song }) {
-  const defaultPartName = "Keys";
-  const variations = song.keys;
-
-  const difficulty = useRotatingDifficulty(variations, defaultPartName);
-
-  return <Difficulty icon={KeyboardMusic} value={difficulty} />;
-});
-
-const BandDifficulty = memo(function KeysDifficulty({ song }: { song: Song }) {
-  return <Difficulty icon={Users} value={{ rating: song.bandDifficulty }} />;
-});
-
-const Difficulty = memo(function Difficulty({
-  icon: Icon,
-  value,
-}: {
-  icon: LucideIcon;
-  value: DifficultyVariation;
-}) {
-  return (
-    <div className="flex items-center gap-1">
-      <div className="relative shrink-0">
-        <div className="size-5">
-          <Badge className="size-5 !px-0 absolute top-0">
-            {
-              <Icon
-                data-icon="inline-start"
-                className={value.variationName ? "-mt-1" : ""}
-              />
-            }
-          </Badge>
-          {value.variationName && (
-            <Badge
-              className="absolute p-0.5 h-2.5 -bottom-1 2 left-1/2 transform -translate-x-1/2 !text-[.5rem]"
-              variant="secondary"
-            >
-              {value.variationName}
-            </Badge>
-          )}
-        </div>
-      </div>
-      <DifficultyRating rating={value.rating} />
-    </div>
-  );
-});
-
-const DifficultyRating = memo(function DifficultyRating({
-  rating,
-}: {
-  rating?: number;
-}) {
-  if (rating === undefined)
-    return (
-      <div className="text-sm text-muted-foreground w-[60px]">No Part</div>
-    );
-
-  return (
-    <div>
-      <div className="flex">
-        {Array.from({ length: 5 }, (_, i) => {
-          if (rating === 6)
-            return (
-              <Skull
-                key={i}
-                size="18"
-                color="var(--background)"
-                fill="var(--destructive)"
-                className="-m-[3px]"
-              />
-            );
-
-          return (
-            <Circle
-              key={i}
-              size="12"
-              color={
-                i < rating ? "var(--foreground)" : "var(--muted-foreground)"
-              }
-              fill={i < rating ? "var(--foreground)" : "transparent"}
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
-});
