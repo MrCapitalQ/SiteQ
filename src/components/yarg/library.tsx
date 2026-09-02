@@ -14,6 +14,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 import { Field } from "../ui/field";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -218,6 +225,27 @@ type LibraryRow =
   | { type: "header"; key: string; label: string; rating?: number }
   | { type: "song"; song: Song };
 
+type GroupNavigationItem = {
+  key: string;
+  label: string;
+  rating?: number;
+  index: number;
+};
+
+function getAlphabetGroup(value: string) {
+  const firstCharacter = value.normalize("NFKD").charAt(0).toUpperCase();
+
+  if (/\d/.test(firstCharacter)) {
+    return { key: "0-9", label: "0-9" };
+  }
+
+  if (!/[A-Z]/.test(firstCharacter)) {
+    return { key: "#", label: "#" };
+  }
+
+  return { key: firstCharacter, label: firstCharacter };
+}
+
 function getSongGroup(song: Song, sortBy: SortOption) {
   if (sortBy === "artist") {
     const artist = stripLeadingArticles(song.artist).trim();
@@ -226,17 +254,8 @@ function getSongGroup(song: Song, sortBy: SortOption) {
 
   if (sortBy === "song") {
     const name = stripLeadingArticles(song.name).trim();
-    const firstCharacter = name.normalize("NFKD").charAt(0).toUpperCase();
-
-    if (/\d/.test(firstCharacter)) {
-      return { key: "song:0-9", label: "0-9" };
-    }
-
-    if (!/[A-Z]/.test(firstCharacter)) {
-      return { key: "song:#", label: "#" };
-    }
-
-    return { key: `song:${firstCharacter}`, label: firstCharacter };
+    const group = getAlphabetGroup(name);
+    return { key: `song:${group.key}`, label: group.label };
   }
 
   const rating = getDifficultyRating(song, sortBy);
@@ -277,6 +296,7 @@ export function YargLibrary() {
   >([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [isAtTop, setIsAtTop] = useState(true);
   const [isAtBottom, setIsAtBottom] = useState(false);
 
@@ -474,6 +494,40 @@ export function YargLibrary() {
     [filteredSongs, sortBy],
   );
 
+  const groupHeaders = useMemo(
+    () =>
+      libraryRows.flatMap((row, index) =>
+        row.type === "header"
+          ? [{ key: row.key, label: row.label, rating: row.rating, index }]
+          : [],
+      ),
+    [libraryRows],
+  );
+
+  const navigationGroups = useMemo(() => {
+    if (sortBy !== "artist") {
+      return groupHeaders;
+    }
+
+    const groups: GroupNavigationItem[] = [];
+    let previousGroupKey: string | undefined;
+
+    for (const group of groupHeaders) {
+      const alphabetGroup = getAlphabetGroup(stripLeadingArticles(group.label));
+
+      if (alphabetGroup.key !== previousGroupKey) {
+        groups.push({
+          key: `artist:${alphabetGroup.key}`,
+          label: alphabetGroup.label,
+          index: group.index,
+        });
+        previousGroupKey = alphabetGroup.key;
+      }
+    }
+
+    return groups;
+  }, [groupHeaders, sortBy]);
+
   useEffect(() => {
     const handleResize = () => {
       setEstimatedRowHeight(getEstimatedRowHeight());
@@ -504,6 +558,17 @@ export function YargLibrary() {
     estimateSize: () => estimatedRowHeight,
     overscan: 8,
   });
+
+  useEffect(() => {
+    virtualizer.scrollToIndex(0, { align: "start" });
+  }, [
+    searchTerm,
+    sortBy,
+    sortDirection,
+    selectedInstruments,
+    selectedSources,
+    virtualizer,
+  ]);
 
   useEffect(() => {
     const scrollElement = parentRef.current;
@@ -827,7 +892,11 @@ export function YargLibrary() {
                         }}
                       >
                         {row.type === "header" ? (
-                          <Button className="w-full mt-8" variant="outline">
+                          <Button
+                            className={`w-full ${virtualRow.index === 0 ? "mt-4" : "mt-12"}`}
+                            variant="secondary"
+                            onClick={() => setIsGroupDialogOpen(true)}
+                          >
                             <span className="flex items-center justify-center gap-2 truncate text-ellipsis">
                               {sortBy !== "artist" && sortBy !== "song" ? (
                                 <DifficultyRating rating={row.rating} />
@@ -925,6 +994,33 @@ export function YargLibrary() {
               ) : null}
             </div>
           </Page>
+
+          <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
+            <DialogContent className="max-h-[calc(100vh-2rem)] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Jump to section</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-2">
+                {navigationGroups.map((group) => (
+                  <DialogClose
+                    key={group.key}
+                    render={<Button variant="outline" />}
+                    onClick={() => {
+                      virtualizer.scrollToIndex(group.index, {
+                        align: "start",
+                      });
+                    }}
+                  >
+                    {sortBy !== "artist" && sortBy !== "song" ? (
+                      <DifficultyRating rating={group.rating} />
+                    ) : (
+                      group.label
+                    )}
+                  </DialogClose>
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
         </>
       )}
     </>
