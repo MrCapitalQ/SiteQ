@@ -26,10 +26,10 @@ export const GuitarDifficulty = memo(function GuitarDifficulty({
 }: {
   song: Song;
 }) {
-  const defaultPartName = "Guitar";
+  const defaultVariationName = "Guitar";
   const variations = song.guitar;
 
-  const difficulty = useRotatingDifficulty(variations, defaultPartName);
+  const difficulty = useRotatingDifficulty(variations, defaultVariationName);
 
   return <Difficulty icon={Guitar} value={difficulty} />;
 });
@@ -39,28 +39,23 @@ export const DrumsDifficulty = memo(function DrumsDifficulty({
 }: {
   song: Song;
 }) {
-  const defaultPartName = "Drums";
   const variations = song.drums;
 
   const shouldCycle = hasDifferentRatings(variations);
-  const difficulty = useRotatingDifficulty(
-    variations,
-    defaultPartName,
-    shouldCycle,
-  );
+  const difficulty = useRotatingDifficulty(variations, undefined, shouldCycle);
 
   return <Difficulty icon={Drum} value={difficulty} />;
 });
 
-export const Guitar2Difficulty = memo(function GuitarDifficulty({
+export const Guitar2Difficulty = memo(function Guitar2Difficulty({
   song,
 }: {
   song: Song;
 }) {
-  const defaultPartName = "Guitar";
+  const defaultVariationName = "Bass";
   const variations = song.guitar2;
 
-  const difficulty = useRotatingDifficulty(variations, defaultPartName);
+  const difficulty = useRotatingDifficulty(variations, defaultVariationName);
 
   return <Difficulty icon={Guitar} value={difficulty} />;
 });
@@ -70,15 +65,10 @@ export const VocalsDifficulty = memo(function VocalsDifficulty({
 }: {
   song: Song;
 }) {
-  const defaultPartName = "Vocals";
   const variations = song.vocals;
 
   const shouldCycle = hasDifferentRatings(variations);
-  const difficulty = useRotatingDifficulty(
-    variations,
-    defaultPartName,
-    shouldCycle,
-  );
+  const difficulty = useRotatingDifficulty(variations, undefined, shouldCycle);
 
   return <Difficulty icon={MicVocal} value={difficulty} />;
 });
@@ -88,10 +78,9 @@ export const KeysDifficulty = memo(function KeysDifficulty({
 }: {
   song: Song;
 }) {
-  const defaultPartName = "Keys";
   const variations = song.keys;
 
-  const difficulty = useRotatingDifficulty(variations, defaultPartName);
+  const difficulty = useRotatingDifficulty(variations);
 
   return <Difficulty icon={KeyboardMusic} value={difficulty} />;
 });

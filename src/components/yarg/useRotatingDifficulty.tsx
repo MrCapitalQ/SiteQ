@@ -27,7 +27,7 @@ function clearDifficultyRotationTimer() {
 
 export function useRotatingDifficulty(
   variations: DifficultyVariation[],
-  defaultPartName: string,
+  defaultVariationName?: string,
   shouldCycle = true,
 ) {
   const [variationIndex, setVariationIndex] = useState(0);
@@ -56,7 +56,7 @@ export function useRotatingDifficulty(
 
   return (
     variations[variationIndex] ?? {
-      partName: defaultPartName,
+      variationName: defaultVariationName,
       rating: undefined,
     }
   );
