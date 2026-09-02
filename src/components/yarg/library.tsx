@@ -679,7 +679,7 @@ export function YargLibrary() {
                 />
                 <PopoverContent
                   align="end"
-                  className="space-y-2 max-h-[calc(100vh-theme(space.9)-4rem)] overflow-auto"
+                  className="space-y-2 max-h-[calc(100dvh-theme(space.9)-2rem)] overflow-auto"
                 >
                   <div className="space-y-2">
                     <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -856,7 +856,7 @@ export function YargLibrary() {
               </Popover>
             </div>
           </div>
-          <Page className="mx-auto !py-0 h-screen max-h-screen overflow-hidden flex flex-col">
+          <Page className="mx-auto !py-0 h-dvh max-h-dvh overflow-hidden flex flex-col">
             <div className="relative min-h-0 flex-1 overflow-hidden">
               <div
                 ref={parentRef}
@@ -996,7 +996,7 @@ export function YargLibrary() {
           </Page>
 
           <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
-            <DialogContent className="max-h-[calc(100vh-2rem)] overflow-y-auto">
+            <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Jump to section</DialogTitle>
               </DialogHeader>
