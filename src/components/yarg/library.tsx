@@ -911,7 +911,7 @@ export function YargLibrary() {
             <div className="relative min-h-0 flex-1 overflow-hidden">
               <div
                 ref={parentRef}
-                className="absolute inset-0 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden px-4 sm:px-8"
+                className="absolute inset-0 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden max-w-4xl mx-auto px-4 sm:px-8"
                 style={{ scrollbarWidth: "none" }}
               >
                 <div
