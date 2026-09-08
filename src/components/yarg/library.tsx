@@ -3,10 +3,10 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import {
   ArrowDown01,
   ArrowDownAZ,
-  ArrowDownToLine,
   ArrowUp10,
   ArrowUpToLine,
   ArrowUpZA,
+  Bookmark,
   SlidersHorizontal,
   X,
 } from "lucide-react";
@@ -24,7 +24,6 @@ import {
 import { Field } from "../ui/field";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Page } from "../ui/page";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   Select,
@@ -232,6 +231,8 @@ type GroupNavigationItem = {
   index: number;
 };
 
+const BOOKMARKS_STORAGE_KEY = "yarg-bookmarked-song-ids";
+
 function getAlphabetGroup(value: string) {
   const firstCharacter = value.normalize("NFKD").charAt(0).toUpperCase();
 
@@ -295,6 +296,27 @@ export function YargLibrary() {
     InstrumentOption[]
   >([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
+  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
+  const [bookmarkedSongIds, setBookmarkedSongIds] = useState<Set<string>>(
+    () => {
+      try {
+        const storedBookmarks = localStorage.getItem(BOOKMARKS_STORAGE_KEY);
+        const parsedBookmarks: unknown = storedBookmarks
+          ? JSON.parse(storedBookmarks)
+          : [];
+
+        return new Set(
+          Array.isArray(parsedBookmarks)
+            ? parsedBookmarks.filter(
+                (bookmark): bookmark is string => typeof bookmark === "string",
+              )
+            : [],
+        );
+      } catch {
+        return new Set();
+      }
+    },
+  );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [isAtTop, setIsAtTop] = useState(true);
@@ -396,7 +418,17 @@ export function YargLibrary() {
   const selectedSortLabel =
     availableSortOptions.find((option) => option.value === sortBy)?.label ??
     "Artist";
-  const activeFilterCount = selectedInstruments.length + selectedSources.length;
+  const activeFilterCount =
+    selectedInstruments.length +
+    selectedSources.length +
+    (showBookmarkedOnly ? 1 : 0);
+
+  useEffect(() => {
+    localStorage.setItem(
+      BOOKMARKS_STORAGE_KEY,
+      JSON.stringify(Array.from(bookmarkedSongIds)),
+    );
+  }, [bookmarkedSongIds]);
 
   useEffect(() => {
     if (!availableSortOptions.some((option) => option.value === sortBy)) {
@@ -416,6 +448,10 @@ export function YargLibrary() {
     return [...songs]
       .filter((song) => {
         if (query && !song.searchText.includes(query)) {
+          return false;
+        }
+
+        if (showBookmarkedOnly && !bookmarkedSongIds.has(song.id)) {
           return false;
         }
 
@@ -487,6 +523,8 @@ export function YargLibrary() {
     songs,
     sortBy,
     sortDirection,
+    showBookmarkedOnly,
+    bookmarkedSongIds,
   ]);
 
   const libraryRows = useMemo(
@@ -667,7 +705,7 @@ export function YargLibrary() {
                       size="icon"
                       className="rounded-full relative"
                     >
-                      <SlidersHorizontal className="size-4" />
+                      <SlidersHorizontal />
 
                       {activeFilterCount > 0 ? (
                         <Badge className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
@@ -740,6 +778,19 @@ export function YargLibrary() {
                       </Button>
                     </div>
                   </div>
+
+                  <Separator />
+
+                  <Field orientation="horizontal">
+                    <Checkbox
+                      id="bookmarked-only-filter"
+                      checked={showBookmarkedOnly}
+                      onCheckedChange={(checked) =>
+                        setShowBookmarkedOnly(checked === true)
+                      }
+                    />
+                    <Label htmlFor="bookmarked-only-filter">Bookmarked</Label>
+                  </Field>
 
                   <Separator />
 
@@ -856,11 +907,11 @@ export function YargLibrary() {
               </Popover>
             </div>
           </div>
-          <Page className="mx-auto !py-0 h-dvh max-h-dvh overflow-hidden flex flex-col">
+          <div className="mx-auto h-dvh max-h-dvh overflow-hidden flex flex-col">
             <div className="relative min-h-0 flex-1 overflow-hidden">
               <div
                 ref={parentRef}
-                className="absolute inset-0 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden -ml-4 pl-4"
+                className="absolute inset-0 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden px-4 sm:px-8"
                 style={{ scrollbarWidth: "none" }}
               >
                 <div
@@ -907,20 +958,8 @@ export function YargLibrary() {
                           </Button>
                         ) : (
                           <div className="mt-4">
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="truncate">
-                                <div className="font-semibold truncate text-ellipsis">
-                                  {row.song.name}
-                                </div>
-                                <div className="text-sm text-muted-foreground truncate text-ellipsis">
-                                  {row.song.isMaster
-                                    ? " as made famous by "
-                                    : " by "}
-                                  {row.song.artist}
-                                </div>
-                              </div>
-
-                              <div className="flex-none size-8 p-0.5 background-muted rounded-full flex items-center justify-center bg-neutral-800">
+                            <div className="flex items-center gap-2">
+                              <div className="flex-none size-8 background-muted rounded-full flex items-center justify-center bg-neutral-800">
                                 <Popover>
                                   <PopoverTrigger openOnHover={true}>
                                     <img
@@ -940,6 +979,40 @@ export function YargLibrary() {
                                   </PopoverContent>
                                 </Popover>
                               </div>
+
+                              <div className="flex-grow truncate">
+                                <div className="font-semibold truncate text-ellipsis">
+                                  {row.song.name}
+                                </div>
+                                <div className="text-sm text-muted-foreground truncate text-ellipsis">
+                                  {row.song.isMaster
+                                    ? " as made famous by "
+                                    : " by "}
+                                  {row.song.artist}
+                                </div>
+                              </div>
+
+                              <Toggle
+                                aria-label={`${bookmarkedSongIds.has(row.song.id) ? "Remove" : "Add"} bookmark for ${row.song.name}`}
+                                pressed={bookmarkedSongIds.has(row.song.id)}
+                                className="flex-none bg-transparent hover:bg-transparent aria-pressed:bg-transparent"
+                                size="sm"
+                                onClick={() => {
+                                  setBookmarkedSongIds((current) => {
+                                    const next = new Set(current);
+
+                                    if (next.has(row.song.id)) {
+                                      next.delete(row.song.id);
+                                    } else {
+                                      next.add(row.song.id);
+                                    }
+
+                                    return next;
+                                  });
+                                }}
+                              >
+                                <Bookmark className="group-aria-pressed/toggle:fill-foreground" />
+                              </Toggle>
                             </div>
                             <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
                               <GuitarDifficulty song={row.song} />
@@ -958,6 +1031,12 @@ export function YargLibrary() {
                 </div>
               </div>
 
+              {libraryRows.length === 0 ? (
+                <div className="absolute inset-0 flex items-center justify-center px-4 text-center text-sm text-muted-foreground">
+                  No songs match your search or filters.
+                </div>
+              ) : null}
+
               {!isLoading &&
               libraryRows.length > 0 &&
               (!isAtTop || !isAtBottom) ? (
@@ -975,25 +1054,10 @@ export function YargLibrary() {
                       Scroll to top
                     </Button>
                   ) : null}
-                  {isAtTop ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/60 shadow-md backdrop-blur"
-                      onClick={() =>
-                        virtualizer.scrollToIndex(libraryRows.length - 1, {
-                          align: "end",
-                        })
-                      }
-                    >
-                      <ArrowDownToLine />
-                      Scroll to bottom
-                    </Button>
-                  ) : null}
                 </div>
               ) : null}
             </div>
-          </Page>
+          </div>
 
           <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
             <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
