@@ -993,7 +993,8 @@ export function YargLibrary() {
                               </div>
 
                               <Toggle
-                                aria-label={`${bookmarkedSongIds.has(row.song.id) ? "Remove" : "Add"} bookmark for ${row.song.name}`}
+                                aria-label={`${bookmarkedSongIds.has(row.song.id) ? "Remove" : "Add"} bookmark for ${row.song.name} ${row.song.isMaster ? "as made famous by" : "by"} ${row.song.artist}`}
+                                title={`${bookmarkedSongIds.has(row.song.id) ? "Remove" : "Add"} bookmark for ${row.song.name} ${row.song.isMaster ? "as made famous by" : "by"} ${row.song.artist}`}
                                 pressed={bookmarkedSongIds.has(row.song.id)}
                                 className="flex-none bg-transparent hover:bg-transparent aria-pressed:bg-transparent"
                                 size="sm"
