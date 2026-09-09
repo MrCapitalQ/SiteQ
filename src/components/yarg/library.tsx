@@ -37,8 +37,8 @@ import { Spinner } from "../ui/spinner";
 import { Toggle } from "../ui/toggle";
 import {
   BandDifficulty,
-  DifficultyRating,
   DrumsDifficulty,
+  getDifficultyTierLabel,
   Guitar2Difficulty,
   GuitarDifficulty,
   KeysDifficulty,
@@ -260,9 +260,11 @@ function getSongGroup(song: Song, sortBy: SortOption) {
   }
 
   const rating = getDifficultyRating(song, sortBy);
-  return rating >= 0
-    ? { key: `difficulty:${rating}`, label: String(rating), rating }
-    : { key: "difficulty:none", label: "No difficulty", undefined };
+  return {
+    key: `difficulty:${rating}`,
+    label: getDifficultyTierLabel(rating),
+    rating,
+  };
 }
 
 function groupSongs(songs: Song[], sortBy: SortOption): LibraryRow[] {
@@ -949,11 +951,7 @@ export function YargLibrary() {
                             onClick={() => setIsGroupDialogOpen(true)}
                           >
                             <span className="flex items-center justify-center gap-2 truncate text-ellipsis">
-                              {sortBy !== "artist" && sortBy !== "song" ? (
-                                <DifficultyRating rating={row.rating} />
-                              ) : (
-                                row.label
-                              )}
+                              {row.label}
                             </span>
                           </Button>
                         ) : (
@@ -1076,11 +1074,7 @@ export function YargLibrary() {
                       });
                     }}
                   >
-                    {sortBy !== "artist" && sortBy !== "song" ? (
-                      <DifficultyRating rating={group.rating} />
-                    ) : (
-                      group.label
-                    )}
+                    {group.label}
                   </DialogClose>
                 ))}
               </div>

@@ -93,6 +93,21 @@ export const BandDifficulty = memo(function BandDifficulty({
   return <Difficulty icon={Users} value={{ rating: song.bandDifficulty }} />;
 });
 
+const difficultyTierLabels = [
+  "Warm Up",
+  "Apprentice",
+  "Solid",
+  "Moderate",
+  "Challenging",
+  "Nightmare",
+];
+
+export function getDifficultyTierLabel(rating: number) {
+  return rating >= 6
+    ? "Impossible"
+    : (difficultyTierLabels[rating] ?? "No Part");
+}
+
 export const Difficulty = memo(function Difficulty({
   icon: Icon,
   value,
@@ -134,37 +149,48 @@ export const DifficultyRating = memo(function DifficultyRating({
 }) {
   if (rating === undefined)
     return (
-      <div className="text-sm text-muted-foreground w-[60px]">No Part</div>
+      <div
+        className="text-sm text-muted-foreground w-[60px]"
+        role="img"
+        aria-label="No Part"
+        title="No Part"
+      >
+        No Part
+      </div>
     );
 
-  return (
-    <div>
-      <div className="flex">
-        {Array.from({ length: 5 }, (_, i) => {
-          if (rating === 6)
-            return (
-              <Skull
-                key={i}
-                size="18"
-                color="var(--background)"
-                fill="var(--destructive)"
-                className="-m-[3px] size-4.5"
-              />
-            );
+  const tierLabel = getDifficultyTierLabel(rating);
+  const accessibleLabel = `${tierLabel} (Tier ${rating})`;
 
+  return (
+    <div
+      className="flex"
+      role="img"
+      aria-label={accessibleLabel}
+      title={accessibleLabel}
+    >
+      {Array.from({ length: 5 }, (_, i) => {
+        if (rating === 6)
           return (
-            <Circle
+            <Skull
               key={i}
-              size="12"
-              color={
-                i < rating ? "var(--foreground)" : "var(--muted-foreground)"
-              }
-              fill={i < rating ? "var(--foreground)" : "transparent"}
-              className="size-3"
+              size="18"
+              color="var(--background)"
+              fill="var(--destructive)"
+              className="-m-[3px] size-4.5"
             />
           );
-        })}
-      </div>
+
+        return (
+          <Circle
+            key={i}
+            size="12"
+            color={i < rating ? "var(--foreground)" : "var(--muted-foreground)"}
+            fill={i < rating ? "var(--foreground)" : "transparent"}
+            className="size-3"
+          />
+        );
+      })}
     </div>
   );
 });
