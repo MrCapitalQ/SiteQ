@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -85,6 +86,23 @@ const instrumentOptions = [
 ] as const;
 
 type InstrumentOption = (typeof instrumentOptions)[number]["value"];
+
+const validSortOptions = new Set<SortOption>(
+  sortOptions.map((option) => option.value),
+);
+const validInstrumentOptions = new Set<InstrumentOption>(
+  instrumentOptions.map((option) => option.value),
+);
+
+function getQueryList<T extends string>(
+  searchParams: URLSearchParams,
+  key: string,
+  validOptions: Set<T>,
+) {
+  return (searchParams.get(key)?.split(",") ?? []).filter((value): value is T =>
+    validOptions.has(value as T),
+  );
+}
 
 function getDifficultyRating(song: Song, option: SortOption) {
   switch (option) {
@@ -286,19 +304,33 @@ function groupSongs(songs: Song[], sortBy: SortOption): LibraryRow[] {
 }
 
 export function YargLibrary() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [estimatedRowHeight, setEstimatedRowHeight] = useState(() =>
     getEstimatedRowHeight(),
   );
   const [songs, setSongs] = useState<Song[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<SortOption>("artist");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [searchTerm, setSearchTerm] = useState(
+    () => searchParams.get("q") ?? "",
+  );
+  const [sortBy, setSortBy] = useState<SortOption>(() => {
+    const value = searchParams.get("sort");
+    return value && validSortOptions.has(value as SortOption)
+      ? (value as SortOption)
+      : "artist";
+  });
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(() =>
+    searchParams.get("dir") === "desc" ? "desc" : "asc",
+  );
   const [selectedInstruments, setSelectedInstruments] = useState<
     InstrumentOption[]
-  >([]);
-  const [selectedSources, setSelectedSources] = useState<string[]>([]);
-  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
+  >(() => getQueryList(searchParams, "instruments", validInstrumentOptions));
+  const [selectedSources, setSelectedSources] = useState<string[]>(
+    () => searchParams.get("sources")?.split(",").filter(Boolean) ?? [],
+  );
+  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(
+    () => searchParams.get("bookmarked") === "1",
+  );
   const [bookmarkedSongIds, setBookmarkedSongIds] = useState<Set<string>>(
     () => {
       try {
@@ -368,8 +400,12 @@ export function YargLibrary() {
       options.push(sortOptions[8]);
     }
 
-    if (songs.some((song) => song.bandDifficulty >= 0)) {
+    if (songs.some((song) => song.proKeysDifficulty >= 0)) {
       options.push(sortOptions[9]);
+    }
+
+    if (songs.some((song) => song.bandDifficulty >= 0)) {
+      options.push(sortOptions[10]);
     }
 
     return options;
@@ -433,6 +469,63 @@ export function YargLibrary() {
   }, [bookmarkedSongIds]);
 
   useEffect(() => {
+    const nextSearchParams = new URLSearchParams(searchParams);
+
+    if (searchTerm) {
+      nextSearchParams.set("q", searchTerm);
+    } else {
+      nextSearchParams.delete("q");
+    }
+
+    if (sortBy === "artist") {
+      nextSearchParams.delete("sort");
+    } else {
+      nextSearchParams.set("sort", sortBy);
+    }
+
+    if (sortDirection === "asc") {
+      nextSearchParams.delete("dir");
+    } else {
+      nextSearchParams.set("dir", sortDirection);
+    }
+
+    if (selectedInstruments.length > 0) {
+      nextSearchParams.set("instruments", selectedInstruments.join(","));
+    } else {
+      nextSearchParams.delete("instruments");
+    }
+
+    if (selectedSources.length > 0) {
+      nextSearchParams.set("sources", selectedSources.join(","));
+    } else {
+      nextSearchParams.delete("sources");
+    }
+
+    if (showBookmarkedOnly) {
+      nextSearchParams.set("bookmarked", "1");
+    } else {
+      nextSearchParams.delete("bookmarked");
+    }
+
+    if (nextSearchParams.toString() !== searchParams.toString()) {
+      setSearchParams(nextSearchParams, { replace: true });
+    }
+  }, [
+    searchParams,
+    searchTerm,
+    selectedInstruments,
+    selectedSources,
+    setSearchParams,
+    showBookmarkedOnly,
+    sortBy,
+    sortDirection,
+  ]);
+
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
     if (!availableSortOptions.some((option) => option.value === sortBy)) {
       setSortBy("artist");
     }
@@ -442,7 +535,7 @@ export function YargLibrary() {
         availableInstrumentOptions.some((option) => option.value === filter),
       ),
     );
-  }, [availableInstrumentOptions, availableSortOptions, sortBy]);
+  }, [availableInstrumentOptions, availableSortOptions, isLoading, sortBy]);
 
   const filteredSongs = useMemo(() => {
     const query = normalizeSearchTerm(searchTerm);
@@ -690,6 +783,7 @@ export function YargLibrary() {
             <div className="w-full max-w-4xl mx-auto p-4 pb-0 sm:p-8 sm:pb-0 flex items-center gap-2">
               <div className="flex-1 min-w-0">
                 <Input
+                  type="search"
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Search songs or artists"
