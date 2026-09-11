@@ -7,6 +7,7 @@ import {
   ArrowUpToLine,
   ArrowUpZA,
   Bookmark,
+  Dices,
   SlidersHorizontal,
   X,
 } from "lucide-react";
@@ -456,10 +457,7 @@ export function YargLibrary() {
   const selectedSortLabel =
     availableSortOptions.find((option) => option.value === sortBy)?.label ??
     "Artist";
-  const activeFilterCount =
-    selectedInstruments.length +
-    selectedSources.length +
-    (showBookmarkedOnly ? 1 : 0);
+  const activeFilterCount = selectedInstruments.length + selectedSources.length;
 
   useEffect(() => {
     localStorage.setItem(
@@ -877,19 +875,6 @@ export function YargLibrary() {
 
                   <Separator />
 
-                  <Field orientation="horizontal">
-                    <Checkbox
-                      id="bookmarked-only-filter"
-                      checked={showBookmarkedOnly}
-                      onCheckedChange={(checked) =>
-                        setShowBookmarkedOnly(checked === true)
-                      }
-                    />
-                    <Label htmlFor="bookmarked-only-filter">Bookmarked</Label>
-                  </Field>
-
-                  <Separator />
-
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -1149,6 +1134,64 @@ export function YargLibrary() {
                   ) : null}
                 </div>
               ) : null}
+
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                <Toggle
+                  variant="outline"
+                  className="bg-background/60 shadow-md backdrop-blur"
+                  pressed={showBookmarkedOnly}
+                  onClick={() => {
+                    setShowBookmarkedOnly((current) => !current);
+                  }}
+                >
+                  <Bookmark className="group-aria-pressed/toggle:fill-foreground" />
+                  Bookmarks
+                </Toggle>
+                <Button
+                  aria-label="Random"
+                  title="Random"
+                  variant="outline"
+                  size="icon"
+                  className="bg-background/60 shadow-md backdrop-blur"
+                  onClick={() => {
+                    if (sortBy === "artist") {
+                      const randomGroup =
+                        groupHeaders[
+                          Math.floor(Math.random() * groupHeaders.length)
+                        ];
+
+                      if (randomGroup) {
+                        virtualizer.scrollToIndex(randomGroup.index, {
+                          align: "start",
+                        });
+                      }
+
+                      return;
+                    }
+
+                    const randomSong =
+                      filteredSongs[
+                        Math.floor(Math.random() * filteredSongs.length)
+                      ];
+                    const randomSongIndex = randomSong
+                      ? libraryRows.findIndex(
+                          (row) =>
+                            row.type === "song" &&
+                            row.song.id === randomSong.id,
+                        )
+                      : -1;
+
+                    if (randomSongIndex >= 0) {
+                      virtualizer.scrollToIndex(randomSongIndex, {
+                        align: "start",
+                      });
+                      parentRef.current?.scrollBy({ top: -48 });
+                    }
+                  }}
+                >
+                  <Dices />
+                </Button>
+              </div>
             </div>
           </div>
 
