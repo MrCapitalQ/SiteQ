@@ -356,6 +356,10 @@ export function YargLibrary() {
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [isAtTop, setIsAtTop] = useState(true);
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const [highlightedRowKey, setHighlightedRowKey] = useState<string | null>(
+    null,
+  );
+  const [isHighlightVisible, setIsHighlightVisible] = useState(false);
 
   const parentRef = useRef<HTMLDivElement | null>(null);
 
@@ -683,6 +687,25 @@ export function YargLibrary() {
     };
   }, [isFilterOpen]);
 
+  useEffect(() => {
+    if (!highlightedRowKey) {
+      return;
+    }
+
+    let blinkCount = 0;
+    const intervalId = window.setInterval(() => {
+      blinkCount += 1;
+      setIsHighlightVisible((current) => !current);
+
+      if (blinkCount === 4) {
+        window.clearInterval(intervalId);
+        setHighlightedRowKey(null);
+      }
+    }, 200);
+
+    return () => window.clearInterval(intervalId);
+  }, [highlightedRowKey]);
+
   const virtualizer = useVirtualizer({
     count: libraryRows.length,
     getScrollElement: () => parentRef.current,
@@ -764,6 +787,10 @@ export function YargLibrary() {
 
     void loadSongs();
   }, []);
+
+  const scrollToRandomRow = (index: number) => {
+    virtualizer.scrollToIndex(index, { align: "center" });
+  };
 
   return (
     <>
@@ -1005,6 +1032,14 @@ export function YargLibrary() {
                 >
                   {virtualizer.getVirtualItems().map((virtualRow) => {
                     const row = libraryRows[virtualRow.index];
+                    const nextRow = libraryRows[virtualRow.index + 1];
+                    const isLastSongInGroup =
+                      row.type === "song" &&
+                      (!nextRow || nextRow.type === "header");
+                    const rowKey =
+                      row.type === "header"
+                        ? `header:${row.key}`
+                        : `song:${row.song.id}`;
 
                     return (
                       <div
@@ -1015,6 +1050,11 @@ export function YargLibrary() {
                         }
                         data-index={virtualRow.index}
                         ref={virtualizer.measureElement}
+                        className={`rounded-md transition-[filter] duration-300 ${
+                          highlightedRowKey === rowKey && isHighlightVisible
+                            ? "drop-shadow-[0_0_12px_var(--primary)]"
+                            : ""
+                        }`}
                         style={{
                           position: "absolute",
                           top: 0,
@@ -1025,7 +1065,7 @@ export function YargLibrary() {
                       >
                         {row.type === "header" ? (
                           <Button
-                            className={`w-full ${virtualRow.index === 0 ? "mt-4" : "mt-12"}`}
+                            className={`w-full ${virtualRow.index === 0 ? "mt-4" : ""}`}
                             variant="secondary"
                             onClick={() => setIsGroupDialogOpen(true)}
                           >
@@ -1034,7 +1074,9 @@ export function YargLibrary() {
                             </span>
                           </Button>
                         ) : (
-                          <div className="mt-4">
+                          <div
+                            className={`mt-4 ${isLastSongInGroup ? "mb-12" : ""}`}
+                          >
                             <div className="flex items-center gap-2">
                               <div className="flex-none size-8 background-muted rounded-full flex items-center justify-center bg-neutral-800">
                                 <Popover>
@@ -1100,7 +1142,9 @@ export function YargLibrary() {
                               <KeysDifficulty song={row.song} />
                               <BandDifficulty song={row.song} />
                             </div>
-                            <Separator className="mt-4" />
+                            {isLastSongInGroup ? null : (
+                              <Separator className="mt-4" />
+                            )}
                           </div>
                         )}
                       </div>
@@ -1161,9 +1205,9 @@ export function YargLibrary() {
                         ];
 
                       if (randomGroup) {
-                        virtualizer.scrollToIndex(randomGroup.index, {
-                          align: "start",
-                        });
+                        setIsHighlightVisible(true);
+                        setHighlightedRowKey(`header:${randomGroup.key}`);
+                        scrollToRandomRow(randomGroup.index);
                       }
 
                       return;
@@ -1182,10 +1226,9 @@ export function YargLibrary() {
                       : -1;
 
                     if (randomSongIndex >= 0) {
-                      virtualizer.scrollToIndex(randomSongIndex, {
-                        align: "start",
-                      });
-                      parentRef.current?.scrollBy({ top: -48 });
+                      setIsHighlightVisible(true);
+                      setHighlightedRowKey(`song:${randomSong.id}`);
+                      scrollToRandomRow(randomSongIndex);
                     }
                   }}
                 >
