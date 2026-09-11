@@ -359,7 +359,6 @@ export function YargLibrary() {
   const [highlightedRowKey, setHighlightedRowKey] = useState<string | null>(
     null,
   );
-  const [isHighlightVisible, setIsHighlightVisible] = useState(false);
 
   const parentRef = useRef<HTMLDivElement | null>(null);
 
@@ -692,18 +691,11 @@ export function YargLibrary() {
       return;
     }
 
-    let blinkCount = 0;
-    const intervalId = window.setInterval(() => {
-      blinkCount += 1;
-      setIsHighlightVisible((current) => !current);
+    const timeoutId = window.setTimeout(() => {
+      setHighlightedRowKey(null);
+    }, 3100);
 
-      if (blinkCount === 4) {
-        window.clearInterval(intervalId);
-        setHighlightedRowKey(null);
-      }
-    }, 200);
-
-    return () => window.clearInterval(intervalId);
+    return () => window.clearTimeout(timeoutId);
   }, [highlightedRowKey]);
 
   const virtualizer = useVirtualizer({
@@ -1050,9 +1042,9 @@ export function YargLibrary() {
                         }
                         data-index={virtualRow.index}
                         ref={virtualizer.measureElement}
-                        className={`rounded-md transition-[filter] duration-300 ${
-                          highlightedRowKey === rowKey && isHighlightVisible
-                            ? "drop-shadow-[0_0_12px_var(--primary)]"
+                        className={`rounded-md ${
+                          highlightedRowKey === rowKey
+                            ? "animate-[library-highlight_3000ms_linear]"
                             : ""
                         }`}
                         style={{
@@ -1205,9 +1197,8 @@ export function YargLibrary() {
                         ];
 
                       if (randomGroup) {
-                        setIsHighlightVisible(true);
-                        setHighlightedRowKey(`header:${randomGroup.key}`);
                         scrollToRandomRow(randomGroup.index);
+                        setHighlightedRowKey(`header:${randomGroup.key}`);
                       }
 
                       return;
@@ -1226,9 +1217,8 @@ export function YargLibrary() {
                       : -1;
 
                     if (randomSongIndex >= 0) {
-                      setIsHighlightVisible(true);
-                      setHighlightedRowKey(`song:${randomSong.id}`);
                       scrollToRandomRow(randomSongIndex);
+                      setHighlightedRowKey(`song:${randomSong.id}`);
                     }
                   }}
                 >
