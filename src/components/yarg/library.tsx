@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Field } from "../ui/field";
+import { HintPopover } from "../ui/hint-popover";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -241,7 +242,8 @@ function getEstimatedRowHeight() {
 
 type LibraryRow =
   | { type: "header"; key: string; label: string; rating?: number }
-  | { type: "song"; song: Song };
+  | { type: "song"; song: Song }
+  | { type: "unavailable"; bookmark: Bookmark };
 
 type GroupNavigationItem = {
   key: string;
@@ -251,6 +253,50 @@ type GroupNavigationItem = {
 };
 
 const BOOKMARKS_STORAGE_KEY = "yarg-bookmarked-song-ids";
+
+type Bookmark = Pick<Song, "id" | "name" | "artist" | "isMaster">;
+
+function parseBookmarks(value: string | null): Bookmark[] {
+  if (!value) {
+    return [];
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(value);
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.flatMap((bookmark): Bookmark[] => {
+      if (typeof bookmark === "string") {
+        return [{ id: bookmark, name: "", artist: "", isMaster: false }];
+      }
+
+      if (
+        typeof bookmark === "object" &&
+        bookmark !== null &&
+        typeof bookmark.id === "string" &&
+        typeof bookmark.name === "string" &&
+        typeof bookmark.artist === "string" &&
+        typeof bookmark.isMaster === "boolean"
+      ) {
+        return [
+          {
+            id: bookmark.id,
+            name: bookmark.name,
+            artist: bookmark.artist,
+            isMaster: bookmark.isMaster,
+          },
+        ];
+      }
+
+      return [];
+    });
+  } catch {
+    return [];
+  }
+}
 
 function getAlphabetGroup(value: string) {
   const firstCharacter = value.normalize("NFKD").charAt(0).toUpperCase();
@@ -332,25 +378,8 @@ export function YargLibrary() {
   const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(
     () => searchParams.get("bookmarked") === "1",
   );
-  const [bookmarkedSongIds, setBookmarkedSongIds] = useState<Set<string>>(
-    () => {
-      try {
-        const storedBookmarks = localStorage.getItem(BOOKMARKS_STORAGE_KEY);
-        const parsedBookmarks: unknown = storedBookmarks
-          ? JSON.parse(storedBookmarks)
-          : [];
-
-        return new Set(
-          Array.isArray(parsedBookmarks)
-            ? parsedBookmarks.filter(
-                (bookmark): bookmark is string => typeof bookmark === "string",
-              )
-            : [],
-        );
-      } catch {
-        return new Set();
-      }
-    },
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>(() =>
+    parseBookmarks(localStorage.getItem(BOOKMARKS_STORAGE_KEY)),
   );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
@@ -461,13 +490,42 @@ export function YargLibrary() {
     availableSortOptions.find((option) => option.value === sortBy)?.label ??
     "Artist";
   const activeFilterCount = selectedInstruments.length + selectedSources.length;
+  const bookmarkedSongIds = useMemo(
+    () => new Set(bookmarks.map((bookmark) => bookmark.id)),
+    [bookmarks],
+  );
+  const unavailableBookmarks = useMemo(
+    () =>
+      bookmarks.filter(
+        (bookmark) => !songs.some((song) => song.id === bookmark.id),
+      ),
+    [bookmarks, songs],
+  );
 
   useEffect(() => {
-    localStorage.setItem(
-      BOOKMARKS_STORAGE_KEY,
-      JSON.stringify(Array.from(bookmarkedSongIds)),
+    localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(bookmarks));
+  }, [bookmarks]);
+
+  useEffect(() => {
+    if (isLoading || songs.length === 0) {
+      return;
+    }
+
+    setBookmarks((current) =>
+      current.map((bookmark) => {
+        const song = songs.find((candidate) => candidate.id === bookmark.id);
+
+        return song
+          ? {
+              id: song.id,
+              name: song.name,
+              artist: song.artist,
+              isMaster: song.isMaster,
+            }
+          : bookmark;
+      }),
     );
-  }, [bookmarkedSongIds]);
+  }, [isLoading, songs]);
 
   useEffect(() => {
     const nextSearchParams = new URLSearchParams(searchParams);
@@ -623,10 +681,33 @@ export function YargLibrary() {
     bookmarkedSongIds,
   ]);
 
-  const libraryRows = useMemo(
-    () => groupSongs(filteredSongs, sortBy),
-    [filteredSongs, sortBy],
-  );
+  const libraryRows = useMemo(() => {
+    const rows = groupSongs(filteredSongs, sortBy);
+    const query = normalizeSearchTerm(searchTerm);
+    const missingBookmarks = unavailableBookmarks.filter(
+      (bookmark) =>
+        !query ||
+        normalizeSearchTerm(`${bookmark.name} ${bookmark.artist}`).includes(
+          query,
+        ),
+    );
+
+    if (missingBookmarks.length > 0) {
+      rows.push({
+        type: "header",
+        key: "unavailable",
+        label: "No longer available",
+      });
+      rows.push(
+        ...missingBookmarks.map((bookmark) => ({
+          type: "unavailable" as const,
+          bookmark,
+        })),
+      );
+    }
+
+    return rows;
+  }, [filteredSongs, searchTerm, sortBy, unavailableBookmarks]);
 
   const groupHeaders = useMemo(
     () =>
@@ -647,6 +728,11 @@ export function YargLibrary() {
     let previousGroupKey: string | undefined;
 
     for (const group of groupHeaders) {
+      if (group.key === "unavailable") {
+        groups.push(group);
+        continue;
+      }
+
       const alphabetGroup = getAlphabetGroup(stripLeadingArticles(group.label));
 
       if (alphabetGroup.key !== previousGroupKey) {
@@ -1026,19 +1112,23 @@ export function YargLibrary() {
                     const row = libraryRows[virtualRow.index];
                     const nextRow = libraryRows[virtualRow.index + 1];
                     const isLastSongInGroup =
-                      row.type === "song" &&
+                      (row.type === "song" || row.type === "unavailable") &&
                       (!nextRow || nextRow.type === "header");
                     const rowKey =
                       row.type === "header"
                         ? `header:${row.key}`
-                        : `song:${row.song.id}`;
+                        : row.type === "song"
+                          ? `song:${row.song.id}`
+                          : `unavailable:${row.bookmark.id}`;
 
                     return (
                       <div
                         key={
                           row.type === "header"
                             ? row.key
-                            : (row.song.id ?? virtualRow.index)
+                            : row.type === "song"
+                              ? (row.song.id ?? virtualRow.index)
+                              : row.bookmark.id
                         }
                         data-index={virtualRow.index}
                         ref={virtualizer.measureElement}
@@ -1070,70 +1160,127 @@ export function YargLibrary() {
                             className={`mt-4 ${isLastSongInGroup ? "mb-12" : ""}`}
                           >
                             <div className="flex items-center gap-2">
-                              <div className="flex-none size-8 background-muted rounded-full flex items-center justify-center bg-neutral-800">
-                                <Popover>
-                                  <PopoverTrigger openOnHover={true}>
-                                    <img
-                                      src={`/yarg/icons/${SOURCE_ICONS[row.song.source] ?? "custom.png"}`}
-                                      alt={
-                                        SOURCE_LABELS[row.song.source] ??
-                                        "Custom/Unknown"
-                                      }
-                                    />
-                                  </PopoverTrigger>
-                                  <PopoverContent
-                                    side="left"
-                                    className="w-auto px-2 py-1 text-sm"
-                                  >
-                                    {SOURCE_LABELS[row.song.source] ??
-                                      "Custom/Unknown"}
-                                  </PopoverContent>
-                                </Popover>
-                              </div>
+                              {row.type === "unavailable" ? null : (
+                                <div className="flex-none size-8 background-muted rounded-full flex items-center justify-center bg-neutral-800">
+                                  <Popover>
+                                    <PopoverTrigger openOnHover={true}>
+                                      <img
+                                        src={`/yarg/icons/${SOURCE_ICONS[row.song.source] ?? "custom.png"}`}
+                                        alt={
+                                          SOURCE_LABELS[row.song.source] ??
+                                          "Custom/Unknown"
+                                        }
+                                      />
+                                    </PopoverTrigger>
+                                    <PopoverContent
+                                      side="left"
+                                      className="w-auto px-2 py-1 text-sm"
+                                    >
+                                      {SOURCE_LABELS[row.song.source] ??
+                                        "Custom/Unknown"}
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                              )}
 
-                              <div className="flex-grow truncate">
+                              <div className="flex-grow min-w-0 truncate">
                                 <div className="font-semibold truncate text-ellipsis">
-                                  {row.song.name}
+                                  {row.type === "unavailable"
+                                    ? row.bookmark.name || "Unknown song"
+                                    : row.song.name}
                                 </div>
                                 <div className="text-sm text-muted-foreground truncate text-ellipsis">
-                                  {row.song.isMaster
+                                  {(
+                                    row.type === "unavailable"
+                                      ? row.bookmark.isMaster
+                                      : row.song.isMaster
+                                  )
                                     ? " as made famous by "
                                     : " by "}
-                                  {row.song.artist}
+                                  {row.type === "unavailable"
+                                    ? row.bookmark.artist || "Unknown artist"
+                                    : row.song.artist}
                                 </div>
+                                {row.type === "unavailable" ? (
+                                  <div className="text-xs text-muted-foreground">
+                                    No longer available{" "}
+                                    <HintPopover>
+                                      Songs previously bookmarked may appear as
+                                      no longer available if it's been replaced
+                                      by a new version. Try searching for the
+                                      new version and bookmarking it if it's
+                                      available.
+                                    </HintPopover>
+                                  </div>
+                                ) : null}
                               </div>
 
                               <Toggle
-                                aria-label={`${bookmarkedSongIds.has(row.song.id) ? "Remove" : "Add"} bookmark for ${row.song.name} ${row.song.isMaster ? "as made famous by" : "by"} ${row.song.artist}`}
-                                title={`${bookmarkedSongIds.has(row.song.id) ? "Remove" : "Add"} bookmark for ${row.song.name} ${row.song.isMaster ? "as made famous by" : "by"} ${row.song.artist}`}
-                                pressed={bookmarkedSongIds.has(row.song.id)}
+                                aria-label={
+                                  row.type === "unavailable"
+                                    ? `Remove bookmark for ${row.bookmark.name || "unknown song"}`
+                                    : `${bookmarkedSongIds.has(row.song.id) ? "Remove" : "Add"} bookmark for ${row.song.name} ${row.song.isMaster ? "as made famous by" : "by"} ${row.song.artist}`
+                                }
+                                title={
+                                  row.type === "unavailable"
+                                    ? "Remove bookmark"
+                                    : `${bookmarkedSongIds.has(row.song.id) ? "Remove" : "Add"} bookmark for ${row.song.name} ${row.song.isMaster ? "as made famous by" : "by"} ${row.song.artist}`
+                                }
+                                pressed={
+                                  row.type === "unavailable" ||
+                                  bookmarkedSongIds.has(row.song.id)
+                                }
                                 className="flex-none bg-transparent hover:bg-transparent aria-pressed:bg-transparent"
                                 size="sm"
                                 onClick={() => {
-                                  setBookmarkedSongIds((current) => {
-                                    const next = new Set(current);
+                                  if (row.type === "unavailable") {
+                                    setBookmarks((current) =>
+                                      current.filter(
+                                        (bookmark) =>
+                                          bookmark.id !== row.bookmark.id,
+                                      ),
+                                    );
+                                    return;
+                                  }
 
-                                    if (next.has(row.song.id)) {
-                                      next.delete(row.song.id);
-                                    } else {
-                                      next.add(row.song.id);
+                                  setBookmarks((current) => {
+                                    if (
+                                      current.some(
+                                        (bookmark) =>
+                                          bookmark.id === row.song.id,
+                                      )
+                                    ) {
+                                      return current.filter(
+                                        (bookmark) =>
+                                          bookmark.id !== row.song.id,
+                                      );
                                     }
 
-                                    return next;
+                                    return [
+                                      ...current,
+                                      {
+                                        id: row.song.id,
+                                        name: row.song.name,
+                                        artist: row.song.artist,
+                                        isMaster: row.song.isMaster,
+                                      },
+                                    ];
                                   });
                                 }}
                               >
                                 <Bookmark className="group-aria-pressed/toggle:fill-foreground" />
                               </Toggle>
                             </div>
-                            <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
-                              <GuitarDifficulty song={row.song} />
-                              <DrumsDifficulty song={row.song} />
-                              <Guitar2Difficulty song={row.song} />
-                              <VocalsDifficulty song={row.song} />
-                              <KeysDifficulty song={row.song} />
-                              <BandDifficulty song={row.song} />
-                            </div>
+                            {row.type === "song" ? (
+                              <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
+                                <GuitarDifficulty song={row.song} />
+                                <DrumsDifficulty song={row.song} />
+                                <Guitar2Difficulty song={row.song} />
+                                <VocalsDifficulty song={row.song} />
+                                <KeysDifficulty song={row.song} />
+                                <BandDifficulty song={row.song} />
+                              </div>
+                            ) : null}
                             {isLastSongInGroup ? null : (
                               <Separator className="mt-4" />
                             )}
