@@ -1,10 +1,8 @@
 import type { Song } from "@/workers/songs.worker";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import {
   ArrowDown01,
   ArrowDownAZ,
   ArrowUp10,
-  ArrowUpToLine,
   ArrowUpZA,
   Bookmark,
   Dices,
@@ -13,6 +11,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
+import { GroupedVirtuoso, type GroupedVirtuosoHandle } from "react-virtuoso";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -236,14 +235,16 @@ function matchesInstrumentFilter(song: Song, filter: InstrumentOption) {
   }
 }
 
-function getEstimatedRowHeight() {
-  return window.innerWidth < 324 ? 137 : window.innerWidth < 668 ? 109 : 81;
-}
-
-type LibraryRow =
-  | { type: "header"; key: string; label: string; rating?: number }
+type LibraryItem =
   | { type: "song"; song: Song }
   | { type: "unavailable"; bookmark: Bookmark };
+
+type LibraryGroup = {
+  key: string;
+  label: string;
+  rating?: number;
+  items: LibraryItem[];
+};
 
 type GroupNavigationItem = {
   key: string;
@@ -332,29 +333,25 @@ function getSongGroup(song: Song, sortBy: SortOption) {
   };
 }
 
-function groupSongs(songs: Song[], sortBy: SortOption): LibraryRow[] {
-  const rows: LibraryRow[] = [];
-  let previousGroupKey: string | undefined;
+function groupSongs(songs: Song[], sortBy: SortOption): LibraryGroup[] {
+  const groups: LibraryGroup[] = [];
 
   for (const song of songs) {
     const group = getSongGroup(song, sortBy);
+    const currentGroup = groups.at(-1);
 
-    if (group.key !== previousGroupKey) {
-      rows.push({ type: "header", ...group });
-      previousGroupKey = group.key;
+    if (!currentGroup || currentGroup.key !== group.key) {
+      groups.push({ ...group, items: [] });
     }
 
-    rows.push({ type: "song", song });
+    groups.at(-1)?.items.push({ type: "song", song });
   }
 
-  return rows;
+  return groups;
 }
 
 export function YargLibrary() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [estimatedRowHeight, setEstimatedRowHeight] = useState(() =>
-    getEstimatedRowHeight(),
-  );
   const [songs, setSongs] = useState<Song[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(
@@ -383,13 +380,11 @@ export function YargLibrary() {
   );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
-  const [isAtTop, setIsAtTop] = useState(true);
-  const [isAtBottom, setIsAtBottom] = useState(false);
   const [highlightedRowKey, setHighlightedRowKey] = useState<string | null>(
     null,
   );
 
-  const parentRef = useRef<HTMLDivElement | null>(null);
+  const virtuosoRef = useRef<GroupedVirtuosoHandle | null>(null);
 
   const availableSortOptions = useMemo(() => {
     const options: Array<(typeof sortOptions)[number]> = [
@@ -681,8 +676,8 @@ export function YargLibrary() {
     bookmarkedSongIds,
   ]);
 
-  const libraryRows = useMemo(() => {
-    const rows = groupSongs(filteredSongs, sortBy);
+  const libraryGroups = useMemo(() => {
+    const groups = groupSongs(filteredSongs, sortBy);
     const query = normalizeSearchTerm(searchTerm);
     const missingBookmarks = unavailableBookmarks.filter(
       (bookmark) =>
@@ -693,12 +688,12 @@ export function YargLibrary() {
     );
 
     if (missingBookmarks.length > 0) {
-      rows.push({
-        type: "header",
+      groups.push({
         key: "unavailable",
         label: "No longer available",
+        items: [],
       });
-      rows.push(
+      groups.at(-1)?.items.push(
         ...missingBookmarks.map((bookmark) => ({
           type: "unavailable" as const,
           bookmark,
@@ -706,17 +701,33 @@ export function YargLibrary() {
       );
     }
 
-    return rows;
+    return groups;
   }, [filteredSongs, searchTerm, sortBy, unavailableBookmarks]);
+
+  const libraryItems = useMemo(
+    () => libraryGroups.flatMap((group) => group.items),
+    [libraryGroups],
+  );
+
+  const groupItemStarts = useMemo(() => {
+    let itemCount = 0;
+
+    return libraryGroups.map((group) => {
+      const start = itemCount;
+      itemCount += group.items.length;
+      return start;
+    });
+  }, [libraryGroups]);
 
   const groupHeaders = useMemo(
     () =>
-      libraryRows.flatMap((row, index) =>
-        row.type === "header"
-          ? [{ key: row.key, label: row.label, rating: row.rating, index }]
-          : [],
-      ),
-    [libraryRows],
+      libraryGroups.map((group, index) => ({
+        key: group.key,
+        label: group.label,
+        rating: group.rating,
+        index,
+      })),
+    [libraryGroups],
   );
 
   const navigationGroups = useMemo(() => {
@@ -749,17 +760,6 @@ export function YargLibrary() {
   }, [groupHeaders, sortBy]);
 
   useEffect(() => {
-    const handleResize = () => {
-      setEstimatedRowHeight(getEstimatedRowHeight());
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
     if (!isFilterOpen) {
       return;
     }
@@ -783,49 +783,6 @@ export function YargLibrary() {
 
     return () => window.clearTimeout(timeoutId);
   }, [highlightedRowKey]);
-
-  const virtualizer = useVirtualizer({
-    count: libraryRows.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => estimatedRowHeight,
-    overscan: 8,
-  });
-
-  useEffect(() => {
-    virtualizer.scrollToIndex(0, { align: "start" });
-  }, [
-    searchTerm,
-    sortBy,
-    sortDirection,
-    selectedInstruments,
-    selectedSources,
-    virtualizer,
-  ]);
-
-  useEffect(() => {
-    const scrollElement = parentRef.current;
-
-    if (!scrollElement) {
-      return;
-    }
-
-    const updateScrollPosition = () => {
-      const maxScrollTop =
-        scrollElement.scrollHeight - scrollElement.clientHeight;
-
-      setIsAtTop(scrollElement.scrollTop <= 1);
-      setIsAtBottom(scrollElement.scrollTop >= maxScrollTop - 1);
-    };
-
-    updateScrollPosition();
-    scrollElement.addEventListener("scroll", updateScrollPosition);
-    window.addEventListener("resize", updateScrollPosition);
-
-    return () => {
-      scrollElement.removeEventListener("scroll", updateScrollPosition);
-      window.removeEventListener("resize", updateScrollPosition);
-    };
-  }, [libraryRows.length, isLoading]);
 
   useEffect(() => {
     const loadSongs = async () => {
@@ -866,10 +823,6 @@ export function YargLibrary() {
     void loadSongs();
   }, []);
 
-  const scrollToRandomRow = (index: number) => {
-    virtualizer.scrollToIndex(index, { align: "center" });
-  };
-
   return (
     <>
       <title>YARG Library</title>
@@ -882,198 +835,140 @@ export function YargLibrary() {
         </div>
       ) : (
         <>
-          <div className="fixed z-1 w-full bg-background/75 shadow-md backdrop-blur">
-            <div className="w-full max-w-4xl mx-auto p-4 pb-0 sm:p-8 sm:pb-0 flex items-center gap-2">
-              <div className="flex-1 min-w-0">
-                <Input
-                  type="search"
-                  value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
-                  placeholder="Search songs or artists"
-                  aria-label="Search songs or artists"
-                />
-              </div>
+          <div className="mx-auto h-dvh max-h-dvh overflow-hidden flex flex-col">
+            <div className="shrink-0 w-full bg-background/75 shadow-md backdrop-blur mb-2">
+              <div className="w-full max-w-4xl mx-auto p-4 pb-0 sm:p-8 sm:pb-0 flex items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <Input
+                    type="search"
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                    placeholder="Search songs or artists"
+                    aria-label="Search songs or artists"
+                  />
+                </div>
 
-              <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                <PopoverTrigger
-                  render={
-                    <Button
-                      aria-label="Sort and filter songs"
-                      title="Sort and filter"
-                      variant="outline"
-                      size="icon"
-                      className="rounded-full relative"
-                    >
-                      <SlidersHorizontal />
-
-                      {activeFilterCount > 0 ? (
-                        <Badge className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
-                          {activeFilterCount > 99 ? "99+" : activeFilterCount}
-                        </Badge>
-                      ) : null}
-                    </Button>
-                  }
-                />
-                <PopoverContent
-                  align="end"
-                  className="space-y-2 max-h-[calc(100dvh-theme(space.9)-2rem)] overflow-auto"
-                >
-                  <div className="space-y-2">
-                    <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      Sort
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Select
-                        value={sortBy}
-                        onValueChange={(value) =>
-                          setSortBy(value as SortOption)
-                        }
-                      >
-                        <SelectTrigger className="w-full justify-between">
-                          <span>{selectedSortLabel}</span>
-                        </SelectTrigger>
-                        <SelectMenuContent>
-                          <SelectGroup>
-                            {availableSortOptions.map((option) => (
-                              <SelectItem
-                                key={option.value}
-                                value={option.value}
-                              >
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectMenuContent>
-                      </Select>
-
+                <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                  <PopoverTrigger
+                    render={
                       <Button
-                        aria-label={
-                          sortDirection === "desc" ? "Descending" : "Ascending"
-                        }
-                        title={
-                          sortDirection === "desc" ? "Descending" : "Ascending"
-                        }
+                        aria-label="Sort and filter songs"
+                        title="Sort and filter"
                         variant="outline"
                         size="icon"
-                        className="rounded-full"
-                        onClick={() =>
-                          setSortDirection(
-                            sortDirection === "asc" ? "desc" : "asc",
-                          )
-                        }
+                        className="rounded-full relative"
                       >
-                        {sortDirection === "asc" ? (
-                          sortBy === "artist" || sortBy === "song" ? (
-                            <ArrowDownAZ />
-                          ) : (
-                            <ArrowDown01 />
-                          )
-                        ) : sortBy === "artist" || sortBy === "song" ? (
-                          <ArrowUpZA />
-                        ) : (
-                          <ArrowUp10 />
-                        )}
+                        <SlidersHorizontal />
+
+                        {activeFilterCount > 0 ? (
+                          <Badge className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
+                            {activeFilterCount > 99 ? "99+" : activeFilterCount}
+                          </Badge>
+                        ) : null}
                       </Button>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
+                    }
+                  />
+                  <PopoverContent
+                    align="end"
+                    className="space-y-2 max-h-[calc(100dvh-theme(space.9)-2rem)] overflow-auto"
+                  >
+                    <div className="space-y-2">
                       <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        Instruments
+                        Sort
                       </div>
-                      {selectedInstruments.length > 0 ? (
-                        <Button
-                          type="button"
-                          size="xs"
-                          variant="ghost"
-                          onClick={() => setSelectedInstruments([])}
-                          className="-my-1"
-                        >
-                          Clear
-                        </Button>
-                      ) : null}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {availableInstrumentOptions.map((option) => {
-                        const isSelected = selectedInstruments.includes(
-                          option.value,
-                        );
 
-                        return (
-                          <Toggle
-                            key={option.value}
-                            variant="outline"
-                            size="sm"
-                            pressed={isSelected}
-                            onClick={() => {
-                              setSelectedInstruments((current) =>
-                                current.includes(option.value)
-                                  ? current.filter(
-                                      (value) => value !== option.value,
-                                    )
-                                  : [...current, option.value],
-                              );
-                            }}
+                      <div className="flex gap-2">
+                        <Select
+                          value={sortBy}
+                          onValueChange={(value) =>
+                            setSortBy(value as SortOption)
+                          }
+                        >
+                          <SelectTrigger className="w-full justify-between">
+                            <span>{selectedSortLabel}</span>
+                          </SelectTrigger>
+                          <SelectMenuContent>
+                            <SelectGroup>
+                              {availableSortOptions.map((option) => (
+                                <SelectItem
+                                  key={option.value}
+                                  value={option.value}
+                                >
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectMenuContent>
+                        </Select>
+
+                        <Button
+                          aria-label={
+                            sortDirection === "desc"
+                              ? "Descending"
+                              : "Ascending"
+                          }
+                          title={
+                            sortDirection === "desc"
+                              ? "Descending"
+                              : "Ascending"
+                          }
+                          variant="outline"
+                          size="icon"
+                          className="rounded-full"
+                          onClick={() =>
+                            setSortDirection(
+                              sortDirection === "asc" ? "desc" : "asc",
+                            )
+                          }
+                        >
+                          {sortDirection === "asc" ? (
+                            sortBy === "artist" || sortBy === "song" ? (
+                              <ArrowDownAZ />
+                            ) : (
+                              <ArrowDown01 />
+                            )
+                          ) : sortBy === "artist" || sortBy === "song" ? (
+                            <ArrowUpZA />
+                          ) : (
+                            <ArrowUp10 />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          Instruments
+                        </div>
+                        {selectedInstruments.length > 0 ? (
+                          <Button
+                            type="button"
+                            size="xs"
+                            variant="ghost"
+                            onClick={() => setSelectedInstruments([])}
+                            className="-my-1"
                           >
-                            {option.label}
-                            {isSelected && <X />}
-                          </Toggle>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        Source
+                            Clear
+                          </Button>
+                        ) : null}
                       </div>
-                      {selectedSources.length > 0 ? (
-                        <Button
-                          type="button"
-                          size="xs"
-                          variant="ghost"
-                          onClick={() => setSelectedSources([])}
-                          className="-my-1"
-                        >
-                          Clear
-                        </Button>
-                      ) : null}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {availableSourceOptions.map((option) => {
-                        const isSelected = selectedSources.includes(
-                          option.value,
-                        );
+                      <div className="flex flex-wrap gap-2">
+                        {availableInstrumentOptions.map((option) => {
+                          const isSelected = selectedInstruments.includes(
+                            option.value,
+                          );
 
-                        return (
-                          <Field key={option.value} orientation="horizontal">
-                            <Checkbox
-                              id={`source-filter_${option.value}`}
-                              name={option.value}
-                              checked={isSelected}
-                              onCheckedChange={() => {
-                                setSelectedSources((current) =>
-                                  current.includes(option.value)
-                                    ? current.filter(
-                                        (value) => value !== option.value,
-                                      )
-                                    : [...current, option.value],
-                                );
-                              }}
-                            />
-                            <Label
-                              htmlFor={`source-filter_${option.value}`}
-                              autoFocus={false}
-                              onClick={(event) => {
-                                event.preventDefault();
-                                setSelectedSources((current) =>
+                          return (
+                            <Toggle
+                              key={option.value}
+                              variant="outline"
+                              size="sm"
+                              pressed={isSelected}
+                              onClick={() => {
+                                setSelectedInstruments((current) =>
                                   current.includes(option.value)
                                     ? current.filter(
                                         (value) => value !== option.value,
@@ -1083,242 +978,279 @@ export function YargLibrary() {
                               }}
                             >
                               {option.label}
-                            </Label>
-                          </Field>
-                        );
-                      })}
+                              {isSelected && <X />}
+                            </Toggle>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-          <div className="mx-auto h-dvh max-h-dvh overflow-hidden flex flex-col">
-            <div className="relative min-h-0 flex-1 overflow-hidden">
-              <div
-                ref={parentRef}
-                className="absolute inset-0 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden max-w-4xl mx-auto px-4 sm:px-8"
-                style={{ scrollbarWidth: "none" }}
-              >
-                <div
-                  className="mt-[calc(theme(space.9)+theme(space.4))] sm:mt-[calc(theme(space.9)+theme(space.8))] mb-32"
-                  style={{
-                    height: virtualizer.getTotalSize(),
-                    width: "100%",
-                    position: "relative",
-                  }}
-                >
-                  {virtualizer.getVirtualItems().map((virtualRow) => {
-                    const row = libraryRows[virtualRow.index];
-                    const nextRow = libraryRows[virtualRow.index + 1];
-                    const isLastSongInGroup =
-                      (row.type === "song" || row.type === "unavailable") &&
-                      (!nextRow || nextRow.type === "header");
-                    const rowKey =
-                      row.type === "header"
-                        ? `header:${row.key}`
-                        : row.type === "song"
-                          ? `song:${row.song.id}`
-                          : `unavailable:${row.bookmark.id}`;
 
-                    return (
-                      <div
-                        key={
-                          row.type === "header"
-                            ? row.key
-                            : row.type === "song"
-                              ? (row.song.id ?? virtualRow.index)
-                              : row.bookmark.id
-                        }
-                        data-index={virtualRow.index}
-                        ref={virtualizer.measureElement}
-                        className={`rounded-md ${
-                          highlightedRowKey === rowKey
+                    <Separator />
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          Source
+                        </div>
+                        {selectedSources.length > 0 ? (
+                          <Button
+                            type="button"
+                            size="xs"
+                            variant="ghost"
+                            onClick={() => setSelectedSources([])}
+                            className="-my-1"
+                          >
+                            Clear
+                          </Button>
+                        ) : null}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {availableSourceOptions.map((option) => {
+                          const isSelected = selectedSources.includes(
+                            option.value,
+                          );
+
+                          return (
+                            <Field key={option.value} orientation="horizontal">
+                              <Checkbox
+                                id={`source-filter_${option.value}`}
+                                name={option.value}
+                                checked={isSelected}
+                                onCheckedChange={() => {
+                                  setSelectedSources((current) =>
+                                    current.includes(option.value)
+                                      ? current.filter(
+                                          (value) => value !== option.value,
+                                        )
+                                      : [...current, option.value],
+                                  );
+                                }}
+                              />
+                              <Label
+                                htmlFor={`source-filter_${option.value}`}
+                                autoFocus={false}
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  setSelectedSources((current) =>
+                                    current.includes(option.value)
+                                      ? current.filter(
+                                          (value) => value !== option.value,
+                                        )
+                                      : [...current, option.value],
+                                  );
+                                }}
+                              >
+                                {option.label}
+                              </Label>
+                            </Field>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            <div className="relative min-h-0 flex-1 overflow-hidden">
+              <GroupedVirtuoso
+                ref={virtuosoRef}
+                groupCounts={libraryGroups.map((group) => group.items.length)}
+                className="h-full w-full"
+                style={{ scrollbarWidth: "thin" }}
+                groupContent={(groupIndex) => {
+                  const group = libraryGroups[groupIndex];
+
+                  return group ? (
+                    <div className="max-w-4xl mx-auto px-4 sm:px-8 rounded-full bg-background">
+                      <Button
+                        className={`w-full truncate text-ellipsis ${
+                          highlightedRowKey === `header:${group.key}`
                             ? "animate-[library-highlight_3000ms_linear]"
                             : ""
                         }`}
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          width: "100%",
-                          transform: `translateY(${virtualRow.start}px)`,
-                        }}
+                        variant="secondary"
+                        onClick={() => setIsGroupDialogOpen(true)}
                       >
-                        {row.type === "header" ? (
-                          <Button
-                            className={`w-full ${virtualRow.index === 0 ? "mt-4" : ""}`}
-                            variant="secondary"
-                            onClick={() => setIsGroupDialogOpen(true)}
-                          >
-                            <span className="flex items-center justify-center gap-2 truncate text-ellipsis">
-                              {row.label}
-                            </span>
-                          </Button>
-                        ) : (
-                          <div
-                            className={`mt-4 ${isLastSongInGroup ? "mb-12" : ""}`}
-                          >
-                            <div className="flex items-center gap-2">
-                              {row.type === "unavailable" ? null : (
-                                <div className="flex-none size-8 background-muted rounded-full flex items-center justify-center bg-neutral-800">
-                                  <Popover>
-                                    <PopoverTrigger openOnHover={true}>
-                                      <img
-                                        src={`/yarg/icons/${SOURCE_ICONS[row.song.source] ?? "custom.png"}`}
-                                        alt={
-                                          SOURCE_LABELS[row.song.source] ??
-                                          "Custom/Unknown"
-                                        }
-                                      />
-                                    </PopoverTrigger>
-                                    <PopoverContent
-                                      side="left"
-                                      className="w-auto px-2 py-1 text-sm"
-                                    >
-                                      {SOURCE_LABELS[row.song.source] ??
-                                        "Custom/Unknown"}
-                                    </PopoverContent>
-                                  </Popover>
-                                </div>
-                              )}
+                        <span className="flex items-center justify-center gap-2">
+                          {group.label}
+                        </span>
+                      </Button>
+                    </div>
+                  ) : null;
+                }}
+                computeItemKey={(itemIndex) => {
+                  const row = libraryItems[itemIndex];
 
-                              <div className="flex-grow min-w-0 truncate">
-                                <div className="font-semibold truncate text-ellipsis">
-                                  {row.type === "unavailable"
-                                    ? row.bookmark.name || "Unknown song"
-                                    : row.song.name}
-                                </div>
-                                <div className="text-sm text-muted-foreground truncate text-ellipsis">
-                                  {(
-                                    row.type === "unavailable"
-                                      ? row.bookmark.isMaster
-                                      : row.song.isMaster
-                                  )
-                                    ? " as made famous by "
-                                    : " by "}
-                                  {row.type === "unavailable"
-                                    ? row.bookmark.artist || "Unknown artist"
-                                    : row.song.artist}
-                                </div>
-                                {row.type === "unavailable" ? (
-                                  <div className="text-xs text-muted-foreground">
-                                    No longer available{" "}
-                                    <HintPopover>
-                                      Songs previously bookmarked may appear as
-                                      no longer available if it's been replaced
-                                      by a new version. Try searching for the
-                                      new version and bookmarking it if it's
-                                      available.
-                                    </HintPopover>
-                                  </div>
-                                ) : null}
-                              </div>
+                  return row?.type === "song"
+                    ? (row.song.id ?? itemIndex)
+                    : row?.type === "unavailable"
+                      ? row.bookmark.id
+                      : itemIndex;
+                }}
+                itemContent={(itemIndex, groupIndex) => {
+                  const group = libraryGroups[groupIndex];
+                  const row = libraryItems[itemIndex];
 
-                              <Toggle
-                                aria-label={
-                                  row.type === "unavailable"
-                                    ? `Remove bookmark for ${row.bookmark.name || "unknown song"}`
-                                    : `${bookmarkedSongIds.has(row.song.id) ? "Remove" : "Add"} bookmark for ${row.song.name} ${row.song.isMaster ? "as made famous by" : "by"} ${row.song.artist}`
-                                }
-                                title={
-                                  row.type === "unavailable"
-                                    ? "Remove bookmark"
-                                    : `${bookmarkedSongIds.has(row.song.id) ? "Remove" : "Add"} bookmark for ${row.song.name} ${row.song.isMaster ? "as made famous by" : "by"} ${row.song.artist}`
-                                }
-                                pressed={
-                                  row.type === "unavailable" ||
-                                  bookmarkedSongIds.has(row.song.id)
-                                }
-                                className="flex-none bg-transparent hover:bg-transparent aria-pressed:bg-transparent"
-                                size="sm"
-                                onClick={() => {
-                                  if (row.type === "unavailable") {
-                                    setBookmarks((current) =>
-                                      current.filter(
-                                        (bookmark) =>
-                                          bookmark.id !== row.bookmark.id,
-                                      ),
-                                    );
-                                    return;
-                                  }
+                  if (!group || !row) {
+                    return null;
+                  }
 
-                                  setBookmarks((current) => {
-                                    if (
-                                      current.some(
-                                        (bookmark) =>
-                                          bookmark.id === row.song.id,
-                                      )
-                                    ) {
-                                      return current.filter(
-                                        (bookmark) =>
-                                          bookmark.id !== row.song.id,
-                                      );
+                  const isLastSongInGroup =
+                    itemIndex ===
+                    (groupItemStarts[groupIndex] ?? 0) + group.items.length - 1;
+                  const rowKey =
+                    row.type === "song"
+                      ? `song:${row.song.id}`
+                      : `unavailable:${row.bookmark.id}`;
+
+                  return (
+                    <div
+                      className={`max-w-4xl mx-auto px-4 sm:px-8 rounded-md ${
+                        highlightedRowKey === rowKey
+                          ? "animate-[library-highlight_3000ms_linear]"
+                          : ""
+                      }`}
+                    >
+                      <div
+                        className={`pt-4 ${isLastSongInGroup ? "pb-8" : ""}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {row.type === "unavailable" ? null : (
+                            <div className="flex-none size-8 background-muted rounded-full flex items-center justify-center bg-neutral-800">
+                              <Popover>
+                                <PopoverTrigger openOnHover={true}>
+                                  <img
+                                    src={`/yarg/icons/${SOURCE_ICONS[row.song.source] ?? "custom.png"}`}
+                                    alt={
+                                      SOURCE_LABELS[row.song.source] ??
+                                      "Custom/Unknown"
                                     }
-
-                                    return [
-                                      ...current,
-                                      {
-                                        id: row.song.id,
-                                        name: row.song.name,
-                                        artist: row.song.artist,
-                                        isMaster: row.song.isMaster,
-                                      },
-                                    ];
-                                  });
-                                }}
-                              >
-                                <Bookmark className="group-aria-pressed/toggle:fill-foreground" />
-                              </Toggle>
+                                  />
+                                </PopoverTrigger>
+                                <PopoverContent
+                                  side="left"
+                                  className="w-auto px-2 py-1 text-sm"
+                                >
+                                  {SOURCE_LABELS[row.song.source] ??
+                                    "Custom/Unknown"}
+                                </PopoverContent>
+                              </Popover>
                             </div>
-                            {row.type === "song" ? (
-                              <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
-                                <GuitarDifficulty song={row.song} />
-                                <DrumsDifficulty song={row.song} />
-                                <Guitar2Difficulty song={row.song} />
-                                <VocalsDifficulty song={row.song} />
-                                <KeysDifficulty song={row.song} />
-                                <BandDifficulty song={row.song} />
+                          )}
+
+                          <div className="flex-grow min-w-0 truncate">
+                            <div className="font-semibold truncate text-ellipsis">
+                              {row.type === "unavailable"
+                                ? row.bookmark.name || "Unknown song"
+                                : row.song.name}
+                            </div>
+                            <div className="text-sm text-muted-foreground truncate text-ellipsis">
+                              {(
+                                row.type === "unavailable"
+                                  ? row.bookmark.isMaster
+                                  : row.song.isMaster
+                              )
+                                ? " as made famous by "
+                                : " by "}
+                              {row.type === "unavailable"
+                                ? row.bookmark.artist || "Unknown artist"
+                                : row.song.artist}
+                            </div>
+                            {row.type === "unavailable" ? (
+                              <div className="text-xs text-muted-foreground">
+                                No longer available{" "}
+                                <HintPopover>
+                                  Songs previously bookmarked may appear as no
+                                  longer available if it's been replaced by a
+                                  new version. Try searching for the new version
+                                  and bookmarking it if it's available.
+                                </HintPopover>
                               </div>
                             ) : null}
-                            {isLastSongInGroup ? null : (
-                              <Separator className="mt-4" />
-                            )}
+                          </div>
+
+                          <Toggle
+                            aria-label={
+                              row.type === "unavailable"
+                                ? `Remove bookmark for ${row.bookmark.name || "unknown song"}`
+                                : `${bookmarkedSongIds.has(row.song.id) ? "Remove" : "Add"} bookmark for ${row.song.name} ${row.song.isMaster ? "as made famous by" : "by"} ${row.song.artist}`
+                            }
+                            title={
+                              row.type === "unavailable"
+                                ? "Remove bookmark"
+                                : `${bookmarkedSongIds.has(row.song.id) ? "Remove" : "Add"} bookmark for ${row.song.name} ${row.song.isMaster ? "as made famous by" : "by"} ${row.song.artist}`
+                            }
+                            pressed={
+                              row.type === "unavailable" ||
+                              bookmarkedSongIds.has(row.song.id)
+                            }
+                            className="flex-none bg-transparent hover:bg-transparent aria-pressed:bg-transparent"
+                            size="sm"
+                            onClick={() => {
+                              if (row.type === "unavailable") {
+                                setBookmarks((current) =>
+                                  current.filter(
+                                    (bookmark) =>
+                                      bookmark.id !== row.bookmark.id,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              setBookmarks((current) => {
+                                if (
+                                  current.some(
+                                    (bookmark) => bookmark.id === row.song.id,
+                                  )
+                                ) {
+                                  return current.filter(
+                                    (bookmark) => bookmark.id !== row.song.id,
+                                  );
+                                }
+
+                                return [
+                                  ...current,
+                                  {
+                                    id: row.song.id,
+                                    name: row.song.name,
+                                    artist: row.song.artist,
+                                    isMaster: row.song.isMaster,
+                                  },
+                                ];
+                              });
+                            }}
+                          >
+                            <Bookmark className="group-aria-pressed/toggle:fill-foreground" />
+                          </Toggle>
+                        </div>
+                        {row.type === "song" ? (
+                          <div className="flex flex-wrap gap-x-5 gap-y-2 mt-1">
+                            <GuitarDifficulty song={row.song} />
+                            <DrumsDifficulty song={row.song} />
+                            <Guitar2Difficulty song={row.song} />
+                            <VocalsDifficulty song={row.song} />
+                            <KeysDifficulty song={row.song} />
+                            <BandDifficulty song={row.song} />
+                          </div>
+                        ) : null}
+                        {isLastSongInGroup ? null : (
+                          <div className="pt-4">
+                            <Separator />
                           </div>
                         )}
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
+                    </div>
+                  );
+                }}
+              />
 
-              {libraryRows.length === 0 ? (
+              {libraryGroups.length === 0 ? (
                 <div className="absolute inset-0 flex items-center justify-center px-4 text-center text-sm text-muted-foreground">
                   No songs match your search or filters.
                 </div>
               ) : null}
 
-              {!isLoading &&
-              libraryRows.length > 0 &&
-              (!isAtTop || !isAtBottom) ? (
-                <div className="z-10 ">
-                  {!isAtTop ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="absolute top-[calc(theme(space.9)+theme(space.4)+theme(space.4))] sm:top-[calc(theme(space.9)+theme(space.8)+theme(space.4))]  left-1/2 -translate-x-1/2 bg-background/60 shadow-md backdrop-blur"
-                      onClick={() =>
-                        virtualizer.scrollToIndex(0, { align: "start" })
-                      }
-                    >
-                      <ArrowUpToLine />
-                      Scroll to top
-                    </Button>
-                  ) : null}
-                </div>
-              ) : null}
-
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+              <div className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 flex gap-2">
                 <Toggle
                   variant="outline"
                   className="bg-background/60 shadow-md backdrop-blur"
@@ -1344,7 +1276,10 @@ export function YargLibrary() {
                         ];
 
                       if (randomGroup) {
-                        scrollToRandomRow(randomGroup.index);
+                        virtuosoRef.current?.scrollToIndex({
+                          groupIndex: randomGroup.index,
+                          align: "center",
+                        });
                         setHighlightedRowKey(`header:${randomGroup.key}`);
                       }
 
@@ -1355,16 +1290,19 @@ export function YargLibrary() {
                       filteredSongs[
                         Math.floor(Math.random() * filteredSongs.length)
                       ];
-                    const randomSongIndex = randomSong
-                      ? libraryRows.findIndex(
-                          (row) =>
-                            row.type === "song" &&
-                            row.song.id === randomSong.id,
+                    const randomRowIndex = randomSong
+                      ? libraryItems.findIndex(
+                          (item) =>
+                            item.type === "song" &&
+                            item.song.id === randomSong.id,
                         )
                       : -1;
 
-                    if (randomSongIndex >= 0) {
-                      scrollToRandomRow(randomSongIndex);
+                    if (randomRowIndex >= 0) {
+                      virtuosoRef.current?.scrollToIndex({
+                        index: randomRowIndex,
+                        align: "center",
+                      });
                       setHighlightedRowKey(`song:${randomSong.id}`);
                     }
                   }}
@@ -1386,7 +1324,8 @@ export function YargLibrary() {
                     key={group.key}
                     render={<Button variant="outline" />}
                     onClick={() => {
-                      virtualizer.scrollToIndex(group.index, {
+                      virtuosoRef.current?.scrollToIndex({
+                        groupIndex: group.index,
                         align: "start",
                       });
                     }}
