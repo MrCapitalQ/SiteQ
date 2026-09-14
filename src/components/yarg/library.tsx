@@ -1106,6 +1106,7 @@ export function YargLibrary() {
                   const isLastSongInGroup =
                     itemIndex ===
                     (groupItemStarts[groupIndex] ?? 0) + group.items.length - 1;
+                  const isLastItem = itemIndex === libraryItems.length - 1;
                   const rowKey =
                     row.type === "song"
                       ? `song:${row.song.id}`
@@ -1120,7 +1121,7 @@ export function YargLibrary() {
                       }`}
                     >
                       <div
-                        className={`pt-4 ${isLastSongInGroup ? "pb-8" : ""}`}
+                        className={`pt-4 ${isLastItem ? "pb-24" : isLastSongInGroup ? "pb-8" : ""}`}
                       >
                         <div className="flex items-center gap-2">
                           {row.type === "unavailable" ? null : (
