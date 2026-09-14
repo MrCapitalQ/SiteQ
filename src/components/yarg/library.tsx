@@ -6,6 +6,7 @@ import {
   ArrowUpZA,
   Bookmark,
   Dices,
+  Info,
   SlidersHorizontal,
   X,
 } from "lucide-react";
@@ -1050,6 +1051,13 @@ export function YargLibrary() {
                 </PopoverContent>
               </Popover>
             </div>
+
+            {showBookmarkedOnly ? (
+              <Badge className="mx-auto" variant="secondary">
+                <Info data-icon="inline-start" />
+                Viewing bookmarked songs only
+              </Badge>
+            ) : null}
 
             <div className="relative min-h-0 flex-1 overflow-hidden">
               <GroupedVirtuoso
