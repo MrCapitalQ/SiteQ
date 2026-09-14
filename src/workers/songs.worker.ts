@@ -1,3 +1,4 @@
+import { normalizeSource } from "@/components/yarg/source";
 import Papa from "papaparse";
 
 export interface DifficultyVariation {
@@ -182,7 +183,7 @@ const toLoadedSong = (row: Record<string, string>): Song => {
     guitar2,
     vocals,
     keys,
-    source: row["Source"],
+    source: normalizeSource(row["Source"]),
   };
 };
 
