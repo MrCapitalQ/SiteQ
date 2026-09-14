@@ -307,7 +307,7 @@ function getAlphabetGroup(value: string) {
   }
 
   if (!/[A-Z]/.test(firstCharacter)) {
-    return { key: "#", label: "#" };
+    return { key: "*", label: "*" };
   }
 
   return { key: firstCharacter, label: firstCharacter };
@@ -1311,15 +1311,25 @@ export function YargLibrary() {
           </div>
 
           <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
-            <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
+            <DialogContent className="flex flex-col max-h-[calc(100dvh-theme(space.8))]">
               <DialogHeader>
                 <DialogTitle>Jump to section</DialogTitle>
               </DialogHeader>
-              <div className="grid gap-2">
+              <div className="grid grid-cols-4 gap-2 overflow-auto">
                 {navigationGroups.map((group) => (
                   <DialogClose
                     key={group.key}
-                    render={<Button variant="outline" />}
+                    render={
+                      <Button
+                        variant="outline"
+                        className={
+                          (sortBy !== "artist" && sortBy !== "song") ||
+                          group.key === "unavailable"
+                            ? "col-span-4"
+                            : ""
+                        }
+                      />
+                    }
                     onClick={() => {
                       virtuosoRef.current?.scrollToIndex({
                         groupIndex: group.index,
