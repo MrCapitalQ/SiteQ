@@ -835,140 +835,203 @@ export function YargLibrary() {
         </div>
       ) : (
         <>
-          <div className="mx-auto h-dvh max-h-dvh overflow-hidden flex flex-col">
-            <div className="shrink-0 w-full bg-background/75 shadow-md backdrop-blur mb-2">
-              <div className="w-full max-w-4xl mx-auto p-4 pb-0 sm:p-8 sm:pb-0 flex items-center gap-2">
-                <div className="flex-1 min-w-0">
-                  <Input
-                    type="search"
-                    value={searchTerm}
-                    onChange={(event) => setSearchTerm(event.target.value)}
-                    placeholder="Search songs or artists"
-                    aria-label="Search songs or artists"
-                  />
-                </div>
+          <div className="mx-auto h-dvh max-h-dvh overflow-hidden flex flex-col gap-2">
+            <div className="w-full max-w-4xl mx-auto p-4 pb-0 sm:p-8 sm:pb-0 flex items-center gap-2">
+              <div className="flex-1">
+                <Input
+                  type="search"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder="Search songs or artists"
+                  aria-label="Search songs or artists"
+                />
+              </div>
 
-                <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                  <PopoverTrigger
-                    render={
-                      <Button
-                        aria-label="Sort and filter songs"
-                        title="Sort and filter"
-                        variant="outline"
-                        size="icon"
-                        className="rounded-full relative"
-                      >
-                        <SlidersHorizontal />
+              <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      aria-label="Sort and filter songs"
+                      title="Sort and filter"
+                      variant="outline"
+                      size="icon"
+                      className="relative"
+                    >
+                      <SlidersHorizontal />
 
-                        {activeFilterCount > 0 ? (
-                          <Badge className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
-                            {activeFilterCount > 99 ? "99+" : activeFilterCount}
-                          </Badge>
-                        ) : null}
-                      </Button>
-                    }
-                  />
-                  <PopoverContent
-                    align="end"
-                    className="space-y-2 max-h-[calc(100dvh-theme(space.9)-2rem)] overflow-auto"
-                  >
-                    <div className="space-y-2">
-                      <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        Sort
-                      </div>
-
-                      <div className="flex gap-2">
-                        <Select
-                          value={sortBy}
-                          onValueChange={(value) =>
-                            setSortBy(value as SortOption)
-                          }
-                        >
-                          <SelectTrigger className="w-full justify-between">
-                            <span>{selectedSortLabel}</span>
-                          </SelectTrigger>
-                          <SelectMenuContent>
-                            <SelectGroup>
-                              {availableSortOptions.map((option) => (
-                                <SelectItem
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </SelectMenuContent>
-                        </Select>
-
-                        <Button
-                          aria-label={
-                            sortDirection === "desc"
-                              ? "Descending"
-                              : "Ascending"
-                          }
-                          title={
-                            sortDirection === "desc"
-                              ? "Descending"
-                              : "Ascending"
-                          }
-                          variant="outline"
-                          size="icon"
-                          className="rounded-full"
-                          onClick={() =>
-                            setSortDirection(
-                              sortDirection === "asc" ? "desc" : "asc",
-                            )
-                          }
-                        >
-                          {sortDirection === "asc" ? (
-                            sortBy === "artist" || sortBy === "song" ? (
-                              <ArrowDownAZ />
-                            ) : (
-                              <ArrowDown01 />
-                            )
-                          ) : sortBy === "artist" || sortBy === "song" ? (
-                            <ArrowUpZA />
-                          ) : (
-                            <ArrowUp10 />
-                          )}
-                        </Button>
-                      </div>
+                      {activeFilterCount > 0 ? (
+                        <Badge className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-medium text-primary-foreground">
+                          {activeFilterCount > 99 ? "99+" : activeFilterCount}
+                        </Badge>
+                      ) : null}
+                    </Button>
+                  }
+                />
+                {/* The max height calculation is the available view height,
+                minus the height of the input/button (tailwind spacing 9), minus
+                the top padding of the page (spacing 4 or 8 depending on screen
+                size), minus an additional spacing 4 so it doesn't touch the
+                bottom. */}
+                <PopoverContent
+                  align="end"
+                  className="space-y-2 max-h-[calc(100dvh-theme(space.9)-theme(space.4)-theme(space.4))] sm:max-h-[calc(100dvh-theme(space.9)-theme(space.8)-theme(space.4))] overflow-auto"
+                >
+                  <div className="space-y-2">
+                    <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Sort
                     </div>
 
-                    <Separator />
+                    <div className="flex gap-2">
+                      <Select
+                        value={sortBy}
+                        onValueChange={(value) =>
+                          setSortBy(value as SortOption)
+                        }
+                      >
+                        <SelectTrigger className="w-full justify-between">
+                          <span>{selectedSortLabel}</span>
+                        </SelectTrigger>
+                        <SelectMenuContent>
+                          <SelectGroup>
+                            {availableSortOptions.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectMenuContent>
+                      </Select>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                          Instruments
-                        </div>
-                        {selectedInstruments.length > 0 ? (
-                          <Button
-                            type="button"
-                            size="xs"
-                            variant="ghost"
-                            onClick={() => setSelectedInstruments([])}
-                            className="-my-1"
-                          >
-                            Clear
-                          </Button>
-                        ) : null}
+                      <Button
+                        aria-label={
+                          sortDirection === "desc" ? "Descending" : "Ascending"
+                        }
+                        title={
+                          sortDirection === "desc" ? "Descending" : "Ascending"
+                        }
+                        variant="outline"
+                        size="icon"
+                        className="rounded-full"
+                        onClick={() =>
+                          setSortDirection(
+                            sortDirection === "asc" ? "desc" : "asc",
+                          )
+                        }
+                      >
+                        {sortDirection === "asc" ? (
+                          sortBy === "artist" || sortBy === "song" ? (
+                            <ArrowDownAZ />
+                          ) : (
+                            <ArrowDown01 />
+                          )
+                        ) : sortBy === "artist" || sortBy === "song" ? (
+                          <ArrowUpZA />
+                        ) : (
+                          <ArrowUp10 />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Instruments
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {availableInstrumentOptions.map((option) => {
-                          const isSelected = selectedInstruments.includes(
-                            option.value,
-                          );
+                      {selectedInstruments.length > 0 ? (
+                        <Button
+                          type="button"
+                          size="xs"
+                          variant="ghost"
+                          onClick={() => setSelectedInstruments([])}
+                          className="-my-1"
+                        >
+                          Clear
+                        </Button>
+                      ) : null}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {availableInstrumentOptions.map((option) => {
+                        const isSelected = selectedInstruments.includes(
+                          option.value,
+                        );
 
-                          return (
-                            <Toggle
-                              key={option.value}
-                              variant="outline"
-                              size="sm"
-                              pressed={isSelected}
-                              onClick={() => {
-                                setSelectedInstruments((current) =>
+                        return (
+                          <Toggle
+                            key={option.value}
+                            variant="outline"
+                            size="sm"
+                            pressed={isSelected}
+                            onClick={() => {
+                              setSelectedInstruments((current) =>
+                                current.includes(option.value)
+                                  ? current.filter(
+                                      (value) => value !== option.value,
+                                    )
+                                  : [...current, option.value],
+                              );
+                            }}
+                          >
+                            {option.label}
+                            {isSelected && <X />}
+                          </Toggle>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Source
+                      </div>
+                      {selectedSources.length > 0 ? (
+                        <Button
+                          type="button"
+                          size="xs"
+                          variant="ghost"
+                          onClick={() => setSelectedSources([])}
+                          className="-my-1"
+                        >
+                          Clear
+                        </Button>
+                      ) : null}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {availableSourceOptions.map((option) => {
+                        const isSelected = selectedSources.includes(
+                          option.value,
+                        );
+
+                        return (
+                          <Field key={option.value} orientation="horizontal">
+                            <Checkbox
+                              id={`source-filter_${option.value}`}
+                              name={option.value}
+                              checked={isSelected}
+                              onCheckedChange={() => {
+                                setSelectedSources((current) =>
+                                  current.includes(option.value)
+                                    ? current.filter(
+                                        (value) => value !== option.value,
+                                      )
+                                    : [...current, option.value],
+                                );
+                              }}
+                            />
+                            <Label
+                              htmlFor={`source-filter_${option.value}`}
+                              autoFocus={false}
+                              onClick={(event) => {
+                                event.preventDefault();
+                                setSelectedSources((current) =>
                                   current.includes(option.value)
                                     ? current.filter(
                                         (value) => value !== option.value,
@@ -978,85 +1041,22 @@ export function YargLibrary() {
                               }}
                             >
                               {option.label}
-                              {isSelected && <X />}
-                            </Toggle>
-                          );
-                        })}
-                      </div>
+                            </Label>
+                          </Field>
+                        );
+                      })}
                     </div>
-
-                    <Separator />
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                          Source
-                        </div>
-                        {selectedSources.length > 0 ? (
-                          <Button
-                            type="button"
-                            size="xs"
-                            variant="ghost"
-                            onClick={() => setSelectedSources([])}
-                            className="-my-1"
-                          >
-                            Clear
-                          </Button>
-                        ) : null}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {availableSourceOptions.map((option) => {
-                          const isSelected = selectedSources.includes(
-                            option.value,
-                          );
-
-                          return (
-                            <Field key={option.value} orientation="horizontal">
-                              <Checkbox
-                                id={`source-filter_${option.value}`}
-                                name={option.value}
-                                checked={isSelected}
-                                onCheckedChange={() => {
-                                  setSelectedSources((current) =>
-                                    current.includes(option.value)
-                                      ? current.filter(
-                                          (value) => value !== option.value,
-                                        )
-                                      : [...current, option.value],
-                                  );
-                                }}
-                              />
-                              <Label
-                                htmlFor={`source-filter_${option.value}`}
-                                autoFocus={false}
-                                onClick={(event) => {
-                                  event.preventDefault();
-                                  setSelectedSources((current) =>
-                                    current.includes(option.value)
-                                      ? current.filter(
-                                          (value) => value !== option.value,
-                                        )
-                                      : [...current, option.value],
-                                  );
-                                }}
-                              >
-                                {option.label}
-                              </Label>
-                            </Field>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
+
             <div className="relative min-h-0 flex-1 overflow-hidden">
               <GroupedVirtuoso
                 ref={virtuosoRef}
                 groupCounts={libraryGroups.map((group) => group.items.length)}
                 className="h-full w-full"
-                style={{ scrollbarWidth: "thin" }}
+                style={{ scrollbarGutter: "stable both-edges" }}
                 groupContent={(groupIndex) => {
                   const group = libraryGroups[groupIndex];
 
@@ -1116,7 +1116,7 @@ export function YargLibrary() {
                       >
                         <div className="flex items-center gap-2">
                           {row.type === "unavailable" ? null : (
-                            <div className="flex-none size-8 background-muted rounded-full flex items-center justify-center bg-neutral-800">
+                            <div className="flex-none size-8 background-muted rounded-full flex items-center justify-center bg-neutral-800 -ml-1">
                               <Popover>
                                 <PopoverTrigger openOnHover={true}>
                                   <img
@@ -1127,10 +1127,7 @@ export function YargLibrary() {
                                     }
                                   />
                                 </PopoverTrigger>
-                                <PopoverContent
-                                  side="left"
-                                  className="w-auto px-2 py-1 text-sm"
-                                >
+                                <PopoverContent className="w-auto px-2 py-1 text-sm">
                                   {SOURCE_LABELS[row.song.source] ??
                                     "Custom/Unknown"}
                                 </PopoverContent>
@@ -1253,7 +1250,7 @@ export function YargLibrary() {
               <div className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 flex gap-2">
                 <Toggle
                   variant="outline"
-                  className="bg-background/60 shadow-md backdrop-blur"
+                  className="bg-background/60 backdrop-blur shadow-[0px_0px_16px_4px] shadow-neutral-300 dark:shadow-neutral-900"
                   pressed={showBookmarkedOnly}
                   onClick={() => {
                     setShowBookmarkedOnly((current) => !current);
@@ -1267,7 +1264,7 @@ export function YargLibrary() {
                   title="Random"
                   variant="outline"
                   size="icon"
-                  className="bg-background/60 shadow-md backdrop-blur"
+                  className="bg-background/60 backdrop-blur shadow-[0px_0px_16px_4px] shadow-neutral-300 dark:shadow-neutral-900"
                   onClick={() => {
                     if (sortBy === "artist") {
                       const randomGroup =
